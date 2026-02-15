@@ -14,15 +14,15 @@ export default function Page() {
                 </div>
                 <div className="flex items-center justify-center mt-8">
                     <ClerkLoaded>
-                        <SignUp />
+                        <SignUp signInUrl={"/signin"} />
                     </ClerkLoaded>
                     <ClerkLoading>
                         <Loader2 className="animate-spin text-muted-foreground"></Loader2>
                     </ClerkLoading>
                 </div>
             </div>
-            <div className="h-full bg-blue-600 hidden lg:flex items-center justify-center">
-                <Image src="/logo.svg" height={100} width={100} alt="Logo" />
+            <div className="h-full bg-neutral-700 hidden lg:flex items-center justify-center">
+                <Image src="/icon.svg" height={100} width={100} alt="Logo" />
             </div>
         </div>
     );
