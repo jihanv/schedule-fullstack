@@ -15,6 +15,13 @@
       "when": 1771155628897,
       "tag": "0001_lovely_polaris",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1771159263327,
+      "tag": "0002_greedy_solo",
+      "breakpoints": true
     }
   ]
 }
