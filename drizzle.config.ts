@@ -9,5 +9,5 @@ export default defineConfig({
   out: "./drizzle",
 });
 
-// Generate migration files: npx drizzle-kit generate
-// push to cloud: pnpm drizzle-kit push
+// Generate migration files: drizzle-kit generate
+// push to cloud: pnpm drizzle-kit push --strict --verbose
