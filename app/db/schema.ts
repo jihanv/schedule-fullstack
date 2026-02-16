@@ -21,9 +21,7 @@ export const Users = pgTable(
     accountType: accountTypeEnum("account_type").default("free").notNull(),
     createTs: timestamp("create_ts").defaultNow().notNull(),
   },
-  (t) => ({
-    emailUnique: uniqueIndex("users_email_unique").on(t.email),
-  }),
+  (t) => [uniqueIndex("users_email_unique").on(t.email)],
 );
 
 export const TimePeriod = pgTable("time_period", {
