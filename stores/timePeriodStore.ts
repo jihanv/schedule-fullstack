@@ -1,5 +1,12 @@
 import { create } from "zustand";
-import { startOfDay, isAfter, isBefore, addDays } from "date-fns";
+import {
+  startOfDay,
+  isAfter,
+  isBefore,
+  addDays,
+  min as minDate,
+  max as maxDate,
+} from "date-fns";
 
 type TimePeriodStore = {
   activateNext: boolean;
@@ -9,9 +16,24 @@ type TimePeriodStore = {
 
   endDate: Date | undefined;
   setEndDate: (date: Date | undefined) => void;
+
+  //Holidays
+  showHolidaySelector: boolean;
+  setShowHolidaySelector: () => void;
+
+  holidays: Date[];
+  setHolidays: (dates: Date[]) => void;
+
+  pendingHolidays: Date[];
+  setPendingHolidays: (dates: Date[]) => void;
+
+  commitPendingHolidays: () => void;
+
+  noHolidays: boolean;
+  setNoHolidays: (withoutHoliday: boolean) => void;
 };
 
-export const useTimePeriodStore = create<TimePeriodStore>((set) => ({
+export const useTimePeriodStore = create<TimePeriodStore>((set, get) => ({
   activateNext: false,
   setActivateNext: (activated: boolean) =>
     set(() => ({
@@ -64,4 +86,55 @@ export const useTimePeriodStore = create<TimePeriodStore>((set) => ({
 
       return { endDate: clamped };
     }),
+
+  showHolidaySelector: true,
+  setShowHolidaySelector: () =>
+    set((state) => ({
+      showHolidaySelector: !state.showHolidaySelector,
+    })),
+
+  holidays: [],
+
+  setHolidays: (dates) =>
+    set((state) => {
+      const { startDate, endDate } = state;
+
+      // 1) normalize
+      const normalized = (dates ?? [])
+        .filter(Boolean)
+        .map((d) => startOfDay(d));
+
+      // 2) ensures that even if something outside the range sneaks in (e.g. a user clicks an invalid date in the calendar, or data comes from an import), it will be filtered out
+      const clamped =
+        startDate && endDate
+          ? normalized.filter((d) => {
+              const minD = startOfDay(minDate([startDate, endDate]));
+              const maxD = startOfDay(maxDate([startDate, endDate]));
+              return !isBefore(d, minD) && !isAfter(d, maxD);
+            })
+          : normalized;
+
+      // 3) Make sure you don’t end up with the same holiday multiple times.
+      const unique = Array.from(
+        new Map(clamped.map((d) => [d.getTime(), d])).values(),
+      );
+
+      // 4) sort ascending
+      unique.sort((a, b) => a.getTime() - b.getTime());
+
+      return { holidays: unique };
+    }),
+
+  pendingHolidays: [],
+  setPendingHolidays: (dates) => set({ pendingHolidays: dates }),
+  commitPendingHolidays: () => {
+    const { pendingHolidays, setHolidays } = get();
+    // reuse your existing normalization/dedupe/clamp in setHolidays
+    setHolidays(pendingHolidays);
+  },
+  noHolidays: false,
+  setNoHolidays: (withoutHoliday: boolean) =>
+    set(() => ({
+      noHolidays: withoutHoliday,
+    })),
 }));

@@ -1,6 +1,7 @@
 "use client"
 import PeriodStepNav from "@/components/navigation/period-steps";
 import DateSelector from "@/components/time-period/date-selector";
+import HolidaySelector from "@/components/time-period/hoilday-selector";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/stores/languageStore";
 import { Steps, useNavigationStore } from "@/stores/navigationStore";
@@ -41,6 +42,7 @@ export default function Home() {
                 <PeriodStepNav />
                 <div className="bg-blue-50 ml-45 w-full">
                     {step === 1 && <DateSelector />}
+                    {step === 2 && <HolidaySelector />}
                 </div>
             </div>
 
