@@ -1,13 +1,17 @@
 "use client"
 import PeriodStepNav from "@/components/navigation/period-steps";
+import DateSelector from "@/components/time-period/date-selector";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/stores/languageStore";
 import { Steps, useNavigationStore } from "@/stores/navigationStore";
+import { useTimePeriodStore } from "@/stores/timePeriodStore";
 
 
 export default function Home() {
     const { uiLanguage } = useLanguage();
-    const { step, setSteps, setActivateNext, activateNext } = useNavigationStore();
+    const { step, setSteps, } = useNavigationStore();
+
+    const { setActivateNext, activateNext } = useTimePeriodStore();
     return (
         <>
             <div className="flex flex-row gap-2 justify-center mt-10">
@@ -34,7 +38,9 @@ export default function Home() {
             </div>
             <div className="flex flex-row">
                 <PeriodStepNav />
-                <div className="bg-blue-50 ml-45">hi</div>
+                <div className="bg-blue-50 ml-45 w-full">
+                    {step === 1 && <DateSelector />}
+                </div>
             </div>
 
         </>
