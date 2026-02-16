@@ -6,26 +6,25 @@ import {
     addDays,
     startOfDay,
 } from "date-fns";
-import { useEffect, useState } from 'react';
 import { useTimePeriodStore } from '@/stores/timePeriodStore';
 import { useLanguage } from '@/stores/languageStore';
 import { Button } from '../ui/button';
+import { useActionState, useEffect } from "react";
+import { format } from "date-fns";
+import { saveTimePeriod } from "@/app/actions/save-time-periods";
 
 export default function DateSelector() {
     const { startDate, setStartDate, endDate, setEndDate, setActivateNext } = useTimePeriodStore();
     const { uiLanguage } = useLanguage();
-    const [saved, setSaved] = useState(false)
     const maxEnd = startDate ? startOfDay(addDays(startDate, 183)) : undefined;
-
-    const handleSave = (e?: React.MouseEvent) => {
-        setSaved(true)
-    }
+    const [state, formAction, isPending] = useActionState(saveTimePeriod, { ok: false, error: "" });
 
     useEffect(() => {
-        if (startDate && endDate && saved) {
-            setActivateNext(true)
+        if (state.ok) {
+            setActivateNext(true);
         }
-    }, [startDate, endDate, saved])
+    }, [state.ok, setActivateNext]);
+
     return (
         <>
             <Card>
@@ -40,10 +39,48 @@ export default function DateSelector() {
                     <div className="col-span-1 md:col-span-2 flex items-center gap-2">
                     </div>
                 </CardContent>
-                <Button
-                    disabled={!startDate || !endDate}
-                    onClick={handleSave}
-                    className='w-30 m-auto'>Save</Button>
+                <form
+                    className='flex'
+                    action={formAction}
+                    onSubmit={(e) => {
+                        // client-side guard so we don’t submit empty dates
+                        if (!startDate || !endDate) {
+                            e.preventDefault();
+                        }
+                    }}
+                >
+                    <input
+                        type="hidden"
+                        name="startDate"
+                        value={startDate ? format(startDate, "yyyy-MM-dd") : ""}
+                    />
+                    <input
+                        type="hidden"
+                        name="endDate"
+                        value={endDate ? format(endDate, "yyyy-MM-dd") : ""}
+                    />
+
+                    <Button
+                        type="submit"
+                        disabled={!startDate || !endDate || isPending}
+                        className="w-30 m-auto"
+                    >
+                        {isPending ? "Saving..." : "Save"}
+                    </Button>
+
+                    {/* Show server-side validation/auth/db errors */}
+                    {state.ok === false && state.error && (
+                        <p className="mt-2 text-sm text-red-600">{state.error}</p>
+                    )}
+
+                    {/* Optional: show field-specific validation errors */}
+                    {state.ok === false && state.fieldErrors?.startDate?.length ? (
+                        <p className="mt-1 text-sm text-red-600">{state.fieldErrors.startDate[0]}</p>
+                    ) : null}
+                    {state.ok === false && state.fieldErrors?.endDate?.length ? (
+                        <p className="mt-1 text-sm text-red-600">{state.fieldErrors.endDate[0]}</p>
+                    ) : null}
+                </form>
             </Card>
 
         </>

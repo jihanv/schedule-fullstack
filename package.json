@@ -12,11 +12,14 @@
     "@clerk/nextjs": "^6.37.4",
     "@neondatabase/serverless": "^1.0.2",
     "@ngrok/ngrok": "^1.7.0",
+    "@paralleldrive/cuid2": "^3.3.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "drizzle-orm": "^0.45.1",
+    "drizzle-zod": "^0.8.3",
     "lucide-react": "^0.564.0",
+    "new-schedule": "link:",
     "next": "16.1.6",
     "radix-ui": "^1.4.3",
     "react": "19.2.3",
@@ -24,6 +27,7 @@
     "react-dom": "19.2.3",
     "svix": "^1.85.0",
     "tailwind-merge": "^3.4.0",
+    "zod": "^4.3.6",
     "zustand": "^5.0.11"
   },
   "devDependencies": {

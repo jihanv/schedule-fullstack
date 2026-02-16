@@ -14,6 +14,7 @@ export default function Home() {
     const { setActivateNext, activateNext } = useTimePeriodStore();
     return (
         <>
+
             <div className="flex flex-row gap-2 justify-center mt-10">
                 <Button
                     className="w-24"
