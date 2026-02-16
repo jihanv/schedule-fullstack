@@ -1,11 +1,11 @@
 import { create } from "zustand";
 
 // Types
-type Language = "english" | "japanese";
+export type Language = "english" | "japanese";
 type NavigatorWithUserLanguage = Navigator & { userLanguage?: string };
 
 // Helper functions
-function detectBrowserLanguage(): Language {
+export function detectBrowserLanguage(): Language {
   if (typeof navigator !== "undefined") {
     const nav = navigator as NavigatorWithUserLanguage;
     const lang = nav.language || nav.userLanguage;
@@ -16,7 +16,7 @@ function detectBrowserLanguage(): Language {
   return "english";
 }
 
-export type LanguageStore = {
+type LanguageStore = {
   uiLanguage: Language;
   setUiLanguage: (language: Language) => void;
 };

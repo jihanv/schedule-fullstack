@@ -1,14 +1,15 @@
-import { Button } from '@/components/ui/button'
-import { SignOutButton } from '@clerk/nextjs'
-import React from 'react'
 
+// import { useLanguage } from '@/stores/languageStore'
 
-export default function page() {
+export default function Page() {
+
+    // const { uiLanguage } = useLanguage();
     return (
         <>
-            <div>Anyone Can See</div>
-            <Button asChild><SignOutButton /></Button>
-        </>
 
+            <div>
+
+            </div>
+        </>
     )
 }

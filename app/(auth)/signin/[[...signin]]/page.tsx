@@ -16,7 +16,7 @@ export default function Page() {
                 </div>
                 <div className="flex items-center justify-center mt-8">
                     <ClerkLoaded>
-                        <SignIn signUpUrl={"/signup"} />
+                        <SignIn signUpUrl={"/signup"} forceRedirectUrl="/dashboard" />
                     </ClerkLoaded>
                     <ClerkLoading>
                         <Loader2 className="animate-spin text-muted-foreground"></Loader2>
