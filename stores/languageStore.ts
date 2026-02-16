@@ -22,7 +22,7 @@ type LanguageStore = {
 };
 
 export const useLanguage = create<LanguageStore>((set) => ({
-  uiLanguage: detectBrowserLanguage(),
+  uiLanguage: "english",
   setUiLanguage: (language) => {
     set(() => ({
       uiLanguage: language,

@@ -6,24 +6,26 @@ import {
     addDays,
     startOfDay,
 } from "date-fns";
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTimePeriodStore } from '@/stores/timePeriodStore';
 import { useLanguage } from '@/stores/languageStore';
+import { Button } from '../ui/button';
 
 export default function DateSelector() {
     const { startDate, setStartDate, endDate, setEndDate, setActivateNext } = useTimePeriodStore();
     const { uiLanguage } = useLanguage();
-
+    const [saved, setSaved] = useState(false)
     const maxEnd = startDate ? startOfDay(addDays(startDate, 183)) : undefined;
 
-    // if (startDate && endDate) {
-    //     setActivateNext(true)
-    // }
+    const handleSave = (e?: React.MouseEvent) => {
+        setSaved(true)
+    }
+
     useEffect(() => {
-        if (startDate && endDate) {
+        if (startDate && endDate && saved) {
             setActivateNext(true)
         }
-    }, [startDate, endDate])
+    }, [startDate, endDate, saved])
     return (
         <>
             <Card>
@@ -38,8 +40,14 @@ export default function DateSelector() {
                     <div className="col-span-1 md:col-span-2 flex items-center gap-2">
                     </div>
                 </CardContent>
+                <Button
+                    disabled={!startDate || !endDate}
+                    onClick={handleSave}
+                    className='w-30 m-auto'>Save</Button>
             </Card>
+
         </>
+
 
     )
 }
