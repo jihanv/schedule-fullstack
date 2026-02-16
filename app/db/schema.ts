@@ -7,6 +7,7 @@ import {
   date,
   pgEnum,
   uniqueIndex,
+  boolean,
 } from "drizzle-orm/pg-core";
 
 export const accountTypeEnum = pgEnum("account_type", ["free", "paid"]);
@@ -34,5 +35,6 @@ export const TimePeriod = pgTable("time_period", {
     }),
   startDate: date("start_date").notNull(),
   endDate: date("end_date").notNull(),
+  completed: boolean("completed").default(false).notNull(),
   createTs: timestamp("create_ts").defaultNow().notNull(),
 });
