@@ -1,8 +1,7 @@
 "use client"
 import { useState } from "react";
 import LanguageSelector from "@/components/language/language-input";
-import { Button } from "../ui/button";
-import { SignOutButton } from "@clerk/nextjs";
+
 
 export default function SideBar() {
     const [collapsed, setCollapsed] = useState(false);
@@ -18,7 +17,7 @@ export default function SideBar() {
             )}
             <div
                 className={[
-                    "border-r bg-accent transition-all duration-300 ease-in-out",
+                    "bg-accent transition-all duration-300 ease-in-out",
                     // mobile: overlay drawer
                     !collapsed
                         ? "fixed top-0 left-0 z-50 w-[60%] h-dvh sm:sticky sm:inset-auto sm:z-auto sm:w-60"
@@ -36,10 +35,10 @@ export default function SideBar() {
                     </button>
                 </div>
                 {!collapsed && <LanguageSelector />}
-                {!collapsed &&
+                {/* {!collapsed &&
                     <div className="pl-6 pb-4">
                         <Button asChild><SignOutButton /></Button>
-                    </div>}
+                    </div>} */}
             </div>
         </>
     )
