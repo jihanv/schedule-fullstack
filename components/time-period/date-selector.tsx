@@ -24,7 +24,12 @@ export default function DateSelector() {
             setActivateNext(true);
         }
     }, [state.ok, setActivateNext]);
-
+    const handleSave = (e?: React.MouseEvent) => {
+        e?.preventDefault()
+        if (!startDate || !endDate) return
+        console.log(startDate, endDate)
+        setActivateNext(true)
+    }
     return (
         <>
             <Card>
@@ -60,13 +65,15 @@ export default function DateSelector() {
                         value={endDate ? format(endDate, "yyyy-MM-dd") : ""}
                     />
 
+                    {/* 
                     <Button
                         type="submit"
                         disabled={!startDate || !endDate || isPending}
                         className="w-30 m-auto"
                     >
                         {isPending ? "Saving..." : "Save"}
-                    </Button>
+                    </Button> */}
+                    <Button disabled={!startDate || !endDate} onClick={handleSave} className='w-30 m-auto'>Save</Button>
 
                     {/* Show server-side validation/auth/db errors */}
                     {state.ok === false && state.error && (

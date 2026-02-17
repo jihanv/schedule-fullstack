@@ -180,7 +180,7 @@ export default function HolidaySelector() {
                                 classNames={{
                                     // the container that holds all month calendars
                                     months:
-                                        "flex flex-wrap sm:flex-row justify-between gap-y-8 gap-x-8",
+                                        "flex flex-wrap sm:flex-row justify-center gap-y-8 gap-x-8",
 
                                     // each month: full width on small screens, half (minus the gap) on md+
                                     month: `flex flex-col max-md:basis-full md:basis-[calc(50%-1rem)] md:shrink-0 md:grow-0 gap-4 border border-border rounded-lg p-4 shadow-sm bg-background`,
