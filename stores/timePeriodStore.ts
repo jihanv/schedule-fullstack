@@ -7,10 +7,13 @@ import {
   min as minDate,
   max as maxDate,
 } from "date-fns";
+import { emptySchedule, ScheduleByDay } from "@/lib/constants";
 
 type TimePeriodStore = {
   activateNext: boolean;
   setActivateNext: (activated: boolean) => void;
+
+  //Date
   startDate: Date | undefined;
   setStartDate: (date: Date | undefined) => void;
 
@@ -31,6 +34,14 @@ type TimePeriodStore = {
 
   noHolidays: boolean;
   setNoHolidays: (withoutHoliday: boolean) => void;
+
+  //Section names
+  sections: string[];
+  addSections: (section: string) => boolean;
+  removeSection: (section: string) => void;
+
+  //
+  schedule: ScheduleByDay;
 };
 
 export const useTimePeriodStore = create<TimePeriodStore>((set, get) => ({
@@ -137,4 +148,40 @@ export const useTimePeriodStore = create<TimePeriodStore>((set, get) => ({
     set(() => ({
       noHolidays: withoutHoliday,
     })),
+
+  sections: [],
+  addSections: (section) => {
+    const s = section.trim();
+    const { sections } = get();
+    if (!s || sections.includes(s) || sections.length >= 10) return false;
+    set({ sections: [...sections, s] });
+    return true;
+  },
+  removeSection: (section) =>
+    set((state) => {
+      const nextSections = state.sections.filter((s) => s !== section);
+
+      // scrub this section from every day/period cell
+      const nextSchedule = { ...state.schedule };
+      for (const day of Object.keys(
+        nextSchedule,
+      ) as (keyof typeof nextSchedule)[]) {
+        const dayMap = { ...(nextSchedule[day] ?? {}) };
+        for (const p of Object.keys(dayMap)) {
+          if (dayMap[Number(p)] === section) delete dayMap[Number(p)];
+        }
+        nextSchedule[day] = dayMap;
+      }
+
+      // if no sections left → full reset
+      if (nextSections.length === 0) {
+        return {
+          sections: [],
+          schedule: emptySchedule(),
+        };
+      }
+
+      return { sections: nextSections, schedule: nextSchedule };
+    }),
+  schedule: emptySchedule(),
 }));

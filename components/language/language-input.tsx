@@ -1,5 +1,5 @@
 "use client";
-import { detectBrowserLanguage, Language, useLanguage } from '@/stores/languageStore'
+import { Language, useLanguage } from '@/stores/languageStore'
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEffect } from 'react';
 
