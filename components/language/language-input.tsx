@@ -9,10 +9,10 @@ function isLanguage(value: string): value is Language {
 
 
 export default function LanguageInput() {
-    const { uiLanguage, setUiLanguage } = useLanguage();
+    const { uiLanguage, setUiLanguage, initUiLanguage } = useLanguage();
     useEffect(() => {
-        setUiLanguage(detectBrowserLanguage());
-    }, [setUiLanguage]);
+        initUiLanguage();
+    }, [initUiLanguage]);
     return (
         <>
             <div className="pl-6 pb-4">
