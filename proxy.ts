@@ -1,16 +1,27 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import createIntlMiddleware from "next-intl/middleware";
-import { NextResponse } from "next/server";
-import { hasLocale } from "next-intl";
+import { NextResponse, type NextRequest } from "next/server";
 
-// ✅ adjust path if needed
-import { routing } from "./i18n/routing";
+const locales = ["en", "ja"] as const;
+type Locale = (typeof locales)[number];
+const defaultLocale: Locale = "en";
 
-// next-intl middleware
-const handleI18nRouting = createIntlMiddleware(routing);
+// next-intl uses a cookie called NEXT_LOCALE to remember user choice :contentReference[oaicite:1]{index=1}
+const LOCALE_COOKIE = "NEXT_LOCALE";
 
-// IMPORTANT: if your routes are now under /en and /ja,
-// your public routes should include the locale segment.
+function detectLocale(req: NextRequest): Locale {
+  // 1) cookie (user preference)
+  const cookieLocale = req.cookies.get(LOCALE_COOKIE)?.value;
+  if (cookieLocale === "en" || cookieLocale === "ja") return cookieLocale;
+
+  // 2) Accept-Language header (first visit)
+  const accept = req.headers.get("accept-language") || "";
+  if (accept.toLowerCase().includes("ja")) return "ja";
+
+  // 3) fallback
+  return defaultLocale;
+}
+
+// IMPORTANT: auth pages are public, now locale-prefixed
 const isPublicRoute = createRouteMatcher([
   "/:locale/signin(.*)",
   "/:locale/signup(.*)",
@@ -20,27 +31,27 @@ const isPublicRoute = createRouteMatcher([
 export default clerkMiddleware(async (auth, req) => {
   const { pathname } = req.nextUrl;
 
-  // Skip next-intl for API routes (but still let Clerk run)
-  const isApi = pathname.startsWith("/api") || pathname.startsWith("/trpc");
+  // Redirect "/" -> "/{locale}/signin"
+  if (pathname === "/") {
+    const locale = detectLocale(req);
+    return NextResponse.redirect(new URL(`/${locale}/signin`, req.url));
+  }
 
-  // Figure out locale from the URL so unauthenticated redirects go to the right language
-  const firstSegment = pathname.split("/")[1]; // e.g. "en" in "/en/..."
-  const locale = hasLocale(routing.locales, firstSegment)
-    ? firstSegment
-    : routing.defaultLocale;
+  // Optional: if someone hits "/signin" or "/signup" without locale, redirect them
+  if (pathname === "/signin" || pathname === "/signup") {
+    const locale = detectLocale(req);
+    return NextResponse.redirect(new URL(`/${locale}${pathname}`, req.url));
+  }
 
+  // Protect everything except public routes
   if (!isPublicRoute(req)) {
+    const locale = detectLocale(req);
     await auth.protect({
       unauthenticatedUrl: new URL(`/${locale}/signin`, req.url).toString(),
     });
   }
 
-  if (isApi) {
-    return NextResponse.next();
-  }
-
-  // Run next-intl routing (redirects/rewrites/locale cookie)
-  return handleI18nRouting(req);
+  return NextResponse.next();
 });
 
 export const config = {
