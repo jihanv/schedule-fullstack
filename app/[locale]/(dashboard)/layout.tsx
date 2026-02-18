@@ -15,7 +15,7 @@ export default function Layout({
                 <HeaderAuth />
                 <div className="flex flex-row">
 
-                    {/* <SideBar /> */}
+                    <SideBar />
                     <main className="flex-1 ">
                         <div className="w-full px-6 mx-auto lg:w-[80%] bg-red-100 ">
                             {children}

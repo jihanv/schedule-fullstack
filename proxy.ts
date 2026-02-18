@@ -1,6 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse, type NextRequest } from "next/server";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const locales = ["en", "ja"] as const;
 type Locale = (typeof locales)[number];
 const defaultLocale: Locale = "en";
