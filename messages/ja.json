@@ -1,6 +1,24 @@
 {
-  "Home": {
+  "Nav": {
     "previous": "戻る",
     "next": "次へ"
+  },
+  "DateSelector": {
+    "title": "日付範囲",
+    "description": "開始日と終了日を選択してください。",
+    "startDateLabel": "開始日",
+    "endDateLabel": "終了日",
+    "selectDate": "日付を選択"
+  },
+  "Common": {
+    "save": "保存",
+    "saving": "保存中..."
+  },
+    "Steps": {
+    "1": "日付を選択",
+    "2": "祝日を選択",
+    "3": "組を追加",
+    "4": "時限を選択",
+    "5": "時間割を表示"
   }
 }

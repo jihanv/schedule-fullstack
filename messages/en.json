@@ -1,6 +1,24 @@
 {
-  "Home": {
+  "Nav": {
     "previous": "Previous",
     "next": "Next"
+  },
+  "DateSelector": {
+    "title": "Date range",
+    "description": "Choose the start and end dates for your class run.",
+    "startDateLabel": "Start date",
+    "endDateLabel": "End date",
+    "selectDate": "Select date"
+  },
+  "Common": {
+    "save": "Save",
+    "saving": "Saving..."
+  },
+    "Steps": {
+    "1": "Select Dates",
+    "2": "Select Holidays",
+    "3": "Add Sections",
+    "4": "Select Periods",
+    "5": "Show Schedule"
   }
 }
