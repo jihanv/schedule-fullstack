@@ -35,5 +35,16 @@
     "clearAll": "すべてクリア",
     "noHolidaysToAdd": "追加する休日はありません",
     "removeHolidayAria": "祝日を削除"
+  },
+  "SectionNameInput": {
+    "title": "担当しているクラスをすべて書いてください",
+    "placeholder": "例： 数学IIB５ー３組",
+    "addButton": "組を追加",
+    "instructions": "1つずつ、または複数をカンマで区切って入力してください。\n例：\n・1つずつ入力する場合：「数学IIB５ー３組」\n・複数入力する場合：「英表II５ー３組、英表II５ー４組」\n\n※「組を追加」ボタンを押したあとでも、必要に応じてクラスを追加・修正できます。\n※ クラスを削除するには、追加したクラス名の右側にある「×」をクリックしてください。",
+    "feedback": {
+      "addedOnly": "{count}件のクラスを追加しました：{names}",
+      "addedAndSkipped": "{addedCount}件追加：{addedNames} ・ 重複または上限で{skippedCount}件スキップ：{skippedNames}",
+      "skippedOnly": "新しいクラスは追加されませんでした。重複または上限で{skippedCount}件スキップ：{skippedNames}"
+    }
   }
 }

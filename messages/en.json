@@ -35,5 +35,16 @@
     "clearAll": "Clear all",
     "noHolidaysToAdd": "No holidays to add",
     "removeHolidayAria": "Remove holiday"
+  },
+    "SectionNameInput": {
+    "title": "Write Your Classes",
+    "placeholder": "e.g. English 6-1",
+    "addButton": "Add Sections",
+    "instructions": "Please enter them one at a time, or enter multiple items separated by commas.\nExamples:\n・If entering one at a time: “Mathematics IIB 5-3 Class”\n・If entering multiple: “English Expression II 5-3 Class, English Expression II 5-4 Class”\n\n※ Even after you click the “Add class” button, you can add or edit classes as needed.\n※ To delete a class, click the “×” on the right side of the class tag (e.g., 英表II 5−3組) shown below the input field.",
+    "feedback": {
+      "addedOnly": "Added {count, plural, one {# section} other {# sections}}: {names}",
+      "addedAndSkipped": "Added {addedCount}: {addedNames} · Skipped {skippedCount} (duplicates or limit): {skippedNames}",
+      "skippedOnly": "No new sections added. Skipped {skippedCount} (duplicates or limit): {skippedNames}"
+    }
   }
 }
