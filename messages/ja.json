@@ -20,5 +20,20 @@
     "3": "組を追加",
     "4": "時限を選択",
     "5": "時間割を表示"
+  },
+   "HolidaySelector": {
+    "title": "祝日",
+    "description": "国を選択し「祝日を自動追加」をクリックすると、期間内の国民の祝日を自動で追加できます。追加後、学校行事による休講日（例：文化祭・体育祭・入試 など）もカレンダー上で選択してください。",
+    "countryLabel": "国",
+    "countries": {
+      "US": "アメリカ",
+      "JP": "日本",
+      "CA": "カナダ"
+    },
+    "addNationalHolidays": "祝日を自動追加",
+    "adding": "追加中…",
+    "clearAll": "すべてクリア",
+    "noHolidaysToAdd": "追加する休日はありません",
+    "removeHolidayAria": "祝日を削除"
   }
 }

@@ -20,5 +20,20 @@
     "3": "Add Sections",
     "4": "Select Periods",
     "5": "Show Schedule"
+  },
+  "HolidaySelector": {
+    "title": "Holidays",
+    "description": "Select a country and click “Automatically add public holidays” to automatically add the national public holidays within the selected period. After adding them, please also select any school event closure days (e.g., school festival, sports day, entrance exams, etc.) on the calendar.",
+    "countryLabel": "Country",
+    "countries": {
+      "US": "United States of America",
+      "JP": "Japan",
+      "CA": "Canada"
+    },
+    "addNationalHolidays": "Add national holidays",
+    "adding": "Adding…",
+    "clearAll": "Clear all",
+    "noHolidaysToAdd": "No holidays to add",
+    "removeHolidayAria": "Remove holiday"
   }
 }
