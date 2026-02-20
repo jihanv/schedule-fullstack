@@ -64,5 +64,57 @@
     "edit": "Edit",
     "drawerTitle": "{day} / Period {period}",
     "clear": "Clear"
+  },
+  "MeetingList": {
+    "title": "Lessons",
+    "viewAllDates": "View all {count, plural, one {# class date} other {# class dates}}",
+    "emptySection": "No meetings for this section.",
+    "sectionHeading": "{section} Lessons",
+    "lessonNumber": "Lesson {number}"
+  },
+  "WeeklyTables": {
+    "title": "Weekly Timetables (Preview)",
+    "weekSubtitle": "Week of {date} · Mon–Sat",
+    "periodHeader": "Period",
+    "holiday": "Holiday",
+    "periodLabelShort": "{period}",
+    "holidayClassPlaceholder": "Class —",
+    "meetingLabel": "Meeting {count}"
+  },
+  "CompleteSchedule": {
+    "title": "Complete Schedule",
+    "showSchedule": "Show Schedule",
+    "weeklyScheduleDialogTitle": "Weekly Schedule"
+  },
+  "ExportExcel": {
+    "button": "Export Excel (All Weeks)",
+    "alerts": {
+      "missingDates": "Pick a start and end date first."
+    },
+    "workbook": {
+      "sheetName": "Schedule"
+    },
+    "download": {
+      "filename": "schedule.xlsx"
+    },
+    "headers": {
+      "weekTitle": "Weekly Timetable (Week of {date})",
+      "period": "Period",
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat"
+    },
+    "labels": {
+      "holiday": "Holiday"
+    },
+    "cells": {
+      "periodLabel": "{period}",
+      "periodLine": "Period {period}",
+      "meetingLine": "Meeting {count}",
+      "holidayLine": "{periodLabel} — {holiday}"
+    }
   }
 }

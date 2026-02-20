@@ -49,6 +49,10 @@ type TimePeriodStore = {
   clearPeriod: (day: WeekdayKey, period: number) => void;
   //
   schedule: ScheduleByDay;
+
+  // Information Display
+  showWeeklyPreview: boolean;
+  setShowWeeklyPreview: (value: boolean) => void;
 };
 
 export const useTimePeriodStore = create<TimePeriodStore>((set, get) => ({
@@ -220,4 +224,6 @@ export const useTimePeriodStore = create<TimePeriodStore>((set, get) => ({
       delete dayMap[period];
       return { schedule: { ...state.schedule, [day]: dayMap } };
     }),
+  showWeeklyPreview: false,
+  setShowWeeklyPreview: (value) => set({ showWeeklyPreview: value }),
 }));

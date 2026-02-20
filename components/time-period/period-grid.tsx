@@ -29,7 +29,7 @@ export default function PeriodGrid() {
 
     useEffect(() => {
         setActivateNext(hasAny); // false when empty, true otherwise
-    }, [hasAny]);
+    }, [hasAny, setActivateNext]);
 
     return (
         <div className="rounded-2xl border bg-card">

@@ -64,5 +64,57 @@
     "edit": "変更",
     "drawerTitle": "{day} / 時限 {period}",
     "clear": "クリア"
+  },
+  "MeetingList": {
+    "title": "レッスン",
+    "viewAllDates": "全 {count} 回の日程を見る",
+    "emptySection": "このクラスのレッスンはありません。",
+    "sectionHeading": "{section} レッスン",
+    "lessonNumber": "レッスン {number}"
+  },
+  "WeeklyTables": {
+    "title": "週間時間割（プレビュー）",
+    "weekSubtitle": "{date} の週 · 月〜土",
+    "periodHeader": "時限",
+    "holiday": "祝日",
+    "periodLabelShort": "{period}限",
+    "holidayClassPlaceholder": "第—回",
+    "meetingLabel": "第{count}回"
+  },
+  "CompleteSchedule": {
+    "title": "全体スケジュール",
+    "showSchedule": "時間割を表示",
+    "weeklyScheduleDialogTitle": "週間時間割"
+  },
+  "ExportExcel": {
+    "button": "Excelを出力（全週）",
+    "alerts": {
+      "missingDates": "先に開始日と終了日を選択してください。"
+    },
+    "workbook": {
+      "sheetName": "時間割"
+    },
+    "download": {
+      "filename": "時間割.xlsx"
+    },
+    "headers": {
+      "weekTitle": "週間時間割（{date}の週）",
+      "period": "時限",
+      "mon": "月",
+      "tue": "火",
+      "wed": "水",
+      "thu": "木",
+      "fri": "金",
+      "sat": "土"
+    },
+    "labels": {
+      "holiday": "祝日"
+    },
+    "cells": {
+      "periodLabel": "{period}限",
+      "periodLine": "{period}限",
+      "meetingLine": "第{count}回",
+      "holidayLine": "{periodLabel} — {holiday}"
+    }
   }
 }
