@@ -20,6 +20,7 @@ export default function DateSelector() {
   const { startDate, setStartDate, endDate, setEndDate, setActivateNext } =
     useTimePeriodStore();
   const maxEnd = startDate ? startOfDay(addDays(startDate, 183)) : undefined;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [state, formAction, isPending] = useActionState(saveTimePeriod, {
     ok: false,
     error: "",

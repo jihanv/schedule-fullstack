@@ -6,6 +6,7 @@ import { X } from "lucide-react";
 import { BADGE_COLORS } from "@/lib/constants";
 import { useTimePeriodStore } from "@/stores/timePeriodStore";
 import { useTranslations } from "next-intl";
+import { Card } from "@/components/ui/card";
 
 export default function SectionNameInput() {
   const { sections, addSections, removeSection, setActivateNext } =
@@ -94,64 +95,65 @@ export default function SectionNameInput() {
   };
   return (
     <>
-      <div className="flex flex-col p-4 gap-4">
-        {" "}
-        <>
-          <h1>{t("title")}</h1>
-          <form onSubmit={handleSubmit} className="space-y-5 ">
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Input
-                type="text"
-                className="w-full"
-                value={newSection}
-                onChange={(e) => setNewSection(e.target.value)}
-                placeholder={t("placeholder")}
-              />
-              <Button
-                className="mt-auto"
-                type="submit"
-                disabled={!newSection.trim()}
-                onClick={handleAdd}
-              >
-                {t("addButton")}
-              </Button>
-            </div>
-
-            <p className="text-lg text-muted-foreground whitespace-pre-line">
-              {t("instructions")}
-            </p>
-          </form>
-          {/* Badges area */}
-          <div className="mt-2 min-h-10 max-h-30 overflow-auto">
-            <div className="flex flex-wrap gap-2">
-              {sections.map((s, i) => (
-                <span
-                  key={s}
-                  className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
-                    BADGE_COLORS[i % BADGE_COLORS.length]
-                  }`}
+      <Card>
+        <div className="flex flex-col p-4 gap-4">
+          {" "}
+          <>
+            <h1>{t("title")}</h1>
+            <form onSubmit={handleSubmit} className="space-y-5 ">
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Input
+                  type="text"
+                  className="w-full"
+                  value={newSection}
+                  onChange={(e) => setNewSection(e.target.value)}
+                  placeholder={t("placeholder")}
+                />
+                <Button
+                  className="mt-auto"
+                  type="submit"
+                  disabled={!newSection.trim()}
+                  onClick={handleAdd}
                 >
-                  {s}
-                  <button
-                    onClick={() => removeSection(s)}
-                    className="hover:text-red-600 focus:outline-none"
+                  {t("addButton")}
+                </Button>
+              </div>
+
+              <p className="text-lg text-muted-foreground whitespace-pre-line">
+                {t("instructions")}
+              </p>
+            </form>
+            {/* Badges area */}
+            <div className="mt-2 min-h-10 max-h-30 overflow-auto">
+              <div className="flex flex-wrap gap-2">
+                {sections.map((s, i) => (
+                  <span
+                    key={s}
+                    className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${BADGE_COLORS[i % BADGE_COLORS.length]
+                      }`}
                   >
-                    <X size={14} />
-                  </button>
-                </span>
-              ))}
-              <div
-                className={`mt-2 text-sm text-muted-foreground transition-opacity duration-500 ${
-                  fading ? "opacity-0" : "opacity-100"
-                } motion-reduce:transition-none motion-reduce:duration-0`}
-                aria-live="polite"
-              >
-                {feedback ?? ""}
+                    {s}
+                    <button
+                      onClick={() => removeSection(s)}
+                      className="hover:text-red-600 focus:outline-none"
+                    >
+                      <X size={14} />
+                    </button>
+                  </span>
+                ))}
+                <div
+                  className={`mt-2 text-sm text-muted-foreground transition-opacity duration-500 ${fading ? "opacity-0" : "opacity-100"
+                    } motion-reduce:transition-none motion-reduce:duration-0`}
+                  aria-live="polite"
+                >
+                  {feedback ?? ""}
+                </div>
               </div>
             </div>
-          </div>
-        </>
-      </div>
+          </>
+        </div>
+      </Card>
+
     </>
   );
 }

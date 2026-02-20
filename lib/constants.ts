@@ -11,6 +11,28 @@ export const BADGE_COLORS = [
   "bg-orange-100 text-orange-700",
 ];
 
+export const PERIODS = [1, 2, 3, 4, 5, 6, 7];
+
+export const WEEKDAY_LABELS = {
+  en: {
+    Mon: "Mon",
+    Tue: "Tue",
+    Wed: "Wed",
+    Thu: "Thu",
+    Fri: "Fri",
+    Sat: "Sat",
+    Sun: "Sun",
+  },
+  ja: {
+    Mon: "月",
+    Tue: "火",
+    Wed: "水",
+    Thu: "木",
+    Fri: "金",
+    Sat: "土",
+    Sun: "日",
+  },
+} as const;
 export const emptySchedule = (): ScheduleByDay => ({
   Mon: {},
   Tue: {},

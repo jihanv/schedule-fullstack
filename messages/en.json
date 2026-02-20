@@ -14,7 +14,7 @@
     "save": "Save",
     "saving": "Saving..."
   },
-    "Steps": {
+  "Steps": {
     "1": "Select Dates",
     "2": "Select Holidays",
     "3": "Add Sections",
@@ -36,7 +36,7 @@
     "noHolidaysToAdd": "No holidays to add",
     "removeHolidayAria": "Remove holiday"
   },
-    "SectionNameInput": {
+  "SectionNameInput": {
     "title": "Write Your Classes",
     "placeholder": "e.g. English 6-1",
     "addButton": "Add Sections",
@@ -46,5 +46,23 @@
       "addedAndSkipped": "Added {addedCount}: {addedNames} · Skipped {skippedCount} (duplicates or limit): {skippedNames}",
       "skippedOnly": "No new sections added. Skipped {skippedCount} (duplicates or limit): {skippedNames}"
     }
+  },
+  "PeriodSelector": {
+    "title": "Weekly periods",
+    "description": "Choose which periods meet on which weekdays."
+  },
+  "SectionPopover": {
+    "ariaLabel": "Select {day} period {period}",
+    "placeholder": "placeholder",
+    "empty": "No sections. Add some first.",
+    "sectionsHeading": "Sections",
+    "clear": "Clear"
+  },
+  "PeriodGridMobile": {
+    "periodLabel": "Period {period}",
+    "notSet": "Not set",
+    "edit": "Edit",
+    "drawerTitle": "{day} / Period {period}",
+    "clear": "Clear"
   }
 }

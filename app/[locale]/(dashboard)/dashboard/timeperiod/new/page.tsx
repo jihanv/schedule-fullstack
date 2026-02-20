@@ -2,6 +2,7 @@
 import PeriodStepNav from "@/components/navigation/period-steps";
 import DateSelector from "@/components/time-period/date-selector";
 import HolidaySelector from "@/components/time-period/holiday-selector";
+import PeriodSelector from "@/components/time-period/period-selector";
 import SectionNameInput from "@/components/time-period/SectionClassInput";
 import { Button } from "@/components/ui/button";
 import { Steps, useNavigationStore } from "@/stores/navigationStore";
@@ -43,6 +44,7 @@ export default function Home() {
           {step === 1 && <DateSelector />}
           {step === 2 && <HolidaySelector />}
           {step === 3 && <SectionNameInput />}
+          {step === 4 && <PeriodSelector />}
         </div>
       </div>
     </>

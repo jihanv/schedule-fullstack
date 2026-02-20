@@ -7,7 +7,7 @@ import {
   min as minDate,
   max as maxDate,
 } from "date-fns";
-import { emptySchedule, ScheduleByDay } from "@/lib/constants";
+import { emptySchedule, ScheduleByDay, WeekdayKey } from "@/lib/constants";
 
 type TimePeriodStore = {
   activateNext: boolean;
@@ -40,6 +40,13 @@ type TimePeriodStore = {
   addSections: (section: string) => boolean;
   removeSection: (section: string) => void;
 
+  // Periods
+  setSectionForPeriod: (
+    day: WeekdayKey,
+    period: number,
+    section: string | null,
+  ) => void;
+  clearPeriod: (day: WeekdayKey, period: number) => void;
   //
   schedule: ScheduleByDay;
 };
@@ -184,4 +191,33 @@ export const useTimePeriodStore = create<TimePeriodStore>((set, get) => ({
       return { sections: nextSections, schedule: nextSchedule };
     }),
   schedule: emptySchedule(),
+
+  setSectionForPeriod: (day, period, section) =>
+    set((state) => {
+      // optional guard: only allow known sections
+      if (section && !state.sections.includes(section)) {
+        return {}; // ignore invalid section
+      }
+
+      const dayMap = { ...(state.schedule[day] ?? {}) };
+      if (section === null) {
+        delete dayMap[period];
+      } else {
+        dayMap[period] = section;
+      }
+
+      return {
+        schedule: {
+          ...state.schedule,
+          [day]: dayMap,
+        },
+      };
+    }),
+
+  clearPeriod: (day, period) =>
+    set((state) => {
+      const dayMap = { ...(state.schedule[day] ?? {}) };
+      delete dayMap[period];
+      return { schedule: { ...state.schedule, [day]: dayMap } };
+    }),
 }));
