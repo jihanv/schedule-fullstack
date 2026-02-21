@@ -14,10 +14,8 @@ import {
 
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Language } from "@/stores/languageStore";
 type CalendarProps = React.ComponentProps<typeof DayPicker> & {
   buttonVariant?: React.ComponentProps<typeof Button>["variant"];
-  uiLanguage?: Language; // ✅ add this
 };
 
 function Calendar({

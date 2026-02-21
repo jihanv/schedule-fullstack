@@ -100,3 +100,37 @@ export const Lessons = pgTable(
     ),
   ],
 );
+export const holidaySourceEnum = pgEnum("holiday_source", ["manual", "api"]);
+
+export const Holidays = pgTable(
+  "holidays",
+  {
+    holiday_id: text("holiday_id").primaryKey().notNull(),
+
+    period_id: text("period_id")
+      .notNull()
+      .references(() => TimePeriod.period_id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+
+    holidayDate: date("holiday_date").notNull(),
+
+    // Optional label (e.g. "Labor Day", "Coming of Age Day")
+    holidayName: text("holiday_name"),
+
+    // Whether user added it manually or from holiday API import
+    source: holidaySourceEnum("source").default("manual").notNull(),
+
+    // Optional metadata for imported holidays
+    countryCode: text("country_code"),
+
+    createTs: timestamp("create_ts").defaultNow().notNull(),
+  },
+  (t) => [
+    index("holidays_period_id_idx").on(t.period_id),
+
+    // Prevent duplicate holiday dates inside the same time period
+    uniqueIndex("holidays_period_date_unique").on(t.period_id, t.holidayDate),
+  ],
+);
