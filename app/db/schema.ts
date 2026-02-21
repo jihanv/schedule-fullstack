@@ -7,8 +7,8 @@ import {
   date,
   pgEnum,
   uniqueIndex,
-  boolean,
   index,
+  integer,
 } from "drizzle-orm/pg-core";
 
 export const accountTypeEnum = pgEnum("account_type", ["free", "paid"]);
@@ -38,7 +38,6 @@ export const TimePeriod = pgTable(
       }),
     startDate: date("start_date").notNull(),
     endDate: date("end_date").notNull(),
-    completed: boolean("completed").default(false).notNull(),
     createTs: timestamp("create_ts").defaultNow().notNull(),
   },
   (t) => [index("time_period_user_id_idx").on(t.user_id)],
@@ -62,6 +61,42 @@ export const Courses = pgTable(
     uniqueIndex("courses_period_lesson_name_unique").on(
       t.period_id,
       t.courseName,
+    ),
+  ],
+);
+
+export const Lessons = pgTable(
+  "lessons",
+  {
+    lesson_id: text("lesson_id").primaryKey().notNull(),
+
+    course_id: text("course_id")
+      .notNull()
+      .references(() => Courses.course_id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+
+    lessonNumber: integer("lesson_number").notNull(), // 1, 2, 3, ...
+    lessonDate: date("lesson_date").notNull(),
+    timeSlot: integer("time_slot").notNull(), // 1 - 8
+
+    createTs: timestamp("create_ts").defaultNow().notNull(),
+  },
+  (t) => [
+    index("lessons_course_id_idx").on(t.course_id),
+
+    // Prevent duplicate lesson numbers inside the same course
+    uniqueIndex("lessons_course_lesson_number_unique").on(
+      t.course_id,
+      t.lessonNumber,
+    ),
+
+    // Prevent duplicate scheduling inside the same course
+    uniqueIndex("lessons_course_date_slot_unique").on(
+      t.course_id,
+      t.lessonDate,
+      t.timeSlot,
     ),
   ],
 );
