@@ -1,5 +1,4 @@
 /// app/db/schema.ts
-/// app/db/schema.ts
 
 import {
   pgTable,
@@ -9,7 +8,7 @@ import {
   pgEnum,
   uniqueIndex,
   boolean,
-  index, // ✅ added
+  index,
 } from "drizzle-orm/pg-core";
 
 export const accountTypeEnum = pgEnum("account_type", ["free", "paid"]);
@@ -27,39 +26,40 @@ export const Users = pgTable(
   (t) => [uniqueIndex("users_email_unique").on(t.email)],
 );
 
-export const TimePeriod = pgTable("time_period", {
-  period_id: text("period_id").primaryKey().notNull(),
-  user_id: text("user_id")
-    .notNull()
-    .references(() => Users.user_id, {
-      onDelete: "cascade",
-      onUpdate: "cascade",
-    }),
-  startDate: date("start_date").notNull(),
-  endDate: date("end_date").notNull(),
-  completed: boolean("completed").default(false).notNull(),
-  createTs: timestamp("create_ts").defaultNow().notNull(),
-});
+export const TimePeriod = pgTable(
+  "time_period",
+  {
+    period_id: text("period_id").primaryKey().notNull(),
+    user_id: text("user_id")
+      .notNull()
+      .references(() => Users.user_id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    startDate: date("start_date").notNull(),
+    endDate: date("end_date").notNull(),
+    completed: boolean("completed").default(false).notNull(),
+    createTs: timestamp("create_ts").defaultNow().notNull(),
+  },
+  (t) => [index("time_period_user_id_idx").on(t.user_id)],
+);
 
 export const Courses = pgTable(
-  "lessons",
+  "courses",
   {
-    course_id: text("lesson_id").primaryKey().notNull(),
+    course_id: text("course_id").primaryKey().notNull(),
     period_id: text("period_id")
       .notNull()
       .references(() => TimePeriod.period_id, {
         onDelete: "cascade",
         onUpdate: "cascade",
       }),
-    courseName: text("lesson_name").notNull(),
+    courseName: text("course_name").notNull(),
     createTs: timestamp("create_ts").defaultNow().notNull(),
   },
   (t) => [
-    // Fast lookup when opening a time period and loading its class list
-    index("lessons_period_id_idx").on(t.period_id),
-
     // Prevent duplicate class names inside the same time period (optional but recommended)
-    uniqueIndex("lessons_period_lesson_name_unique").on(
+    uniqueIndex("courses_period_lesson_name_unique").on(
       t.period_id,
       t.courseName,
     ),
