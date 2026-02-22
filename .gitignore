@@ -10,6 +10,7 @@
 !.yarn/releases
 !.yarn/versions
 mynotes
+mynotes.txt
 
 # testing
 /coverage

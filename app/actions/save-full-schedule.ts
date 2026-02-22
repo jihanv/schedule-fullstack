@@ -4,7 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import { createId } from "@paralleldrive/cuid2";
 import { z } from "zod";
 import { db } from "@/app/db";
-import { TimePeriod } from "@/app/db/schema";
+import { Holidays, TimePeriod } from "@/app/db/schema";
 
 // YYYY-MM-DD (simple format check)
 const ymdSchema = z
@@ -55,7 +55,7 @@ export async function saveFullSchedule(input: SaveFullScheduleInput) {
   const data = parsed.data;
 
   try {
-    // Step 5: Save only the time period row
+    // Step 5: Save the time period row
     const inserted = await db
       .insert(TimePeriod)
       .values({
@@ -66,10 +66,33 @@ export async function saveFullSchedule(input: SaveFullScheduleInput) {
       })
       .returning({ period_id: TimePeriod.period_id });
 
+    const periodId = inserted[0]?.period_id;
+
+    if (!periodId) {
+      throw new Error("Failed to create time period");
+    }
+
+    // Step 6: Save holidays linked to this time period
+    if (data.holidays.length > 0) {
+      await db
+        .insert(Holidays)
+        .values(
+          data.holidays.map((holidayDate) => ({
+            holiday_id: createId(),
+            period_id: periodId,
+            holidayDate,
+          })),
+        )
+        .onConflictDoNothing({
+          // requires unique(period_id, holiday_date) in your schema
+          target: [Holidays.period_id, Holidays.holidayDate],
+        });
+    }
+
     return {
       ok: true as const,
-      message: "Time period saved",
-      period_id: inserted[0].period_id,
+      message: "Time period and holidays saved",
+      period_id: periodId,
       summary: {
         startDate: data.startDate,
         endDate: data.endDate,
