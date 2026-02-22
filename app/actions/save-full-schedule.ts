@@ -4,7 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import { createId } from "@paralleldrive/cuid2";
 import { z } from "zod";
 import { db } from "@/app/db";
-import { Holidays, TimePeriod } from "@/app/db/schema";
+import { Courses, Holidays, TimePeriod } from "@/app/db/schema";
 
 // YYYY-MM-DD (simple format check)
 const ymdSchema = z
@@ -89,24 +89,45 @@ export async function saveFullSchedule(input: SaveFullScheduleInput) {
         });
     }
 
+    // Step 7: Save course/class names (sections) linked to this time period
+    const uniqueSections = Array.from(
+      new Set(data.sections.map((s) => s.trim()).filter((s) => s.length > 0)),
+    );
+
+    if (uniqueSections.length > 0) {
+      await db
+        .insert(Courses)
+        .values(
+          uniqueSections.map((sectionName) => ({
+            course_id: createId(),
+            period_id: periodId,
+            courseName: sectionName,
+          })),
+        )
+        .onConflictDoNothing({
+          // requires unique(period_id, course_name) in your schema
+          target: [Courses.period_id, Courses.courseName],
+        });
+    }
+
     return {
       ok: true as const,
-      message: "Time period and holidays saved",
+      message: "Time period, holidays, and courses saved",
       period_id: periodId,
       summary: {
         startDate: data.startDate,
         endDate: data.endDate,
         holidayCount: data.holidays.length,
-        sectionCount: data.sections.length,
+        sectionCount: uniqueSections.length,
         dayCount: Object.keys(data.schedule).length,
       },
     };
   } catch (error) {
-    console.error("saveFullSchedule failed while saving time period:", error);
+    console.error("saveFullSchedule failed:", error);
 
     return {
       ok: false as const,
-      error: "Failed to save time period",
+      error: "Failed to save schedule data",
     };
   }
 }
