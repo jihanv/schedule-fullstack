@@ -3,8 +3,9 @@
 import { auth } from "@clerk/nextjs/server";
 import { createId } from "@paralleldrive/cuid2";
 import { z } from "zod";
+import { eq } from "drizzle-orm";
 import { db } from "@/app/db";
-import { Courses, Holidays, TimePeriod } from "@/app/db/schema";
+import { Courses, Holidays, Lessons, TimePeriod } from "@/app/db/schema";
 
 // YYYY-MM-DD (simple format check)
 const ymdSchema = z
@@ -234,7 +235,6 @@ export async function saveFullSchedule(input: SaveFullScheduleInput) {
     }
 
     // Step 8: Generate lesson rows in memory (server-side)
-    // We are NOT inserting them yet in this step.
     const generatedLessons = buildGeneratedLessons({
       startDate: data.startDate,
       endDate: data.endDate,
@@ -243,9 +243,45 @@ export async function saveFullSchedule(input: SaveFullScheduleInput) {
       allowedCourseNames: uniqueSections,
     });
 
+    // Step 9: Load saved courses and map courseName -> course_id
+    const savedCourses = await db
+      .select({
+        course_id: Courses.course_id,
+        courseName: Courses.courseName,
+      })
+      .from(Courses)
+      .where(eq(Courses.period_id, periodId));
+
+    const courseIdByName = new Map(
+      savedCourses.map((course) => [course.courseName, course.course_id]),
+    );
+
+    // Convert generated lessons into DB rows (course_id is required)
+    const lessonRows = generatedLessons.map((lesson) => {
+      const courseId = courseIdByName.get(lesson.courseName);
+
+      if (!courseId) {
+        throw new Error(
+          `Could not find saved course_id for course "${lesson.courseName}"`,
+        );
+      }
+
+      return {
+        lesson_id: createId(),
+        course_id: courseId,
+        lessonNumber: lesson.lessonNumber,
+        lessonDate: lesson.lessonDate,
+        timeSlot: lesson.timeSlot,
+      };
+    });
+
+    if (lessonRows.length > 0) {
+      await db.insert(Lessons).values(lessonRows);
+    }
+
     return {
       ok: true as const,
-      message: "Time period, holidays, and courses saved",
+      message: "Time period, holidays, courses, and lessons saved",
       period_id: periodId,
       summary: {
         startDate: data.startDate,
@@ -254,6 +290,7 @@ export async function saveFullSchedule(input: SaveFullScheduleInput) {
         sectionCount: uniqueSections.length,
         dayCount: Object.keys(data.schedule).length,
         generatedLessonCount: generatedLessons.length,
+        savedLessonCount: lessonRows.length,
       },
     };
   } catch (error) {
