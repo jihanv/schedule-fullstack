@@ -1,7 +1,10 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
+import { createId } from "@paralleldrive/cuid2";
 import { z } from "zod";
+import { db } from "@/app/db";
+import { TimePeriod } from "@/app/db/schema";
 
 // YYYY-MM-DD (simple format check)
 const ymdSchema = z
@@ -49,19 +52,38 @@ export async function saveFullSchedule(input: SaveFullScheduleInput) {
     };
   }
 
-  // For now, we are ONLY validating and returning a stub response.
-  // DB transaction will come in the next steps.
   const data = parsed.data;
 
-  return {
-    ok: true as const,
-    message: "Payload validated on server",
-    summary: {
-      startDate: data.startDate,
-      endDate: data.endDate,
-      holidayCount: data.holidays.length,
-      sectionCount: data.sections.length,
-      dayCount: Object.keys(data.schedule).length,
-    },
-  };
+  try {
+    // Step 5: Save only the time period row
+    const inserted = await db
+      .insert(TimePeriod)
+      .values({
+        period_id: createId(),
+        user_id: userId,
+        startDate: data.startDate,
+        endDate: data.endDate,
+      })
+      .returning({ period_id: TimePeriod.period_id });
+
+    return {
+      ok: true as const,
+      message: "Time period saved",
+      period_id: inserted[0].period_id,
+      summary: {
+        startDate: data.startDate,
+        endDate: data.endDate,
+        holidayCount: data.holidays.length,
+        sectionCount: data.sections.length,
+        dayCount: Object.keys(data.schedule).length,
+      },
+    };
+  } catch (error) {
+    console.error("saveFullSchedule failed while saving time period:", error);
+
+    return {
+      ok: false as const,
+      error: "Failed to save time period",
+    };
+  }
 }
