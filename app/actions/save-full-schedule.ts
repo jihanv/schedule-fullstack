@@ -35,6 +35,129 @@ const saveFullScheduleInputSchema = z.object({
 
 type SaveFullScheduleInput = z.infer<typeof saveFullScheduleInputSchema>;
 
+type SchedulePayload = z.infer<typeof scheduleSchema>;
+
+type GeneratedLessonDraft = {
+  courseName: string;
+  lessonNumber: number;
+  lessonDate: string; // YYYY-MM-DD
+  timeSlot: number;
+};
+
+function parseYmdToUtcDate(ymd: string): Date {
+  const [year, month, day] = ymd.split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1, day));
+}
+
+function formatUtcDateToYmd(date: Date): string {
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function addUtcDays(date: Date, days: number): Date {
+  const next = new Date(date.getTime());
+  next.setUTCDate(next.getUTCDate() + days);
+  return next;
+}
+
+function getScheduleDayForDate(
+  schedule: SchedulePayload,
+  date: Date,
+): Record<string, string | null> | null {
+  // Normalize keys once for case-insensitive lookup
+  const scheduleByLower = new Map(
+    Object.entries(schedule).map(([key, value]) => [key.toLowerCase(), value]),
+  );
+
+  const jsDay = date.getUTCDay(); // 0=Sun, 1=Mon, ... 6=Sat
+
+  // Support both short keys (Mon) and full keys (monday)
+  const aliasesByDay: Record<number, string[]> = {
+    0: ["sun", "sunday"],
+    1: ["mon", "monday"],
+    2: ["tue", "tues", "tuesday"],
+    3: ["wed", "wednesday"],
+    4: ["thu", "thur", "thurs", "thursday"],
+    5: ["fri", "friday"],
+    6: ["sat", "saturday"],
+  };
+
+  const aliases = aliasesByDay[jsDay] ?? [];
+
+  for (const alias of aliases) {
+    const found = scheduleByLower.get(alias);
+    if (found) return found;
+  }
+
+  return null;
+}
+
+function buildGeneratedLessons(params: {
+  startDate: string;
+  endDate: string;
+  holidays: string[];
+  schedule: SchedulePayload;
+  allowedCourseNames: string[];
+}): GeneratedLessonDraft[] {
+  const { startDate, endDate, holidays, schedule, allowedCourseNames } = params;
+
+  const start = parseYmdToUtcDate(startDate);
+  const end = parseYmdToUtcDate(endDate);
+
+  const holidaySet = new Set(holidays);
+  const allowedSet = new Set(allowedCourseNames);
+
+  const lessonCounters = new Map<string, number>();
+  const generated: GeneratedLessonDraft[] = [];
+
+  for (
+    let current = start;
+    current.getTime() <= end.getTime();
+    current = addUtcDays(current, 1)
+  ) {
+    const ymd = formatUtcDateToYmd(current);
+
+    // Skip holidays
+    if (holidaySet.has(ymd)) continue;
+
+    // Find schedule row for this weekday (Mon/Tue/etc)
+    const dayPeriods = getScheduleDayForDate(schedule, current);
+    if (!dayPeriods) continue;
+
+    // Process periods in numeric order: 1, 2, 3...
+    const sortedPeriods = Object.entries(dayPeriods).sort(
+      ([a], [b]) => Number(a) - Number(b),
+    );
+
+    for (const [periodKey, sectionName] of sortedPeriods) {
+      if (!sectionName) continue;
+
+      const trimmedName = sectionName.trim();
+      if (!trimmedName) continue;
+
+      // Ignore schedule entries that are not in the saved sections list
+      if (!allowedSet.has(trimmedName)) continue;
+
+      const timeSlot = Number(periodKey);
+      if (!Number.isInteger(timeSlot) || timeSlot <= 0) continue;
+
+      const nextLessonNumber = (lessonCounters.get(trimmedName) ?? 0) + 1;
+      lessonCounters.set(trimmedName, nextLessonNumber);
+
+      generated.push({
+        courseName: trimmedName,
+        lessonNumber: nextLessonNumber,
+        lessonDate: ymd,
+        timeSlot,
+      });
+    }
+  }
+
+  return generated;
+}
+
 export async function saveFullSchedule(input: SaveFullScheduleInput) {
   const { userId } = await auth();
 
@@ -110,6 +233,16 @@ export async function saveFullSchedule(input: SaveFullScheduleInput) {
         });
     }
 
+    // Step 8: Generate lesson rows in memory (server-side)
+    // We are NOT inserting them yet in this step.
+    const generatedLessons = buildGeneratedLessons({
+      startDate: data.startDate,
+      endDate: data.endDate,
+      holidays: data.holidays,
+      schedule: data.schedule,
+      allowedCourseNames: uniqueSections,
+    });
+
     return {
       ok: true as const,
       message: "Time period, holidays, and courses saved",
@@ -120,6 +253,7 @@ export async function saveFullSchedule(input: SaveFullScheduleInput) {
         holidayCount: data.holidays.length,
         sectionCount: uniqueSections.length,
         dayCount: Object.keys(data.schedule).length,
+        generatedLessonCount: generatedLessons.length,
       },
     };
   } catch (error) {
