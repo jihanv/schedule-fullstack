@@ -61,7 +61,7 @@ export default function InformationDisplay() {
         <div className="flex flex-col items-center">
             <div className="flex flex-col sm:w-132.5 items-center p-10 border mt-10">
                 <H1>{t("title")}</H1>
-                <div className="flex flex-col sm:flex-row gap-2 pt-5 sm:justify-center items-center">
+                <div className="flex flex-col gap-2 pt-5 sm:justify-center items-center">
                     <div className="flex flex-col">
                         <Button
                             className="w-55"
