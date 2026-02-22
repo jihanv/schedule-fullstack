@@ -17,7 +17,7 @@ const scheduleSchema = z.record(
   ),
 );
 
-export const saveFullScheduleInputSchema = z.object({
+const saveFullScheduleInputSchema = z.object({
   startDate: ymdSchema,
   endDate: ymdSchema,
 
@@ -30,7 +30,7 @@ export const saveFullScheduleInputSchema = z.object({
   schedule: scheduleSchema,
 });
 
-export type SaveFullScheduleInput = z.infer<typeof saveFullScheduleInputSchema>;
+type SaveFullScheduleInput = z.infer<typeof saveFullScheduleInputSchema>;
 
 export async function saveFullSchedule(input: SaveFullScheduleInput) {
   const { userId } = await auth();

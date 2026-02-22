@@ -14,7 +14,7 @@ import H1 from "@/components/format/h1";
 import { useTimePeriodStore } from "@/stores/timePeriodStore";
 import { useLocale, useTranslations } from "next-intl";
 import ExportExcelButtonJa from "@/components/time-period/excel-jp-btn"
-// import WeeklyTablesJa from "./weekly-tables-jp";
+import { saveFullSchedule } from "@/app/actions/save-full-schedule";
 
 export default function InformationDisplay() {
     const showWeeklyPreview = useTimePeriodStore((s) => s.showWeeklyPreview);
@@ -33,29 +33,54 @@ export default function InformationDisplay() {
         return `${year}-${month}-${day}`;
     };
 
-    const handleSaveClick = () => {
-        // 1) Make sure pending holiday edits are applied
-        commitPendingHolidays();
+    // Convert Zustand schedule shape into server payload shape:
+    // - period keys become strings
+    // - empty slots become null (not undefined)
+    const normalizeScheduleForSave = (schedule: Record<string, Record<number, string | undefined>>) => {
+        const normalized: Record<string, Record<string, string | null>> = {};
 
-        // 2) Read the freshest Zustand state after commit
-        const snapshot = useTimePeriodStore.getState();
+        for (const [dayKey, periods] of Object.entries(schedule)) {
+            normalized[dayKey] = {};
 
-        if (!snapshot.startDate || !snapshot.endDate) {
-            console.error("Cannot save: missing start/end date");
-            return;
+            for (const [periodKey, sectionName] of Object.entries(periods)) {
+                normalized[dayKey][String(periodKey)] = sectionName ?? null;
+            }
         }
 
-        // 3) Build the payload we will later send to the server
-        const payload = {
-            startDate: toYmd(snapshot.startDate),
-            endDate: toYmd(snapshot.endDate),
-            holidays: snapshot.holidays.map(toYmd),
-            sections: snapshot.sections,
-            schedule: snapshot.schedule,
-        };
+        return normalized;
+    };
+    const handleSaveClick = async () => {
+        try {
+            // 1) Make sure pending holiday edits are applied
+            commitPendingHolidays();
 
-        // 4) For now, just inspect it
-        console.log("SAVE PAYLOAD:", payload);
+            // 2) Read the freshest Zustand state after commit
+            const snapshot = useTimePeriodStore.getState();
+
+            if (!snapshot.startDate || !snapshot.endDate) {
+                console.error("Cannot save: missing start/end date");
+                return;
+            }
+
+            // 3) Build the payload
+            const payload = {
+                startDate: toYmd(snapshot.startDate),
+                endDate: toYmd(snapshot.endDate),
+                holidays: snapshot.holidays.map(toYmd),
+                sections: snapshot.sections,
+                schedule: normalizeScheduleForSave(snapshot.schedule),
+            };
+
+            console.log("SAVE PAYLOAD (client):", payload);
+
+            // 4) Send to server action (validation only for now)
+            const result = await saveFullSchedule(payload);
+
+            // 5) Inspect server response
+            console.log("SAVE RESPONSE (server):", result);
+        } catch (error) {
+            console.error("Save failed:", error);
+        }
     };
     return (
         <div className="flex flex-col items-center">
