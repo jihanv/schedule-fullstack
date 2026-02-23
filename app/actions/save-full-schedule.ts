@@ -51,6 +51,12 @@ const saveFullScheduleInputSchema = z
 
     // weekly timetable template
     schedule: scheduleSchema,
+    deletedLessons: z.array(
+      z.object({
+        dateKey: z.string(),
+        period: z.number(),
+      }),
+    ),
   })
   .superRefine((data, ctx) => {
     // Dates are in YYYY-MM-DD, so string comparison is safe here
@@ -186,8 +192,16 @@ function buildGeneratedLessons(params: {
   holidays: string[];
   schedule: SchedulePayload;
   allowedCourseNames: string[];
+  deletedLessons: { dateKey: string; period: number }[];
 }): GeneratedLessonDraft[] {
-  const { startDate, endDate, holidays, schedule, allowedCourseNames } = params;
+  const {
+    startDate,
+    endDate,
+    holidays,
+    schedule,
+    allowedCourseNames,
+    deletedLessons,
+  } = params;
 
   const start = parseYmdToUtcDate(startDate);
   const end = parseYmdToUtcDate(endDate);
@@ -325,6 +339,7 @@ export async function saveFullSchedule(input: SaveFullScheduleInput) {
         holidays: data.holidays,
         schedule: data.schedule,
         allowedCourseNames: uniqueSections,
+        deletedLessons: data.deletedLessons,
       });
 
       // Step 9: Load saved courses and map courseName -> course_id

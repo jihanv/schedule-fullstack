@@ -253,7 +253,7 @@ export default function WeeklyTables() {
                                                                 }}
                                                                 className="mt-1 text-[10px] underline underline-offset-2"
                                                             >
-                                                                {isSkipped ? "Restore lesson" : "Skip this lesson"}
+                                                                {isSkipped ? "Restore lesson" : "Delete this lesson"}
                                                             </button>
                                                         )}
                                                     </div>
