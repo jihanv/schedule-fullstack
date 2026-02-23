@@ -59,9 +59,13 @@ type TimePeriodStore = {
   showWeeklyPreview: boolean;
   setShowWeeklyPreview: (value: boolean) => void;
 
-  // Deleted lessons
+  // Delete lessons
   deletedLessons: DeletedLesson[];
   setDeletedLessons: (lessons: DeletedLesson[]) => void;
+
+  addDeletedLesson: (dateKey: string, period: number) => void;
+  removeDeletedLesson: (dateKey: string, period: number) => void;
+  isDeletedLesson: (dateKey: string, period: number) => boolean;
 };
 
 export const useTimePeriodStore = create<TimePeriodStore>((set, get) => ({
@@ -238,4 +242,30 @@ export const useTimePeriodStore = create<TimePeriodStore>((set, get) => ({
 
   deletedLessons: [],
   setDeletedLessons: (lessons) => set({ deletedLessons: lessons }),
+
+  addDeletedLesson: (dateKey, period) =>
+    set((state) => {
+      const alreadyExists = state.deletedLessons.some(
+        (x) => x.dateKey === dateKey && x.period === period,
+      );
+
+      if (alreadyExists) return state; // do nothing if already deleted
+
+      return {
+        deletedLessons: [...state.deletedLessons, { dateKey, period }],
+      };
+    }),
+
+  removeDeletedLesson: (dateKey, period) =>
+    set((state) => ({
+      deletedLessons: state.deletedLessons.filter(
+        (x) => !(x.dateKey === dateKey && x.period === period),
+      ),
+    })),
+
+  isDeletedLesson: (dateKey, period) => {
+    return get().deletedLessons.some(
+      (x) => x.dateKey === dateKey && x.period === period,
+    );
+  },
 }));
