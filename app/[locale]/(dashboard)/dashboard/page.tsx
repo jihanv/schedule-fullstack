@@ -1,5 +1,4 @@
 
-// import { useLanguage } from '@/stores/languageStore'
 
 export default function Page() {
 
