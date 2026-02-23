@@ -57,10 +57,23 @@ const saveFullScheduleInputSchema = z
     // (because all values are zero-padded and validated)
     if (data.endDate < data.startDate) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: "custom",
         path: ["endDate"],
         message: "End date must be on or after start date",
       });
+    }
+
+    // Every holiday must be inside the selected time period
+    for (let i = 0; i < data.holidays.length; i++) {
+      const holiday = data.holidays[i];
+
+      if (holiday < data.startDate || holiday > data.endDate) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["holidays", i],
+          message: "Holiday must be within the selected date range",
+        });
+      }
     }
   });
 
