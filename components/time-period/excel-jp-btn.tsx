@@ -78,6 +78,7 @@ export default function ExportExcelButtonJa() {
         sections,
         pendingHolidays,
         commitPendingHolidays,
+        deletedLessons,
     } = useTimePeriodStore();
 
     const handleExport = async () => {
@@ -86,7 +87,9 @@ export default function ExportExcelButtonJa() {
             alert("先に開始日と終了日を選択してください。");
             return;
         }
-
+        const deletedSet = new Set(
+            deletedLessons.map((x) => `${x.dateKey}|${x.period}`)
+        );
         // Build chronological list of actual meetings (in range, non-holiday, assigned)
         const slots: Slot[] = [];
         for (const weekStart of weekStartsBetween(startDate, endDate)) {
@@ -97,7 +100,10 @@ export default function ExportExcelButtonJa() {
                 const key = dayKeyFromDate(d); // "Mon".."Sat"
                 for (const p of PERIODS) {
                     const section = schedule[key]?.[p];
-                    if (!section) continue;
+                    if (!section) continue; // empty slot
+
+                    if (deletedSet.has(`${dateKey(d)}|${p}`)) continue; // skipped lesson
+
                     slots.push({ date: d, period: p, section });
                 }
             }
@@ -204,14 +210,18 @@ export default function ExportExcelButtonJa() {
 
                     const key = dayKeyFromDate(d);
                     const section = schedule[key]?.[p] ?? "";
-                    if (!section) {
+                    const slotKey = `${dateKey(d)}|${p}`;
+                    const isDeleted = deletedSet.has(slotKey);
+
+                    if (!section || isDeleted) {
                         cell.value = "";
                         cell.alignment = ALIGN_CENTER_MULTI;
                         return;
                     }
 
-                    const n = meetingCount.get(`${dateKey(d)}|${p}`);
+                    const n = meetingCount.get(slotKey);
                     cell.value = `${p}限\n${section}\n第${n ?? "—"}回`;
+
                     cell.alignment = ALIGN_CENTER_MULTI;
 
                     const colors = excelColorsForSection(section, sections);

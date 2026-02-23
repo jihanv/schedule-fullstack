@@ -100,6 +100,7 @@ export default function ExportExcelButton() {
         sections,
         pendingHolidays,
         commitPendingHolidays,
+        deletedLessons,
     } = useTimePeriodStore();
 
     const t = useTranslations("ExportExcel")
@@ -110,7 +111,9 @@ export default function ExportExcelButton() {
             alert(t("alerts.missingDates"));
             return;
         }
-
+        const deletedSet = new Set(
+            deletedLessons.map((x) => `${x.dateKey}|${x.period}`)
+        );
         // Build chronological list of actual meetings (in range, non-holiday, assigned)
         const slots: Slot[] = [];
 
@@ -123,6 +126,9 @@ export default function ExportExcelButton() {
                 for (const p of PERIODS) {
                     const section = schedule[key]?.[p];
                     if (!section) continue; // empty slot
+
+                    if (deletedSet.has(`${dateKey(d)}|${p}`)) continue; // skipped lesson
+
                     slots.push({ date: d, period: p, section });
                 }
             }
@@ -235,14 +241,19 @@ export default function ExportExcelButton() {
                     // Normal day with assignment
                     const key = dayKeyFromDate(d);
                     const section = schedule[key]?.[p] ?? "";
-                    if (!section) {
+                    const slotKey = `${dateKey(d)}|${p}`;
+                    const isDeleted = deletedSet.has(slotKey);
+
+                    if (!section || isDeleted) {
                         cell.value = "";
                         cell.alignment = ALIGN_CENTER_MULTI;
                         return;
                     }
 
-                    const n = meetingCount.get(`${dateKey(d)}|${p}`); // may be undefined if something’s off
+                    const n = meetingCount.get(slotKey);
                     cell.value = `Period ${p}\n${section} \nMeeting ${n ?? "—"}`;
+
+
                     cell.alignment = ALIGN_CENTER_MULTI;
                     // keep your existing color code right after this (fill/font from palette)
 
