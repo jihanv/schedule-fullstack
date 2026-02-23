@@ -159,7 +159,7 @@ export default function WeeklyTables() {
                         </div>
 
                         <div className="overflow-x-auto">
-                            <table className="min-w-full table-fixed border-separate border-spacing-0">
+                            <table className="w-full table-fixed border-separate border-spacing-0">
                                 <thead>
                                     <tr>
                                         <th className="sticky left-0 z-10 bg-card text-left text-xs font-medium text-muted-foreground px-3 py-2 border-b">
@@ -221,48 +221,56 @@ export default function WeeklyTables() {
                                                         <div className="text-muted-foreground">{t("holidayClassPlaceholder")}</div>
                                                     </div>
                                                 ) : (
-                                                    <div
-                                                        className={`rounded-md p-2 ${hol || outOfRange
-                                                            ? "bg-muted/40 text-muted-foreground"
-                                                            : isSkipped
-                                                                ? "bg-muted/60 text-muted-foreground"
-                                                                : colorClasses || "bg-background"
-                                                            }`}
-                                                    >
-                                                        <div className="font-medium">{t("periodLabelShort", { period: p })}</div>
-                                                        <div className={`text-xs ${assigned ? "font-semibold" : "text-muted-foreground"}`}>
+                                                    <>
+                                                        <div className="flex items-start justify-between gap-1">
+                                                            <div className="font-medium leading-4">
+                                                                {t("periodLabelShort", { period: p })}
+                                                            </div>
+
+                                                            {/* reserve a fixed slot so layout stays stable */}
+                                                            <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                                                                {assigned && !outOfRange ? (
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                            if (isSkipped) {
+                                                                                removeDeletedLesson(cellDateKey, p);
+                                                                            } else {
+                                                                                addDeletedLesson(cellDateKey, p);
+                                                                            }
+                                                                        }}
+                                                                        className="text-xs leading-none font-bold opacity-70 hover:opacity-100"
+                                                                        aria-label={isSkipped ? "Restore lesson" : "Delete lesson"}
+                                                                        title={isSkipped ? "Restore lesson" : "Delete lesson"}
+                                                                    >
+                                                                        ×
+                                                                    </button>
+                                                                ) : null}
+                                                            </div>
+                                                        </div>
+
+                                                        <div className={`text-xs leading-4 ${assigned ? "font-semibold" : "text-muted-foreground"}`}>
                                                             {assigned ?? "—"}
                                                         </div>
-                                                        <div className={`text-xs ${assigned ? "opacity-100" : "text-muted-foreground"}`}>
+
+                                                        <div className={`text-xs leading-4 min-h-4 ${assigned ? "opacity-100" : "text-muted-foreground"}`}>
                                                             {assigned
                                                                 ? isSkipped
                                                                     ? "Skipped"
                                                                     : t("meetingLabel", { count: classNum ?? "—" })
                                                                 : ""}
                                                         </div>
-
-                                                        {assigned && !outOfRange && (
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => {
-                                                                    if (isSkipped) {
-                                                                        removeDeletedLesson(cellDateKey, p);
-                                                                    } else {
-                                                                        addDeletedLesson(cellDateKey, p);
-                                                                    }
-                                                                }}
-                                                                className="mt-1 text-[10px] underline underline-offset-2"
-                                                            >
-                                                                {isSkipped ? "Restore lesson" : "Delete this lesson"}
-                                                            </button>
-                                                        )}
-                                                    </div>
+                                                    </>
                                                 );
 
                                                 return (
                                                     <td key={i} className="align-top px-3 py-2 border-b">
                                                         <div
-                                                            className={`rounded-md p-2 ${hol || outOfRange ? "bg-muted/40 text-muted-foreground" : colorClasses || "bg-background"
+                                                            className={`rounded-md p-2 h-17 flex flex-col ${hol || outOfRange
+                                                                ? "bg-muted/40 text-muted-foreground"
+                                                                : isSkipped
+                                                                    ? "bg-muted/60 text-muted-foreground"
+                                                                    : colorClasses || "bg-background"
                                                                 }`}
                                                         >
                                                             {content}
