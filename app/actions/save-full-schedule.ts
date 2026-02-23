@@ -179,120 +179,121 @@ export async function saveFullSchedule(input: SaveFullScheduleInput) {
   const data = parsed.data;
 
   try {
-    // Step 5: Save the time period row
-    const inserted = await db
-      .insert(TimePeriod)
-      .values({
-        period_id: createId(),
-        user_id: userId,
+    const result = await db.transaction(async (tx) => {
+      // Step 5: Save the time period row
+      const inserted = await tx
+        .insert(TimePeriod)
+        .values({
+          period_id: createId(),
+          user_id: userId,
+          startDate: data.startDate,
+          endDate: data.endDate,
+        })
+        .returning({ period_id: TimePeriod.period_id });
+
+      const periodId = inserted[0]?.period_id;
+
+      if (!periodId) {
+        throw new Error("Failed to create time period");
+      }
+
+      // Step 6: Save holidays linked to this time period
+      if (data.holidays.length > 0) {
+        await tx
+          .insert(Holidays)
+          .values(
+            data.holidays.map((holidayDate) => ({
+              holiday_id: createId(),
+              period_id: periodId,
+              holidayDate,
+            })),
+          )
+          .onConflictDoNothing({
+            target: [Holidays.period_id, Holidays.holidayDate],
+          });
+      }
+
+      // Step 7: Save course/class names (sections) linked to this time period
+      const uniqueSections = Array.from(
+        new Set(data.sections.map((s) => s.trim()).filter((s) => s.length > 0)),
+      );
+
+      if (uniqueSections.length > 0) {
+        await tx
+          .insert(Courses)
+          .values(
+            uniqueSections.map((sectionName) => ({
+              course_id: createId(),
+              period_id: periodId,
+              courseName: sectionName,
+            })),
+          )
+          .onConflictDoNothing({
+            target: [Courses.period_id, Courses.courseName],
+          });
+      }
+
+      // Step 8: Generate lesson rows in memory (server-side)
+      const generatedLessons = buildGeneratedLessons({
         startDate: data.startDate,
         endDate: data.endDate,
-      })
-      .returning({ period_id: TimePeriod.period_id });
+        holidays: data.holidays,
+        schedule: data.schedule,
+        allowedCourseNames: uniqueSections,
+      });
 
-    const periodId = inserted[0]?.period_id;
+      // Step 9: Load saved courses and map courseName -> course_id
+      const savedCourses = await tx
+        .select({
+          course_id: Courses.course_id,
+          courseName: Courses.courseName,
+        })
+        .from(Courses)
+        .where(eq(Courses.period_id, periodId));
 
-    if (!periodId) {
-      throw new Error("Failed to create time period");
-    }
+      const courseIdByName = new Map(
+        savedCourses.map((course) => [course.courseName, course.course_id]),
+      );
 
-    // Step 6: Save holidays linked to this time period
-    if (data.holidays.length > 0) {
-      await db
-        .insert(Holidays)
-        .values(
-          data.holidays.map((holidayDate) => ({
-            holiday_id: createId(),
-            period_id: periodId,
-            holidayDate,
-          })),
-        )
-        .onConflictDoNothing({
-          // requires unique(period_id, holiday_date) in your schema
-          target: [Holidays.period_id, Holidays.holidayDate],
-        });
-    }
+      const lessonRows = generatedLessons.map((lesson) => {
+        const courseId = courseIdByName.get(lesson.courseName);
 
-    // Step 7: Save course/class names (sections) linked to this time period
-    const uniqueSections = Array.from(
-      new Set(data.sections.map((s) => s.trim()).filter((s) => s.length > 0)),
-    );
+        if (!courseId) {
+          throw new Error(
+            `Could not find saved course_id for course "${lesson.courseName}"`,
+          );
+        }
 
-    if (uniqueSections.length > 0) {
-      await db
-        .insert(Courses)
-        .values(
-          uniqueSections.map((sectionName) => ({
-            course_id: createId(),
-            period_id: periodId,
-            courseName: sectionName,
-          })),
-        )
-        .onConflictDoNothing({
-          // requires unique(period_id, course_name) in your schema
-          target: [Courses.period_id, Courses.courseName],
-        });
-    }
+        return {
+          lesson_id: createId(),
+          course_id: courseId,
+          lessonNumber: lesson.lessonNumber,
+          lessonDate: lesson.lessonDate,
+          timeSlot: lesson.timeSlot,
+        };
+      });
 
-    // Step 8: Generate lesson rows in memory (server-side)
-    const generatedLessons = buildGeneratedLessons({
-      startDate: data.startDate,
-      endDate: data.endDate,
-      holidays: data.holidays,
-      schedule: data.schedule,
-      allowedCourseNames: uniqueSections,
-    });
-
-    // Step 9: Load saved courses and map courseName -> course_id
-    const savedCourses = await db
-      .select({
-        course_id: Courses.course_id,
-        courseName: Courses.courseName,
-      })
-      .from(Courses)
-      .where(eq(Courses.period_id, periodId));
-
-    const courseIdByName = new Map(
-      savedCourses.map((course) => [course.courseName, course.course_id]),
-    );
-
-    // Convert generated lessons into DB rows (course_id is required)
-    const lessonRows = generatedLessons.map((lesson) => {
-      const courseId = courseIdByName.get(lesson.courseName);
-
-      if (!courseId) {
-        throw new Error(
-          `Could not find saved course_id for course "${lesson.courseName}"`,
-        );
+      if (lessonRows.length > 0) {
+        await tx.insert(Lessons).values(lessonRows);
       }
 
       return {
-        lesson_id: createId(),
-        course_id: courseId,
-        lessonNumber: lesson.lessonNumber,
-        lessonDate: lesson.lessonDate,
-        timeSlot: lesson.timeSlot,
+        ok: true as const,
+        message: "Time period, holidays, courses, and lessons saved",
+        period_id: periodId,
+        summary: {
+          startDate: data.startDate,
+          endDate: data.endDate,
+          holidayCount: data.holidays.length,
+          sectionCount: uniqueSections.length,
+          dayCount: Object.keys(data.schedule).length,
+          generatedLessonCount: generatedLessons.length,
+          savedLessonCount: lessonRows.length,
+        },
       };
     });
 
-    if (lessonRows.length > 0) {
-      await db.insert(Lessons).values(lessonRows);
-    }
-
-    return {
-      ok: true as const,
-      message: "Time period, holidays, courses, and lessons saved",
-      period_id: periodId,
-      summary: {
-        startDate: data.startDate,
-        endDate: data.endDate,
-        holidayCount: data.holidays.length,
-        sectionCount: uniqueSections.length,
-        dayCount: Object.keys(data.schedule).length,
-        generatedLessonCount: generatedLessons.length,
-        savedLessonCount: lessonRows.length,
-      },
-    };
+    return result;
   } catch (error) {
     console.error("saveFullSchedule failed:", error);
 
