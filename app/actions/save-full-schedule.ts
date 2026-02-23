@@ -208,7 +208,9 @@ function buildGeneratedLessons(params: {
 
   const holidaySet = new Set(holidays);
   const allowedSet = new Set(allowedCourseNames);
-
+  const deletedSet = new Set(
+    deletedLessons.map((x) => `${x.dateKey}|${x.period}`),
+  );
   const lessonCounters = new Map<string, number>();
   const generated: GeneratedLessonDraft[] = [];
 
@@ -242,7 +244,7 @@ function buildGeneratedLessons(params: {
 
       const timeSlot = Number(periodKey);
       if (!Number.isInteger(timeSlot) || timeSlot <= 0) continue;
-
+      if (deletedSet.has(`${ymd}|${timeSlot}`)) continue;
       const nextLessonNumber = (lessonCounters.get(trimmedName) ?? 0) + 1;
       lessonCounters.set(trimmedName, nextLessonNumber);
 
