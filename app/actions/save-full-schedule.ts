@@ -123,6 +123,33 @@ const saveFullScheduleInputSchema = z
         seenSections.add(trimmedSection);
       }
     }
+    // Validate deleted lesson exceptions
+    const seenDeleted = new Set<string>();
+
+    for (let i = 0; i < data.deletedLessons.length; i++) {
+      const item = data.deletedLessons[i];
+      const key = `${item.dateKey}|${item.period}`;
+
+      // deleted lesson date must be inside the selected time period
+      if (item.dateKey < data.startDate || item.dateKey > data.endDate) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["deletedLessons", i, "dateKey"],
+          message: "Deleted lesson date must be within the selected date range",
+        });
+      }
+
+      // no duplicates like same date+period twice
+      if (seenDeleted.has(key)) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["deletedLessons", i],
+          message: "Duplicate deleted lesson entry",
+        });
+      } else {
+        seenDeleted.add(key);
+      }
+    }
   });
 
 type SaveFullScheduleInput = z.infer<typeof saveFullScheduleInputSchema>;
