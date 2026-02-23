@@ -63,6 +63,9 @@ const saveFullScheduleInputSchema = z
       });
     }
 
+    // Track holidays we've already seen so we can catch duplicates
+    const seenHolidays = new Set<string>();
+
     // Every holiday must be inside the selected time period
     for (let i = 0; i < data.holidays.length; i++) {
       const holiday = data.holidays[i];
@@ -73,6 +76,16 @@ const saveFullScheduleInputSchema = z
           path: ["holidays", i],
           message: "Holiday must be within the selected date range",
         });
+      }
+
+      if (seenHolidays.has(holiday)) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["holidays", i],
+          message: "Duplicate holiday date",
+        });
+      } else {
+        seenHolidays.add(holiday);
       }
     }
   });
