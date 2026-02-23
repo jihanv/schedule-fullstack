@@ -69,6 +69,7 @@ export default function InformationDisplay() {
                 holidays: snapshot.holidays.map(toYmd),
                 sections: snapshot.sections,
                 schedule: normalizeScheduleForSave(snapshot.schedule),
+                deletedLessons: snapshot.deletedLessons,
             };
 
             console.log("SAVE PAYLOAD (client):", payload);

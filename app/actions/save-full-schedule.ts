@@ -51,12 +51,14 @@ const saveFullScheduleInputSchema = z
 
     // weekly timetable template
     schedule: scheduleSchema,
-    deletedLessons: z.array(
-      z.object({
-        dateKey: ymdSchema,
-        period: z.number().int().positive(),
-      }),
-    ),
+    deletedLessons: z
+      .array(
+        z.object({
+          dateKey: ymdSchema,
+          period: z.number().int().positive(),
+        }),
+      )
+      .default([]),
   })
   .superRefine((data, ctx) => {
     // Dates are in YYYY-MM-DD, so string comparison is safe here
