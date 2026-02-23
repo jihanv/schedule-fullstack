@@ -8,7 +8,8 @@
     "description": "Choose the start and end dates for your class run.",
     "startDateLabel": "Start date",
     "endDateLabel": "End date",
-    "selectDate": "Select date"
+    "selectDate": "Select date",
+    "set": "Set Date Range"
   },
   "Common": {
     "save": "Save",

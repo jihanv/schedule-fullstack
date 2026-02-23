@@ -8,7 +8,8 @@
     "description": "開始日と終了日を選択してください。",
     "startDateLabel": "開始日",
     "endDateLabel": "終了日",
-    "selectDate": "日付を選択"
+    "selectDate": "日付を選択",
+    "set": "期間設定"
   },
   "Common": {
     "save": "保存",

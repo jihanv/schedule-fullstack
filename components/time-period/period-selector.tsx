@@ -10,8 +10,8 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import PeriodGrid from "./period-grid";
 import PeriodGridMobile from "./period-mobile-grid";
-import { useIsMobile } from "@/lib/utils";
 import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 
 export default function PeriodSelector() {
     const isMobile = useIsMobile(768);
@@ -41,4 +41,18 @@ export default function PeriodSelector() {
             </div>
         </>
     );
+}
+
+function useIsMobile(breakpointPx = 768) {
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const mq = window.matchMedia(`(max-width: ${breakpointPx - 1}px)`);
+        const onChange = () => setIsMobile(mq.matches);
+        onChange();
+        mq.addEventListener("change", onChange);
+        return () => mq.removeEventListener("change", onChange);
+    }, [breakpointPx]);
+
+    return isMobile;
 }
