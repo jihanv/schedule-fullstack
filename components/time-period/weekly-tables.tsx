@@ -74,7 +74,16 @@ function dateKey(d: Date) {
     return `${y}-${String(m).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 export default function WeeklyTables() {
-    const { startDate, endDate, schedule, sections, holidays } = useTimePeriodStore();
+    const {
+        startDate,
+        endDate,
+        schedule,
+        sections,
+        holidays,
+        deletedLessons,
+        addDeletedLesson,
+        removeDeletedLesson,
+    } = useTimePeriodStore();
     const showWeeklyPreview = useTimePeriodStore(s => s.showWeeklyPreview);
     const format = useFormatter();
 
@@ -106,6 +115,12 @@ export default function WeeklyTables() {
                 for (const p of PERIODS) {
                     const section = schedule[dayKey]?.[p];
                     if (!section) continue;
+
+                    const skipped = deletedLessons.some(
+                        (x) => x.dateKey === dateKey(d) && x.period === p
+                    );
+                    if (skipped) continue;
+
                     slots.push({ date: d, period: p, section });
                 }
             }
@@ -124,7 +139,7 @@ export default function WeeklyTables() {
         }
 
         return map;
-    }, [weeks, startDate, endDate, holidays, schedule]);
+    }, [weeks, startDate, endDate, holidays, schedule, deletedLessons]);
 
 
     // You can still early-return after hooks
@@ -184,10 +199,17 @@ export default function WeeklyTables() {
                                                 const outOfRange = d < startDate! || d > endDate!;
                                                 const key = dayKeyFromDate(d);              // "Mon" | ... | "Sat"
                                                 const assigned = schedule[key]?.[p];         // e.g., "AB"
-
+                                                const cellDateKey = dateKey(d);
+                                                const isSkipped =
+                                                    !hol &&
+                                                    !outOfRange &&
+                                                    !!assigned &&
+                                                    deletedLessons.some((x) => x.dateKey === cellDateKey && x.period === p);
                                                 // Only color when NOT a holiday and within range
                                                 const colorClasses =
-                                                    !hol && !outOfRange && assigned ? badgeColorFor(assigned, sections) : "";
+                                                    !hol && !outOfRange && assigned && !isSkipped
+                                                        ? badgeColorFor(assigned, sections)
+                                                        : "";
 
                                                 // Pull precomputed class count (if any)
                                                 const classNum = meetingCount.get(`${dateKey(d)}|${p}`);
@@ -199,14 +221,41 @@ export default function WeeklyTables() {
                                                         <div className="text-muted-foreground">{t("holidayClassPlaceholder")}</div>
                                                     </div>
                                                 ) : (
-                                                    <div className="text-xs leading-tight">
+                                                    <div
+                                                        className={`rounded-md p-2 ${hol || outOfRange
+                                                            ? "bg-muted/40 text-muted-foreground"
+                                                            : isSkipped
+                                                                ? "bg-muted/60 text-muted-foreground"
+                                                                : colorClasses || "bg-background"
+                                                            }`}
+                                                    >
                                                         <div className="font-medium">{t("periodLabelShort", { period: p })}</div>
                                                         <div className={`text-xs ${assigned ? "font-semibold" : "text-muted-foreground"}`}>
                                                             {assigned ?? "—"}
                                                         </div>
                                                         <div className={`text-xs ${assigned ? "opacity-100" : "text-muted-foreground"}`}>
-                                                            {assigned ? t("meetingLabel", { count: classNum ?? "—" }) : ""}
+                                                            {assigned
+                                                                ? isSkipped
+                                                                    ? "Skipped"
+                                                                    : t("meetingLabel", { count: classNum ?? "—" })
+                                                                : ""}
                                                         </div>
+
+                                                        {assigned && !outOfRange && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    if (isSkipped) {
+                                                                        removeDeletedLesson(cellDateKey, p);
+                                                                    } else {
+                                                                        addDeletedLesson(cellDateKey, p);
+                                                                    }
+                                                                }}
+                                                                className="mt-1 text-[10px] underline underline-offset-2"
+                                                            >
+                                                                {isSkipped ? "Restore lesson" : "Skip this lesson"}
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 );
 

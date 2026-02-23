@@ -35,15 +35,18 @@ function isHoliday(d: Date, holidays: Date[]) {
     return holidays?.some((h) => sameDay(h, d));
 }
 
-export default function MeetingList() {
+export default function MeetingListEditor() {
     const {
         startDate,
         endDate,
         schedule,
         sections,
         pendingHolidays,
+        deletedLessons,
     } = useTimePeriodStore();
-
+    function toDateKey(d: Date) {
+        return format(d, "yyyy-MM-dd");
+    }
     const locale = useLocale();
     const uiLocale = locale === 'ja' ? 'ja' : 'en';
     const t = useTranslations("MeetingList")
@@ -71,13 +74,23 @@ export default function MeetingList() {
                 const key = dayKeyFromDate(cur);
                 for (const p of PERIODS) {
                     const assigned = schedule[key]?.[p];
-                    if (assigned) {
-                        rawSlots.push({
-                            date: new Date(cur),
-                            period: p,
-                            section: assigned,
-                        });
-                    }
+
+                    if (!assigned) continue;
+
+                    const dateKey = toDateKey(cur);
+
+                    const isDeleted = deletedLessons.some(
+                        (x) => x.dateKey === dateKey && x.period === p
+                    );
+
+                    if (isDeleted) continue;
+
+                    rawSlots.push({
+                        date: new Date(cur),
+                        period: p,
+                        section: assigned,
+                    });
+
                 }
             }
             cur.setDate(cur.getDate() + 1);
@@ -129,7 +142,7 @@ export default function MeetingList() {
         for (const [, n] of perSectionCounts) if (n > max) max = n;
 
         return { perSectionCounts, perSectionMeetings, maxMeetings: max };
-    }, [startDate, endDate, sections, schedule, pendingHolidays]);
+    }, [startDate, endDate, sections, schedule, pendingHolidays, deletedLessons]);
     //   const items = useMemo(
     //     () => Array.from({ length: maxMeetings }, (_, i) => i + 1),
     //     [maxMeetings],
