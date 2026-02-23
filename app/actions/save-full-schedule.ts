@@ -88,6 +88,35 @@ const saveFullScheduleInputSchema = z
         seenHolidays.add(holiday);
       }
     }
+
+    // Reject duplicate section names after trimming (e.g. "Math" and "Math ")
+    const seenSections = new Set<string>();
+
+    for (let i = 0; i < data.sections.length; i++) {
+      const rawSection = data.sections[i];
+      const trimmedSection = rawSection.trim();
+
+      if (!trimmedSection) {
+        // z.string().min(1) already catches empty strings,
+        // but this catches strings like "   " after trimming.
+        ctx.addIssue({
+          code: "custom",
+          path: ["sections", i],
+          message: "Class name cannot be blank",
+        });
+        continue;
+      }
+
+      if (seenSections.has(trimmedSection)) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["sections", i],
+          message: "Duplicate class name",
+        });
+      } else {
+        seenSections.add(trimmedSection);
+      }
+    }
   });
 
 type SaveFullScheduleInput = z.infer<typeof saveFullScheduleInputSchema>;
