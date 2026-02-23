@@ -53,8 +53,8 @@ const saveFullScheduleInputSchema = z
     schedule: scheduleSchema,
     deletedLessons: z.array(
       z.object({
-        dateKey: z.string(),
-        period: z.number(),
+        dateKey: ymdSchema,
+        period: z.number().int().positive(),
       }),
     ),
   })
@@ -245,6 +245,7 @@ function buildGeneratedLessons(params: {
       const timeSlot = Number(periodKey);
       if (!Number.isInteger(timeSlot) || timeSlot <= 0) continue;
       if (deletedSet.has(`${ymd}|${timeSlot}`)) continue;
+
       const nextLessonNumber = (lessonCounters.get(trimmedName) ?? 0) + 1;
       lessonCounters.set(trimmedName, nextLessonNumber);
 
