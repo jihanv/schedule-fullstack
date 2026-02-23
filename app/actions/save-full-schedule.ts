@@ -8,9 +8,27 @@ import { db } from "@/app/db";
 import { Courses, Holidays, Lessons, TimePeriod } from "@/app/db/schema";
 
 // YYYY-MM-DD (simple format check)
+function isRealYmdDate(ymd: string): boolean {
+  // First ensure shape is exactly YYYY-MM-DD
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(ymd)) return false;
+
+  const [year, month, day] = ymd.split("-").map(Number);
+
+  // Build a UTC date and verify it round-trips to the same parts
+  const d = new Date(Date.UTC(year, month - 1, day));
+
+  return (
+    d.getUTCFullYear() === year &&
+    d.getUTCMonth() + 1 === month &&
+    d.getUTCDate() === day
+  );
+}
+
+// YYYY-MM-DD + real calendar date check
 const ymdSchema = z
   .string()
-  .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format");
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format")
+  .refine(isRealYmdDate, "Invalid calendar date");
 
 // schedule shape: { [day]: { [period]: "Section Name" | null } }
 const scheduleSchema = z.record(
@@ -21,18 +39,30 @@ const scheduleSchema = z.record(
   ),
 );
 
-const saveFullScheduleInputSchema = z.object({
-  startDate: ymdSchema,
-  endDate: ymdSchema,
+const saveFullScheduleInputSchema = z
+  .object({
+    startDate: ymdSchema,
+    endDate: ymdSchema,
 
-  holidays: z.array(ymdSchema).default([]),
+    holidays: z.array(ymdSchema).default([]),
 
-  // class names from your "sections"
-  sections: z.array(z.string().min(1)).default([]),
+    // class names from your "sections"
+    sections: z.array(z.string().min(1)).default([]),
 
-  // weekly timetable template
-  schedule: scheduleSchema,
-});
+    // weekly timetable template
+    schedule: scheduleSchema,
+  })
+  .superRefine((data, ctx) => {
+    // Dates are in YYYY-MM-DD, so string comparison is safe here
+    // (because all values are zero-padded and validated)
+    if (data.endDate < data.startDate) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["endDate"],
+        message: "End date must be on or after start date",
+      });
+    }
+  });
 
 type SaveFullScheduleInput = z.infer<typeof saveFullScheduleInputSchema>;
 
