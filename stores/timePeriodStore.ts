@@ -9,6 +9,11 @@ import {
 } from "date-fns";
 import { emptySchedule, ScheduleByDay, WeekdayKey } from "@/lib/constants";
 
+export type DeletedLesson = {
+  dateKey: string;
+  period: number;
+};
+
 type TimePeriodStore = {
   activateNext: boolean;
   setActivateNext: (activated: boolean) => void;
@@ -53,6 +58,10 @@ type TimePeriodStore = {
   // Information Display
   showWeeklyPreview: boolean;
   setShowWeeklyPreview: (value: boolean) => void;
+
+  // Deleted lessons
+  deletedLessons: DeletedLesson[];
+  setDeletedLessons: (lessons: DeletedLesson[]) => void;
 };
 
 export const useTimePeriodStore = create<TimePeriodStore>((set, get) => ({
@@ -226,4 +235,7 @@ export const useTimePeriodStore = create<TimePeriodStore>((set, get) => ({
     }),
   showWeeklyPreview: false,
   setShowWeeklyPreview: (value) => set({ showWeeklyPreview: value }),
+
+  deletedLessons: [],
+  setDeletedLessons: (lessons) => set({ deletedLessons: lessons }),
 }));
