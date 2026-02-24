@@ -13,7 +13,7 @@ export default function PeriodStepNav({ onStepClick }: StepNavProps) {
   const t = useTranslations("Steps");
 
   return (
-    <div className="fixed rounded-2xl text-foreground bg-red-200">
+    <div className="rounded-2xl w-80 text-foreground bg-red-200">
       <div className="mt-6 space-y-3">
         {steps.map((s) => {
           const isActive = s.step === step;

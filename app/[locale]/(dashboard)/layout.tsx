@@ -1,29 +1,30 @@
-import HeaderAuth from "@/components/navigation/header-auth";
-import SideBar from "@/components/navigation/sidebar";
-
-
+import {
+  SidebarProvider,
+  SidebarTrigger,
+  SidebarInset,
+} from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/navigation/app-sidebar";
 
 export default function Layout({
-    children,
+  children,
 }: Readonly<{
-    children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-    return (
+  return (
+    <SidebarProvider>
+      <AppSidebar />
 
-        <>
-            <div className="flex flex-col">
-                <HeaderAuth />
-                <div className="flex flex-row">
+      <SidebarInset>
+        <header className="flex h-14 items-center px-4">
+          <SidebarTrigger />
+        </header>
 
-                    <SideBar />
-                    <main className="flex-1 ">
-                        <div className="w-full px-6 mx-auto lg:w-[80%] bg-red-100 ">
-                            {children}
-                        </div>
-                    </main>
-                </div>
-            </div>
-        </>
-
-    );
+        <main className="min-w-0">
+          <div className="mx-auto w-full max-w-5xl px-6 bg-red-100">
+            {children}
+          </div>
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
+  );
 }
