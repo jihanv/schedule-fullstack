@@ -35,7 +35,7 @@ export default function SectionNameInput() {
       clearTimeout(fadeTimer);
       clearTimeout(clearTimer);
     };
-  }, [feedback, sections]);
+  }, [feedback, sections, setActivateNext]);
 
   const handleAdd = () => {
     const raw = newSection.trim();
@@ -129,8 +129,9 @@ export default function SectionNameInput() {
                 {sections.map((s, i) => (
                   <span
                     key={s}
-                    className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${BADGE_COLORS[i % BADGE_COLORS.length]
-                      }`}
+                    className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
+                      BADGE_COLORS[i % BADGE_COLORS.length]
+                    }`}
                   >
                     {s}
                     <button
@@ -142,8 +143,9 @@ export default function SectionNameInput() {
                   </span>
                 ))}
                 <div
-                  className={`mt-2 text-sm text-muted-foreground transition-opacity duration-500 ${fading ? "opacity-0" : "opacity-100"
-                    } motion-reduce:transition-none motion-reduce:duration-0`}
+                  className={`mt-2 text-sm text-muted-foreground transition-opacity duration-500 ${
+                    fading ? "opacity-0" : "opacity-100"
+                  } motion-reduce:transition-none motion-reduce:duration-0`}
                   aria-live="polite"
                 >
                   {feedback ?? ""}
@@ -153,7 +155,6 @@ export default function SectionNameInput() {
           </>
         </div>
       </Card>
-
     </>
   );
 }
