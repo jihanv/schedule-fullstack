@@ -5,7 +5,7 @@ import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 
 export default function HeaderAuth() {
     return (
-        <header className="bg-accent h-14" style={{ display: "flex", justifyContent: "flex-end", padding: 16 }}>
+        <header style={{ display: "flex", justifyContent: "flex-end", padding: 0 }}>
             <SignedOut>
                 <SignInButton />
             </SignedOut>
