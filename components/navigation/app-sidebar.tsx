@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import {
   Sidebar,
   SidebarContent,
@@ -13,21 +13,20 @@ import {
 } from "@/components/ui/sidebar";
 import HeaderAuth from "./header-auth";
 import LanguageInput from "../language/language-input";
-import {
-  Briefcase,
-  CalendarPlus,
-  ListChecks,
-  NotebookPen,
-} from "lucide-react"
+import { Briefcase, CalendarPlus, ListChecks, NotebookPen } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 const platformItems = [
-  { title: "Time Period", icon: CalendarPlus, url: "/dashboard/timeperiod/", active: true },
+  {
+    title: "Time Period",
+    icon: CalendarPlus,
+    url: "/dashboard/timeperiod/",
+    active: true,
+  },
   { title: "Attendance", icon: ListChecks, url: "#" },
   { title: "Documentation", icon: NotebookPen, url: "#" },
-]
+];
 export function AppSidebar() {
   return (
-
     <Sidebar collapsible="icon" variant="inset">
       {/* Top (company/workspace) */}
       <SidebarHeader>
@@ -35,22 +34,22 @@ export function AppSidebar() {
 
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton>
-              <div className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-md">
+            <SidebarMenuButton size="lg">
+              <div className="bg-primary text-primary-foreground flex size-8 shrink-0 items-center justify-center rounded-md">
                 <Briefcase className="size-4" />
               </div>
 
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">Class Planner</span>
-
               </div>
-
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <LanguageInput />
+        <div className="group-data-[collapsible=icon]:hidden">
+          <LanguageInput />
+        </div>
         <SidebarGroup>
           <SidebarGroupLabel>Platform</SidebarGroupLabel>
           <SidebarGroupContent>
