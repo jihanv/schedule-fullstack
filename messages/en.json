@@ -117,5 +117,14 @@
       "meetingLine": "Meeting {count}",
       "holidayLine": "{periodLabel} — {holiday}"
     }
+  },
+  "Sidebar": {
+    "appName": "Class Planner",
+    "platformLabel": "Platform",
+    "items": {
+      "timePeriod": "Time Period",
+      "attendance": "Attendance",
+      "documentation": "Documentation"
+    }
   }
 }

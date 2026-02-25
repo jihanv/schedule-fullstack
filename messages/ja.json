@@ -117,5 +117,14 @@
       "meetingLine": "第{count}回",
       "holidayLine": "{periodLabel} — {holiday}"
     }
+  },
+  "Sidebar": {
+    "appName": "クラスプランナー",
+    "platformLabel": "プラットフォーム",
+    "items": {
+      "timePeriod": "期間設定",
+      "attendance": "出欠",
+      "documentation": "ドキュメント"
+    }
   }
 }
