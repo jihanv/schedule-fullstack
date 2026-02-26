@@ -9,6 +9,7 @@ import {
   uniqueIndex,
   index,
   integer,
+  boolean,
 } from "drizzle-orm/pg-core";
 
 export const accountTypeEnum = pgEnum("account_type", ["free", "paid"]);
@@ -20,6 +21,8 @@ export const Users = pgTable(
     firstName: text("first_name").notNull(),
     lastName: text("last_name").notNull(),
     email: text("email").notNull(),
+    schoolId: text("school_id"), // or .notNull() if required
+    ON: boolean("on").default(false).notNull(), // boolean column named "on" in DB
     accountType: accountTypeEnum("account_type").default("free").notNull(),
     createTs: timestamp("create_ts").defaultNow().notNull(),
   },
