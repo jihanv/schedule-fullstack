@@ -10,7 +10,9 @@ export default function Home() {
             Calculate New Time Period
           </Link>
         </Button>
-        <Button className="w-50">View Saved Time Period</Button>
+        <Button className="w-50">
+          <Link href="/dashboard/timeperiod/saved">View Saved Time Period</Link>
+        </Button>
       </div>
     </>
   );

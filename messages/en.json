@@ -126,5 +126,8 @@
       "attendance": "Attendance",
       "documentation": "Documentation"
     }
+  },
+  "TimePeriod":{
+    "title" : "Time Periods"
   }
 }

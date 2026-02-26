@@ -126,5 +126,8 @@
       "attendance": "出欠",
       "documentation": "ドキュメント"
     }
+  },
+  "TimePeriod":{
+    "title" : "期間設定"
   }
 }
