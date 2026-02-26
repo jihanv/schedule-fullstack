@@ -1,4 +1,4 @@
-import { getTimePeriodsForCurrentUser } from "@/app/actions/view-time-periods";
+import { getTimePeriodsForCurrentUser } from "@/app/actions/timeperiod";
 import H1 from "@/components/format/h1";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";

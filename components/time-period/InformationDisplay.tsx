@@ -14,7 +14,7 @@ import H1 from "@/components/format/h1";
 import { useTimePeriodStore } from "@/stores/timePeriodStore";
 import { useLocale, useTranslations } from "next-intl";
 import ExportExcelButtonJa from "@/components/time-period/excel-jp-btn"
-import { saveFullSchedule } from "@/app/actions/save-full-schedule";
+import { saveFullSchedule } from "@/app/actions/timeperiod";
 
 export default function InformationDisplay() {
     const showWeeklyPreview = useTimePeriodStore((s) => s.showWeeklyPreview);
