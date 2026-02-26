@@ -25,7 +25,7 @@ export default async function Home() {
         <ul>
           {res.timePeriods.map((p) => (
             <li key={p.period_id}>
-              <Link href="/dashboard/timeperiod">
+              <Link href={`/dashboard/timeperiod/saved/${p.period_id}`}>
                 <Button>
                   {String(p.startDate)} → {String(p.endDate)}
                 </Button>
