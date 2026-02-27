@@ -70,6 +70,7 @@ export default function InformationDisplay() {
                 sections: snapshot.sections,
                 schedule: normalizeScheduleForSave(snapshot.schedule),
                 deletedLessons: snapshot.deletedLessons,
+                manualLessons: snapshot.manualLessons,
             };
 
             console.log("SAVE PAYLOAD (client):", payload);

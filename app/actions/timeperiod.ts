@@ -59,6 +59,15 @@ const saveFullScheduleInputSchema = z
         }),
       )
       .default([]),
+    manualLessons: z
+      .array(
+        z.object({
+          dateKey: ymdSchema,
+          period: z.number().int().positive(),
+          section: z.string().min(1),
+        }),
+      )
+      .default([]),
   })
   .superRefine((data, ctx) => {
     // Dates are in YYYY-MM-DD, so string comparison is safe here
@@ -222,6 +231,7 @@ function buildGeneratedLessons(params: {
   schedule: SchedulePayload;
   allowedCourseNames: string[];
   deletedLessons: { dateKey: string; period: number }[];
+  manualLessons: { dateKey: string; period: number; section: string }[];
 }): GeneratedLessonDraft[] {
   const {
     startDate,
@@ -230,6 +240,7 @@ function buildGeneratedLessons(params: {
     schedule,
     allowedCourseNames,
     deletedLessons,
+    manualLessons,
   } = params;
 
   const start = parseYmdToUtcDate(startDate);
@@ -240,6 +251,18 @@ function buildGeneratedLessons(params: {
   const deletedSet = new Set(
     deletedLessons.map((x) => `${x.dateKey}|${x.period}`),
   );
+
+  // dateKey -> (period -> section)
+  const manualByDate = new Map<string, Map<number, string>>();
+  for (const ml of manualLessons) {
+    const name = ml.section.trim();
+    if (!name) continue;
+
+    const byPeriod = manualByDate.get(ml.dateKey) ?? new Map<number, string>();
+    byPeriod.set(ml.period, name);
+    manualByDate.set(ml.dateKey, byPeriod);
+  }
+
   const lessonCounters = new Map<string, number>();
   const generated: GeneratedLessonDraft[] = [];
 
@@ -253,27 +276,44 @@ function buildGeneratedLessons(params: {
     // Skip holidays
     if (holidaySet.has(ymd)) continue;
 
-    // Find schedule row for this weekday (Mon/Tue/etc)
-    const dayPeriods = getScheduleDayForDate(schedule, current);
-    if (!dayPeriods) continue;
+    // Get weekly schedule row for this weekday (may be null)
+    const dayPeriods = getScheduleDayForDate(schedule, current) ?? {};
+    const manualPeriods = manualByDate.get(ymd) ?? new Map<number, string>();
 
-    // Process periods in numeric order: 1, 2, 3...
-    const sortedPeriods = Object.entries(dayPeriods).sort(
-      ([a], [b]) => Number(a) - Number(b),
-    );
+    // If neither weekly schedule nor manual entries exist, skip the day
+    if (Object.keys(dayPeriods).length === 0 && manualPeriods.size === 0)
+      continue;
 
-    for (const [periodKey, sectionName] of sortedPeriods) {
-      if (!sectionName) continue;
+    // Build union of periods from weekly schedule + manual entries
+    const periodSet = new Set<number>();
 
-      const trimmedName = sectionName.trim();
+    for (const k of Object.keys(dayPeriods)) {
+      const p = Number(k);
+      if (Number.isInteger(p) && p > 0) periodSet.add(p);
+    }
+    for (const p of manualPeriods.keys()) {
+      if (Number.isInteger(p) && p > 0) periodSet.add(p);
+    }
+
+    const sortedPeriods = Array.from(periodSet).sort((a, b) => a - b);
+
+    for (const timeSlot of sortedPeriods) {
+      const manualSection = manualPeriods.get(timeSlot);
+      const scheduleSection = dayPeriods[String(timeSlot)] ?? null;
+
+      // Manual wins for this slot; otherwise use weekly schedule
+      const rawName = (manualSection ?? scheduleSection) as string | null;
+      if (!rawName) continue;
+
+      const trimmedName = rawName.trim();
       if (!trimmedName) continue;
 
-      // Ignore schedule entries that are not in the saved sections list
+      // Must be one of the saved sections
       if (!allowedSet.has(trimmedName)) continue;
 
-      const timeSlot = Number(periodKey);
-      if (!Number.isInteger(timeSlot) || timeSlot <= 0) continue;
-      if (deletedSet.has(`${ymd}|${timeSlot}`)) continue;
+      // deletedLessons only applies to weekly-schedule lessons (not manual)
+      const isManual = !!manualSection;
+      if (!isManual && deletedSet.has(`${ymd}|${timeSlot}`)) continue;
 
       const nextLessonNumber = (lessonCounters.get(trimmedName) ?? 0) + 1;
       lessonCounters.set(trimmedName, nextLessonNumber);
@@ -308,7 +348,10 @@ export async function saveFullSchedule(input: SaveFullScheduleInput) {
   }
 
   const data = parsed.data;
-
+  console.log("saveFullSchedule counts:", {
+    deletedLessons: data.deletedLessons.length,
+    manualLessons: data.manualLessons.length,
+  });
   try {
     const result = await db.transaction(async (tx) => {
       // Step 5: Save the time period row
@@ -372,6 +415,7 @@ export async function saveFullSchedule(input: SaveFullScheduleInput) {
         schedule: data.schedule,
         allowedCourseNames: uniqueSections,
         deletedLessons: data.deletedLessons,
+        manualLessons: data.manualLessons,
       });
 
       // Step 9: Load saved courses and map courseName -> course_id
