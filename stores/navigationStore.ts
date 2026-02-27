@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export type Steps = 1 | 2 | 3 | 4 | 5;
+export type Steps = 1 | 2 | 3 | 4 | 5 | 6;
 export type NavigationStore = {
   step: Steps;
   setSteps: (step: Steps) => void;

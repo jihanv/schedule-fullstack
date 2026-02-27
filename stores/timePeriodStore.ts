@@ -14,6 +14,12 @@ export type DeletedLesson = {
   period: number;
 };
 
+export type ManualLesson = {
+  dateKey: string;
+  period: number;
+  section: string;
+};
+
 type TimePeriodStore = {
   activateNext: boolean;
   setActivateNext: (activated: boolean) => void;
@@ -66,6 +72,21 @@ type TimePeriodStore = {
   addDeletedLesson: (dateKey: string, period: number) => void;
   removeDeletedLesson: (dateKey: string, period: number) => void;
   isDeletedLesson: (dateKey: string, period: number) => boolean;
+
+  // Manual lessons (one-off additions / overrides)
+  manualLessons: ManualLesson[];
+  setManualLessons: (lessons: ManualLesson[]) => void;
+
+  upsertManualLesson: (
+    dateKey: string,
+    period: number,
+    section: string,
+  ) => void;
+  removeManualLesson: (dateKey: string, period: number) => void;
+  getManualLesson: (
+    dateKey: string,
+    period: number,
+  ) => ManualLesson | undefined;
 };
 
 export const useTimePeriodStore = create<TimePeriodStore>((set, get) => ({
@@ -265,6 +286,40 @@ export const useTimePeriodStore = create<TimePeriodStore>((set, get) => ({
 
   isDeletedLesson: (dateKey, period) => {
     return get().deletedLessons.some(
+      (x) => x.dateKey === dateKey && x.period === period,
+    );
+  },
+
+  manualLessons: [],
+  setManualLessons: (lessons) => set({ manualLessons: lessons }),
+
+  upsertManualLesson: (dateKey, period, section) =>
+    set((state) => {
+      const next = state.manualLessons.slice();
+      const idx = next.findIndex(
+        (x) => x.dateKey === dateKey && x.period === period,
+      );
+
+      if (idx >= 0) {
+        // update existing one-off lesson
+        next[idx] = { dateKey, period, section };
+      } else {
+        // add new one-off lesson
+        next.push({ dateKey, period, section });
+      }
+
+      return { manualLessons: next };
+    }),
+
+  removeManualLesson: (dateKey, period) =>
+    set((state) => ({
+      manualLessons: state.manualLessons.filter(
+        (x) => !(x.dateKey === dateKey && x.period === period),
+      ),
+    })),
+
+  getManualLesson: (dateKey, period) => {
+    return get().manualLessons.find(
       (x) => x.dateKey === dateKey && x.period === period,
     );
   },

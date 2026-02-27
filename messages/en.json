@@ -20,7 +20,8 @@
     "2": "Select Holidays",
     "3": "Add Sections",
     "4": "Select Periods",
-    "5": "Show Schedule"
+    "5": "Manual Edit",
+    "6": "Show Schedule"
   },
   "HolidaySelector": {
     "title": "Holidays",
@@ -127,7 +128,7 @@
       "documentation": "Documentation"
     }
   },
-  "TimePeriod":{
-    "title" : "Time Periods"
+  "TimePeriod": {
+    "title": "Time Periods"
   }
 }

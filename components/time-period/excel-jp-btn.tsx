@@ -79,6 +79,7 @@ export default function ExportExcelButtonJa() {
         pendingHolidays,
         commitPendingHolidays,
         deletedLessons,
+        manualLessons,
     } = useTimePeriodStore();
 
     const handleExport = async () => {
@@ -90,6 +91,13 @@ export default function ExportExcelButtonJa() {
         const deletedSet = new Set(
             deletedLessons.map((x) => `${x.dateKey}|${x.period}`)
         );
+
+        // Manual lessons lookup: `${YYYY-MM-DD}|${period}` -> section
+        const manualMap = new Map<string, string>();
+        for (const ml of manualLessons) {
+            manualMap.set(`${ml.dateKey}|${ml.period}`, ml.section);
+        }
+
         // Build chronological list of actual meetings (in range, non-holiday, assigned)
         const slots: Slot[] = [];
         for (const weekStart of weekStartsBetween(startDate, endDate)) {
@@ -98,11 +106,24 @@ export default function ExportExcelButtonJa() {
                 if (d < startDate || d > endDate) continue;
                 if (isHoliday(d, pendingHolidays)) continue;
                 const key = dayKeyFromDate(d); // "Mon".."Sat"
-                for (const p of PERIODS) {
-                    const section = schedule[key]?.[p];
-                    if (!section) continue; // empty slot
+                const dk = dateKey(d);
 
-                    if (deletedSet.has(`${dateKey(d)}|${p}`)) continue; // skipped lesson
+                for (const p of PERIODS) {
+                    const slotKey = `${dk}|${p}`;
+
+                    // 1) Manual lesson wins for this slot
+                    const manualSection = manualMap.get(slotKey);
+                    if (manualSection) {
+                        slots.push({ date: d, period: p, section: manualSection });
+                        continue;
+                    }
+
+                    // 2) Otherwise weekly schedule
+                    const section = schedule[key]?.[p];
+                    if (!section) continue;
+
+                    // deletedLessons only applies to weekly schedule lessons
+                    if (deletedSet.has(slotKey)) continue;
 
                     slots.push({ date: d, period: p, section });
                 }
@@ -208,10 +229,17 @@ export default function ExportExcelButtonJa() {
                         return;
                     }
 
+                    // Normal day with assignment (manual wins)
                     const key = dayKeyFromDate(d);
-                    const section = schedule[key]?.[p] ?? "";
                     const slotKey = `${dateKey(d)}|${p}`;
-                    const isDeleted = deletedSet.has(slotKey);
+
+                    const manualSection = manualMap.get(slotKey);
+                    const isManual = !!manualSection;
+
+                    const section = manualSection ?? schedule[key]?.[p] ?? "";
+
+                    // deletedLessons only applies to weekly schedule lessons
+                    const isDeleted = !isManual && deletedSet.has(slotKey);
 
                     if (!section || isDeleted) {
                         cell.value = "";
@@ -220,7 +248,7 @@ export default function ExportExcelButtonJa() {
                     }
 
                     const n = meetingCount.get(slotKey);
-                    cell.value = `${p}限\n${section}\n第${n ?? "—"}回`;
+                    cell.value = `Period ${p}\n${section}\n${isManual ? "Manual " : ""}Meeting ${n ?? "—"}`;
 
                     cell.alignment = ALIGN_CENTER_MULTI;
 

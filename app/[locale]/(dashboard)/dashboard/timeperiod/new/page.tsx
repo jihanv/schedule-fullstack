@@ -3,6 +3,7 @@ import PeriodStepNav from "@/components/navigation/period-steps";
 import DateSelector from "@/components/time-period/date-selector";
 import HolidaySelector from "@/components/time-period/holiday-selector";
 import InformationDisplay from "@/components/time-period/InformationDisplay";
+import ManualEditor from "@/components/time-period/manual-editor";
 import PeriodSelector from "@/components/time-period/period-selector";
 import SectionNameInput from "@/components/time-period/SectionClassInput";
 import { Button } from "@/components/ui/button";
@@ -34,7 +35,7 @@ export default function Home() {
             setSteps(Number(step + 1) as Steps);
             setActivateNext(false);
           }}
-          disabled={step >= 5 || !activateNext}
+          disabled={step >= 6 || !activateNext}
         >
           {t("next")}
         </Button>
@@ -46,7 +47,8 @@ export default function Home() {
           {step === 2 && <HolidaySelector />}
           {step === 3 && <SectionNameInput />}
           {step === 4 && <PeriodSelector />}
-          {step === 5 && <InformationDisplay />}
+          {step === 5 && <ManualEditor />}
+          {step === 6 && <InformationDisplay />}
         </div>
       </div>
     </>

@@ -101,6 +101,7 @@ export default function ExportExcelButton() {
         pendingHolidays,
         commitPendingHolidays,
         deletedLessons,
+        manualLessons,
     } = useTimePeriodStore();
 
     const t = useTranslations("ExportExcel")
@@ -114,6 +115,13 @@ export default function ExportExcelButton() {
         const deletedSet = new Set(
             deletedLessons.map((x) => `${x.dateKey}|${x.period}`)
         );
+
+        // Manual lessons lookup: `${YYYY-MM-DD}|${period}` -> section
+        const manualMap = new Map<string, string>();
+        for (const ml of manualLessons) {
+            manualMap.set(`${ml.dateKey}|${ml.period}`, ml.section);
+        }
+
         // Build chronological list of actual meetings (in range, non-holiday, assigned)
         const slots: Slot[] = [];
 
@@ -123,11 +131,24 @@ export default function ExportExcelButton() {
                 if (d < startDate || d > endDate) continue; // out-of-range day
                 if (isHoliday(d, pendingHolidays)) continue; // holiday day
                 const key = dayKeyFromDate(d); // "Mon".."Sat"
-                for (const p of PERIODS) {
-                    const section = schedule[key]?.[p];
-                    if (!section) continue; // empty slot
+                const dk = dateKey(d);
 
-                    if (deletedSet.has(`${dateKey(d)}|${p}`)) continue; // skipped lesson
+                for (const p of PERIODS) {
+                    const slotKey = `${dk}|${p}`;
+
+                    // 1) Manual lesson wins for this slot
+                    const manualSection = manualMap.get(slotKey);
+                    if (manualSection) {
+                        slots.push({ date: d, period: p, section: manualSection });
+                        continue;
+                    }
+
+                    // 2) Otherwise weekly schedule
+                    const section = schedule[key]?.[p];
+                    if (!section) continue;
+
+                    // deletedLessons only applies to weekly schedule lessons
+                    if (deletedSet.has(slotKey)) continue;
 
                     slots.push({ date: d, period: p, section });
                 }
@@ -238,11 +259,17 @@ export default function ExportExcelButton() {
                         return;
                     }
 
-                    // Normal day with assignment
+                    // Normal day with assignment (manual wins)
                     const key = dayKeyFromDate(d);
-                    const section = schedule[key]?.[p] ?? "";
                     const slotKey = `${dateKey(d)}|${p}`;
-                    const isDeleted = deletedSet.has(slotKey);
+
+                    const manualSection = manualMap.get(slotKey);
+                    const isManual = !!manualSection;
+
+                    const section = manualSection ?? schedule[key]?.[p] ?? "";
+
+                    // deletedLessons only applies to weekly schedule lessons
+                    const isDeleted = !isManual && deletedSet.has(slotKey);
 
                     if (!section || isDeleted) {
                         cell.value = "";
@@ -251,8 +278,7 @@ export default function ExportExcelButton() {
                     }
 
                     const n = meetingCount.get(slotKey);
-                    cell.value = `Period ${p}\n${section} \nMeeting ${n ?? "—"}`;
-
+                    cell.value = `Period ${p}\n${section}\nMeeting ${n ?? "—"}`;
 
                     cell.alignment = ALIGN_CENTER_MULTI;
                     // keep your existing color code right after this (fill/font from palette)

@@ -43,6 +43,7 @@ export default function MeetingListEditor() {
         sections,
         pendingHolidays,
         deletedLessons,
+        manualLessons
     } = useTimePeriodStore();
     function toDateKey(d: Date) {
         return format(d, "yyyy-MM-dd");
@@ -65,6 +66,11 @@ export default function MeetingListEditor() {
 
         // 1) Walk every day in the chosen range
         const rawSlots: { date: Date; period: number; section: string }[] = [];
+        const manualMap = new Map<string, string>();
+        for (const ml of manualLessons) {
+            manualMap.set(`${ml.dateKey}|${ml.period}`, ml.section);
+        }
+
         const cur = new Date(startDate);
         const end = new Date(endDate);
 
@@ -72,17 +78,30 @@ export default function MeetingListEditor() {
             const isSunday = cur.getDay() === 0;
             if (!isSunday && !isHoliday(cur, pendingHolidays)) {
                 const key = dayKeyFromDate(cur);
-                for (const p of PERIODS) {
-                    const assigned = schedule[key]?.[p];
+                const dk = toDateKey(cur);
 
+                for (const p of PERIODS) {
+                    const slotKey = `${dk}|${p}`;
+
+                    // 1) Manual lesson wins for this slot
+                    const manualSection = manualMap.get(slotKey);
+                    if (manualSection) {
+                        rawSlots.push({
+                            date: new Date(cur),
+                            period: p,
+                            section: manualSection,
+                        });
+                        continue;
+                    }
+
+                    // 2) Otherwise use weekly schedule
+                    const assigned = schedule[key]?.[p];
                     if (!assigned) continue;
 
-                    const dateKey = toDateKey(cur);
-
+                    // deletedLessons only applies to weekly-schedule lessons
                     const isDeleted = deletedLessons.some(
-                        (x) => x.dateKey === dateKey && x.period === p
+                        (x) => x.dateKey === dk && x.period === p
                     );
-
                     if (isDeleted) continue;
 
                     rawSlots.push({
@@ -90,7 +109,6 @@ export default function MeetingListEditor() {
                         period: p,
                         section: assigned,
                     });
-
                 }
             }
             cur.setDate(cur.getDate() + 1);
@@ -142,8 +160,7 @@ export default function MeetingListEditor() {
         for (const [, n] of perSectionCounts) if (n > max) max = n;
 
         return { perSectionCounts, perSectionMeetings, maxMeetings: max };
-    }, [startDate, endDate, sections, schedule, pendingHolidays, deletedLessons]);
-    //   const items = useMemo(
+    }, [startDate, endDate, sections, schedule, pendingHolidays, deletedLessons, manualLessons]);    //   const items = useMemo(
     //     () => Array.from({ length: maxMeetings }, (_, i) => i + 1),
     //     [maxMeetings],
     //   );

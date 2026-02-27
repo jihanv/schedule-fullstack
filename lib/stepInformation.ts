@@ -4,4 +4,5 @@ export const steps = [
   { step: 3 },
   { step: 4 },
   { step: 5 },
+  { step: 6 },
 ];

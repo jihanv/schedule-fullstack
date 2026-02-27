@@ -83,6 +83,7 @@ export default function WeeklyTables() {
         deletedLessons,
         addDeletedLesson,
         removeDeletedLesson,
+        manualLessons,
     } = useTimePeriodStore();
     const showWeeklyPreview = useTimePeriodStore(s => s.showWeeklyPreview);
     const format = useFormatter();
@@ -95,29 +96,43 @@ export default function WeeklyTables() {
     );
 
     const meetingCount = React.useMemo(() => {
-        // Map of "YYYY-MM-DD|<period>" -> class number for that section
         const map = new Map<string, number>();
+        if (!startDate || !endDate) return map;
 
-        // Running counter per section across the term
         const perSection = new Map<string, number>();
 
-        // Flatten all valid meeting slots (chronological domain)
+        // Quick lookup for manual lessons (manual wins for that slot)
+        const manualMap = new Map<string, string>();
+        for (const ml of manualLessons) {
+            manualMap.set(`${ml.dateKey}|${ml.period}`, ml.section);
+        }
+
         const slots: { date: Date; period: number; section: string }[] = [];
 
         for (const wk of weeks) {
             for (const d of wk.days) {
-                // Skip outside the chosen range
-                if (d < startDate! || d > endDate!) continue;
-                // Skip holidays
+                if (d < startDate || d > endDate) continue;
                 if (isHoliday(d, holidays)) continue;
 
-                const dayKey = dayKeyFromDate(d); // "Mon" | ... | "Sat"
+                const dk = dateKey(d);
+                const dayKey = dayKeyFromDate(d);
+
                 for (const p of PERIODS) {
+                    const k = `${dk}|${p}`;
+
+                    // 1) Manual lesson for this slot (if any)
+                    const manualSection = manualMap.get(k);
+                    if (manualSection) {
+                        slots.push({ date: d, period: p, section: manualSection });
+                        continue;
+                    }
+
+                    // 2) Otherwise weekly template schedule
                     const section = schedule[dayKey]?.[p];
                     if (!section) continue;
 
                     const skipped = deletedLessons.some(
-                        (x) => x.dateKey === dateKey(d) && x.period === p
+                        (x) => x.dateKey === dk && x.period === p
                     );
                     if (skipped) continue;
 
@@ -126,12 +141,10 @@ export default function WeeklyTables() {
             }
         }
 
-        // Sort strictly by date, then by period (1..N)
         slots.sort(
             (a, b) => a.date.getTime() - b.date.getTime() || a.period - b.period
         );
 
-        // Walk in order, increment per-section counters, and store a lookup for quick render
         for (const s of slots) {
             const next = (perSection.get(s.section) ?? 0) + 1;
             perSection.set(s.section, next);
@@ -139,7 +152,7 @@ export default function WeeklyTables() {
         }
 
         return map;
-    }, [weeks, startDate, endDate, holidays, schedule, deletedLessons]);
+    }, [weeks, startDate, endDate, holidays, schedule, deletedLessons, manualLessons]);
 
 
     // You can still early-return after hooks
@@ -200,19 +213,25 @@ export default function WeeklyTables() {
                                                 const key = dayKeyFromDate(d);              // "Mon" | ... | "Sat"
                                                 const assigned = schedule[key]?.[p];         // e.g., "AB"
                                                 const cellDateKey = dateKey(d);
+                                                const manual = manualLessons.find(
+                                                    (x) => x.dateKey === cellDateKey && x.period === p
+                                                );
+
+                                                const displaySection = manual?.section ?? assigned;
                                                 const isSkipped =
                                                     !hol &&
                                                     !outOfRange &&
                                                     !!assigned &&
+                                                    !manual && // don't treat manual lessons as skippable via deletedLessons
                                                     deletedLessons.some((x) => x.dateKey === cellDateKey && x.period === p);
                                                 // Only color when NOT a holiday and within range
                                                 const colorClasses =
-                                                    !hol && !outOfRange && assigned && !isSkipped
-                                                        ? badgeColorFor(assigned, sections)
+                                                    !hol && !outOfRange && displaySection && !isSkipped
+                                                        ? badgeColorFor(displaySection, sections)
                                                         : "";
 
                                                 // Pull precomputed class count (if any)
-                                                const classNum = meetingCount.get(`${dateKey(d)}|${p}`);
+                                                const classNum = meetingCount.get(`${cellDateKey}|${p}`);
 
                                                 const content = hol ? (
                                                     <div className="text-xs leading-tight">
@@ -229,7 +248,7 @@ export default function WeeklyTables() {
 
                                                             {/* reserve a fixed slot so layout stays stable */}
                                                             <div className="w-4 h-4 flex items-center justify-center shrink-0">
-                                                                {assigned && !outOfRange ? (
+                                                                {assigned && !outOfRange && !manual ? (
                                                                     <button
                                                                         type="button"
                                                                         onClick={() => {
@@ -250,14 +269,16 @@ export default function WeeklyTables() {
                                                         </div>
 
                                                         <div className={`text-xs leading-4 ${assigned ? "font-semibold" : "text-muted-foreground"}`}>
-                                                            {assigned ?? "—"}
+                                                            {displaySection ?? "—"}
                                                         </div>
 
                                                         <div className={`text-xs leading-4 min-h-4 ${assigned ? "opacity-100" : "text-muted-foreground"}`}>
-                                                            {assigned
-                                                                ? isSkipped
-                                                                    ? "Skipped"
-                                                                    : t("meetingLabel", { count: classNum ?? "—" })
+                                                            {displaySection
+                                                                ? manual
+                                                                    ? `${t("meetingLabel", { count: classNum ?? "—" })}`
+                                                                    : isSkipped
+                                                                        ? "Skipped"
+                                                                        : t("meetingLabel", { count: classNum ?? "—" })
                                                                 : ""}
                                                         </div>
                                                     </>
