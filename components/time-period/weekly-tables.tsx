@@ -80,9 +80,6 @@ export default function WeeklyTables() {
         schedule,
         sections,
         holidays,
-        deletedLessons,
-        addDeletedLesson,
-        removeDeletedLesson,
         manualLessons,
     } = useTimePeriodStore();
     const showWeeklyPreview = useTimePeriodStore(s => s.showWeeklyPreview);
@@ -131,11 +128,6 @@ export default function WeeklyTables() {
                     const section = schedule[dayKey]?.[p];
                     if (!section) continue;
 
-                    const skipped = deletedLessons.some(
-                        (x) => x.dateKey === dk && x.period === p
-                    );
-                    if (skipped) continue;
-
                     slots.push({ date: d, period: p, section });
                 }
             }
@@ -152,8 +144,7 @@ export default function WeeklyTables() {
         }
 
         return map;
-    }, [weeks, startDate, endDate, holidays, schedule, deletedLessons, manualLessons]);
-
+    }, [weeks, startDate, endDate, holidays, schedule, manualLessons]);
 
     // You can still early-return after hooks
     if (!showWeeklyPreview) return null;
@@ -218,15 +209,10 @@ export default function WeeklyTables() {
                                                 );
 
                                                 const displaySection = manual?.section ?? assigned;
-                                                const isSkipped =
-                                                    !hol &&
-                                                    !outOfRange &&
-                                                    !!assigned &&
-                                                    !manual && // don't treat manual lessons as skippable via deletedLessons
-                                                    deletedLessons.some((x) => x.dateKey === cellDateKey && x.period === p);
+
                                                 // Only color when NOT a holiday and within range
                                                 const colorClasses =
-                                                    !hol && !outOfRange && displaySection && !isSkipped
+                                                    !hol && !outOfRange && displaySection
                                                         ? badgeColorFor(displaySection, sections)
                                                         : "";
 
@@ -247,25 +233,7 @@ export default function WeeklyTables() {
                                                             </div>
 
                                                             {/* reserve a fixed slot so layout stays stable */}
-                                                            <div className="w-4 h-4 flex items-center justify-center shrink-0">
-                                                                {assigned && !outOfRange && !manual ? (
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => {
-                                                                            if (isSkipped) {
-                                                                                removeDeletedLesson(cellDateKey, p);
-                                                                            } else {
-                                                                                addDeletedLesson(cellDateKey, p);
-                                                                            }
-                                                                        }}
-                                                                        className="text-xs leading-none font-bold opacity-70 hover:opacity-100"
-                                                                        aria-label={isSkipped ? "Restore lesson" : "Delete lesson"}
-                                                                        title={isSkipped ? "Restore lesson" : "Delete lesson"}
-                                                                    >
-                                                                        ×
-                                                                    </button>
-                                                                ) : null}
-                                                            </div>
+                                                            <div className="w-4 h-4 shrink-0" />
                                                         </div>
 
                                                         <div className={`text-xs leading-4 ${assigned ? "font-semibold" : "text-muted-foreground"}`}>
@@ -273,13 +241,7 @@ export default function WeeklyTables() {
                                                         </div>
 
                                                         <div className={`text-xs leading-4 min-h-4 ${assigned ? "opacity-100" : "text-muted-foreground"}`}>
-                                                            {displaySection
-                                                                ? manual
-                                                                    ? `${t("meetingLabel", { count: classNum ?? "—" })}`
-                                                                    : isSkipped
-                                                                        ? "Skipped"
-                                                                        : t("meetingLabel", { count: classNum ?? "—" })
-                                                                : ""}
+                                                            {displaySection ? t("meetingLabel", { count: classNum ?? "—" }) : ""}
                                                         </div>
                                                     </>
                                                 );
@@ -289,9 +251,7 @@ export default function WeeklyTables() {
                                                         <div
                                                             className={`rounded-md p-2 h-17 flex flex-col ${hol || outOfRange
                                                                 ? "bg-muted/40 text-muted-foreground"
-                                                                : isSkipped
-                                                                    ? "bg-muted/60 text-muted-foreground"
-                                                                    : colorClasses || "bg-background"
+                                                                : colorClasses || "bg-background"
                                                                 }`}
                                                         >
                                                             {content}
