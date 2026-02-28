@@ -48,7 +48,10 @@ function excelColorsForSection(section: string, sections: string[]) {
 }
 
 function* weekStartsBetween(start: Date, end: Date) {
-    let cur = startOfWeekMonday(start);
+    // If the selected period starts on Sunday, skip it.
+    // Our schedule/export only uses Mon–Sat, so starting on Sunday would create an empty “previous week” block.
+    const effectiveStart = start.getDay() === 0 ? addDays(start, 1) : start;
+    let cur = startOfWeekMonday(effectiveStart);
     while (cur <= end) {
         yield new Date(cur);
         cur = addDays(cur, 7);
@@ -91,12 +94,15 @@ export default function ExportExcelButton() {
     const format = useFormatter();
 
     const handleExport = async () => {
+
+
         commitPendingHolidays();
 
         if (!startDate || !endDate) {
             alert(t("alerts.missingDates"));
             return;
         }
+
         const deletedSet = new Set(
             deletedLessons.map((x) => `${x.dateKey}|${x.period}`)
         );
@@ -160,13 +166,13 @@ export default function ExportExcelButton() {
 
         // Column widths (A..G) — set once, used for every week block
         ws.columns = [
-            { header: t("headers.period"), key: "period", width: 10 },
-            { header: t("headers.mon"), key: "d1", width: 22 },
-            { header: t("headers.tue"), key: "d2", width: 22 },
-            { header: t("headers.wed"), key: "d3", width: 22 },
-            { header: t("headers.thu"), key: "d4", width: 22 },
-            { header: t("headers.fri"), key: "d5", width: 22 },
-            { header: t("headers.sat"), key: "d6", width: 22 },
+            { key: "period", width: 10 },
+            { key: "d1", width: 22 },
+            { key: "d2", width: 22 },
+            { key: "d3", width: 22 },
+            { key: "d4", width: 22 },
+            { key: "d5", width: 22 },
+            { key: "d6", width: 22 },
         ];
 
         let row = 1; // running row pointer
@@ -196,10 +202,7 @@ export default function ExportExcelButton() {
                 if (isHoliday(d, pendingHolidays)) {
                     const cell = ws.getRow(row).getCell(i + 2); // B..G
                     // Add a 2nd line that says "Holiday"
-                    cell.value = t("cells.holidayLine", {
-                        periodLabel: format.dateTime(d, { weekday: "short", month: "short", day: "numeric" }),
-                        holiday: t("labels.holiday"),
-                    });
+                    cell.value = format.dateTime(d, { weekday: "short", month: "short", day: "numeric" });
                     cell.alignment = {
                         vertical: "middle",
                         horizontal: "left",
