@@ -13,7 +13,7 @@ import {
     Slot,
 } from "@/lib/constants";
 import { useTimePeriodStore } from "@/stores/timePeriodStore";
-import { useTranslations } from "next-intl";
+import { useTranslations, useFormatter } from "next-intl";
 
 // ----- helpers -----
 function startOfWeekMonday(d: Date) {
@@ -29,24 +29,7 @@ function addDays(base: Date, days: number) {
     d.setDate(d.getDate() + days);
     return d;
 }
-function headerLabel(d: Date) {
-    const wd = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()];
-    const mo = [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-    ][d.getMonth()];
-    return `${wd}, ${mo} ${d.getDate()}`;
-}
+
 // Map Date -> your weekday keys ("Mon" | ... | "Sat")
 function dayKeyFromDate(
     d: Date,
@@ -105,6 +88,8 @@ export default function ExportExcelButton() {
     } = useTimePeriodStore();
 
     const t = useTranslations("ExportExcel")
+    const format = useFormatter();
+
     const handleExport = async () => {
         commitPendingHolidays();
 
@@ -171,32 +156,38 @@ export default function ExportExcelButton() {
         }
 
         const wb = new ExcelJS.Workbook();
-        const ws = wb.addWorksheet("Schedule");
+        const ws = wb.addWorksheet(t("workbook.sheetName"));
 
         // Column widths (A..G) — set once, used for every week block
         ws.columns = [
-            { header: "Period", key: "period", width: 10 },
-            { header: "Mon", key: "d1", width: 22 },
-            { header: "Tue", key: "d2", width: 22 },
-            { header: "Wed", key: "d3", width: 22 },
-            { header: "Thu", key: "d4", width: 22 },
-            { header: "Fri", key: "d5", width: 22 },
-            { header: "Sat", key: "d6", width: 22 },
+            { header: t("headers.period"), key: "period", width: 10 },
+            { header: t("headers.mon"), key: "d1", width: 22 },
+            { header: t("headers.tue"), key: "d2", width: 22 },
+            { header: t("headers.wed"), key: "d3", width: 22 },
+            { header: t("headers.thu"), key: "d4", width: 22 },
+            { header: t("headers.fri"), key: "d5", width: 22 },
+            { header: t("headers.sat"), key: "d6", width: 22 },
         ];
 
         let row = 1; // running row pointer
 
         for (const weekStart of weekStartsBetween(startDate, endDate)) {
             // --- Title row ---
-            ws.getCell(row, 1).value =
-                "Weekly Timetable (Week of " + headerLabel(weekStart) + ")";
+            ws.getCell(row, 1).value = t("headers.weekTitle", {
+                date: format.dateTime(weekStart, { year: "numeric", month: "short", day: "numeric" }),
+            });
             ws.getRow(row).font = { bold: true };
             ws.getRow(row).height = ROW_HEIGHT_4_LINES / 2;
             row += 2; // leave a blank row for spacing (title on row, blank row next)
 
             // --- Header row: Mon–Sat with dates ---
             const days = [0, 1, 2, 3, 4, 5].map((i) => addDays(weekStart, i)); // Mon..Sat
-            ws.getRow(row).values = ["Period", ...days.map((d) => headerLabel(d))];
+            ws.getRow(row).values = [
+                t("headers.period"),
+                ...days.map((d) =>
+                    format.dateTime(d, { weekday: "short", month: "short", day: "numeric" })
+                ),
+            ];
             ws.getRow(row).font = { bold: true };
             ws.getRow(row).height = ROW_HEIGHT_4_LINES / 2;
 
@@ -205,7 +196,10 @@ export default function ExportExcelButton() {
                 if (isHoliday(d, pendingHolidays)) {
                     const cell = ws.getRow(row).getCell(i + 2); // B..G
                     // Add a 2nd line that says "Holiday"
-                    cell.value = headerLabel(d) + " Holiday";
+                    cell.value = t("cells.holidayLine", {
+                        periodLabel: format.dateTime(d, { weekday: "short", month: "short", day: "numeric" }),
+                        holiday: t("labels.holiday"),
+                    });
                     cell.alignment = {
                         vertical: "middle",
                         horizontal: "left",
@@ -248,7 +242,10 @@ export default function ExportExcelButton() {
 
                     // Holiday (you chose one-line earlier like `${p} — Holiday`)
                     if (isHoliday(d, pendingHolidays)) {
-                        cell.value = `${p} — Holiday`; // if you kept multi-line, still fine
+                        cell.value = t("cells.holidayLine", {
+                            periodLabel: t("cells.periodLine", { period: p }),
+                            holiday: t("labels.holiday"),
+                        });
                         cell.alignment = ALIGN_CENTER_ONE; // or ALIGN_CENTER_MULTI if multi-line
                         cell.fill = {
                             type: "pattern",
@@ -278,7 +275,9 @@ export default function ExportExcelButton() {
                     }
 
                     const n = meetingCount.get(slotKey);
-                    cell.value = `Period ${p}\n${section}\nMeeting ${n ?? "—"}`;
+                    cell.value = `${t("cells.periodLine", { period: p })}\n${section}\n${t("cells.meetingLine", {
+                        count: n ?? "—",
+                    })}`;
 
                     cell.alignment = ALIGN_CENTER_MULTI;
                     // keep your existing color code right after this (fill/font from palette)
@@ -322,7 +321,7 @@ export default function ExportExcelButton() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = "schedule.xlsx";
+        a.download = t("download.filename");
         a.click();
         URL.revokeObjectURL(url);
     };

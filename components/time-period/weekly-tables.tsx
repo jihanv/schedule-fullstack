@@ -179,11 +179,11 @@ export default function WeeklyTables() {
                                                 >
                                                     <div className="flex items-center gap-2">
                                                         <div className="font-semibold tracking-tight">{formatHeader(d)}</div>
-                                                        {hol && (
+                                                        {/* {hol && (
                                                             <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-200/80 text-amber-900 border border-amber-300">
                                                                 {t("holiday")}
                                                             </span>
-                                                        )}
+                                                        )} */}
                                                     </div>
                                                 </th>
                                             );

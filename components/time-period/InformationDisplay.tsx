@@ -12,18 +12,20 @@ import { Button } from "@/components/ui/button";
 import MeetingList from "./meeting-list";
 import H1 from "@/components/format/h1";
 import { useTimePeriodStore } from "@/stores/timePeriodStore";
-import { useLocale, useTranslations } from "next-intl";
-import ExportExcelButtonJa from "@/components/time-period/excel-jp-btn"
+import { useTranslations } from "next-intl";
 import { saveFullSchedule } from "@/app/actions/timeperiod";
+import { useState } from "react";
 
 export default function InformationDisplay() {
     const showWeeklyPreview = useTimePeriodStore((s) => s.showWeeklyPreview);
     const setShowWeeklyPreview = useTimePeriodStore((s) => s.setShowWeeklyPreview);
     const { commitPendingHolidays } = useTimePeriodStore();
+    const [isSaving, setIsSaving] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
 
     const t = useTranslations("CompleteSchedule")
-    const locale = useLocale();
-    const uiLocale = locale === 'ja' ? 'ja' : 'en';
+    // const locale = useLocale();
+    // const uiLocale = locale === 'ja' ? 'ja' : 'en';
 
     // Convert Date -> YYYY-MM-DD using local date parts
     const toYmd = (d: Date) => {
@@ -50,6 +52,8 @@ export default function InformationDisplay() {
         return normalized;
     };
     const handleSaveClick = async () => {
+        setIsSaving(true);
+        await new Promise((r) => setTimeout(r, 1500));
         try {
             // 1) Make sure pending holiday edits are applied
             commitPendingHolidays();
@@ -77,11 +81,16 @@ export default function InformationDisplay() {
 
             // 4) Send to server action (validation only for now)
             const result = await saveFullSchedule(payload);
-
+            if (result.ok) {
+                setShowSuccess(true);
+            }
             // 5) Inspect server response
             console.log("SAVE RESPONSE (server):", result);
         } catch (error) {
             console.error("Save failed:", error);
+        } finally {
+            setIsSaving(false);
+
         }
     };
     return (
@@ -99,6 +108,7 @@ export default function InformationDisplay() {
                         >
                             {t("showSchedule")}
                         </Button>
+
                     </div>
 
                     <div className="flex flex-col">
@@ -118,13 +128,37 @@ export default function InformationDisplay() {
                             </div>
                         </DialogContent>
                     </Dialog>
+                    <Dialog open={isSaving} onOpenChange={() => { }}>
+                        <DialogContent
+                            className="w-[92vw] max-w-md p-8 text-center"
+                            onInteractOutside={(e) => e.preventDefault()}
+                            onEscapeKeyDown={(e) => e.preventDefault()}
+                        >                      <DialogHeader>
+                                <DialogTitle>Saving…</DialogTitle>
+                            </DialogHeader>
+                            <div className="mt-6 flex justify-center">
+                                <div className="h-10 w-10 animate-spin rounded-full border-4 border-muted-foreground border-t-transparent" />
+                            </div>
+                            <p className="text-sm mt-3">
+                                Please don’t close this tab/window while we save your schedule.
+                            </p>
+                        </DialogContent>
+                    </Dialog>
+                    <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
+                        <DialogContent
+                            className="w-[92vw] max-w-md p-8 text-center"
+                        >
+                            <DialogHeader>
+                                <DialogTitle>Saved!</DialogTitle>
+                            </DialogHeader>
 
+                            <p className="text-sm">Your schedule was saved successfully.</p>
+
+                            <Button onClick={() => setShowSuccess(false)}>OK</Button>
+                        </DialogContent>
+                    </Dialog>
                     <div>
-                        {uiLocale === "ja" ? (
-                            <ExportExcelButtonJa />
-                        ) : (
-                            <ExportExcelButton />
-                        )}
+                        <ExportExcelButton />
                     </div>
                 </div>
             </div>
