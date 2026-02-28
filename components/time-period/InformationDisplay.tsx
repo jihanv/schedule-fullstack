@@ -15,6 +15,7 @@ import { useTimePeriodStore } from "@/stores/timePeriodStore";
 import { useTranslations } from "next-intl";
 import { saveFullSchedule } from "@/app/actions/timeperiod";
 import { useState } from "react";
+import ExportAttendanceButton from "@/components/time-period/attendance-ex-btn";
 
 export default function InformationDisplay() {
     const showWeeklyPreview = useTimePeriodStore((s) => s.showWeeklyPreview);
@@ -116,7 +117,7 @@ export default function InformationDisplay() {
                             Save
                         </Button>
                     </div>
-                    {/* Your dialog controlled by the store */}
+
                     <Dialog open={showWeeklyPreview} onOpenChange={setShowWeeklyPreview}>
                         <DialogContent className="h-[92vh] max-h-[92vh] flex flex-col">
                             <DialogHeader className="shrink-0">
@@ -157,8 +158,9 @@ export default function InformationDisplay() {
                             <Button onClick={() => setShowSuccess(false)}>OK</Button>
                         </DialogContent>
                     </Dialog>
-                    <div>
+                    <div className="flex flex-col gap-2">
                         <ExportExcelButton />
+                        <ExportAttendanceButton />
                     </div>
                 </div>
             </div>
