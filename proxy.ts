@@ -24,18 +24,20 @@ function detectLocale(req: NextRequest): Locale {
 
 // IMPORTANT: auth pages are public, now locale-prefixed
 const isPublicRoute = createRouteMatcher([
+  "/:locale",
+  "/:locale/",
   "/:locale/signin(.*)",
   "/:locale/signup(.*)",
   "/api/webhooks/clerk",
+  "/api/holidays(.*)",
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
   const { pathname } = req.nextUrl;
 
-  // Redirect "/" -> "/{locale}/signin"
   if (pathname === "/") {
     const locale = detectLocale(req);
-    return NextResponse.redirect(new URL(`/${locale}/signin`, req.url));
+    return NextResponse.redirect(new URL(`/${locale}`, req.url));
   }
 
   // Optional: if someone hits "/signin" or "/signup" without locale, redirect them

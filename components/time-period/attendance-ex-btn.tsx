@@ -134,7 +134,7 @@ export default function ExportAttendanceButton() {
             ws.views = [{ state: "frozen", xSplit: 2, ySplit: 1 }];
             const meetingSlots = getMeetingSlotsForSection(sectionName);
             const dateHeaders = meetingSlots.map(
-                (s, idx) => `${s.dateKey}\nPeriod ${s.period}\nMeeting - ${idx + 1}`
+                (s, idx) => `${s.dateKey}\nPeriod ${s.period}\nLesson - ${idx + 1}`
             );
 
             const firstDateCol = 3; // column C
@@ -145,16 +145,43 @@ export default function ExportAttendanceButton() {
             const stopCol = firstDateCol + dateHeaders.length; // after last date
             const absentCol = stopCol + 1;
 
+            // NEW: blank spacer column + total class hours column
+            const spacerCol = absentCol + 1;
+            const totalHoursCol = spacerCol + 1;
+
+            const afterTotalSpacerCol = totalHoursCol + 1; // blank column after 総授業時数
+            const baseHoursCol = afterTotalSpacerCol + 1;  // where user types the number
+
+
             ws.getCell(1, stopCol).value = "停";
             ws.getCell(1, absentCol).value = "欠";
 
+            // NEW headers
+            ws.getCell(1, spacerCol).value = "";           // blank column
+            ws.getCell(1, totalHoursCol).value = "総授業時数"; // you can rename later
+            ws.getCell(1, afterTotalSpacerCol).value = "";            // blank column
+            const baseHeaderCell = ws.getCell(1, baseHoursCol);
+
+            baseHeaderCell.value = "基準時数\n（編集）"; // \n makes the next line in the SAME cell
+            baseHeaderCell.alignment = {
+                horizontal: "center",
+                vertical: "middle",
+                wrapText: true,
+            };
+            ws.getCell(2, baseHoursCol).value = 100;
+
+            const baseHoursCell = ws.getCell(2, baseHoursCol); // the cell user edits
+            const baseHoursRef = baseHoursCell.address.replace(/([A-Z]+)(\d+)/, "$$$1$$$2"); // makes $AB$2
             // widths
             ws.getColumn(1).width = 10;  // Student #
             ws.getColumn(2).width = 18;  // Student Name
             for (let i = 0; i < dateHeaders.length; i++) ws.getColumn(firstDateCol + i).width = 16;
             ws.getColumn(stopCol).width = 6;
             ws.getColumn(absentCol).width = 6;
-
+            ws.getColumn(spacerCol).width = 3;
+            ws.getColumn(totalHoursCol).width = 12;
+            ws.getColumn(afterTotalSpacerCol).width = 3;
+            ws.getColumn(baseHoursCol).width = 12;
             // --- rows ---
             for (let row = 2; row < 2 + NUM_STUDENTS; row++) {
                 ws.getCell(row, 1).value = row - 1; // Student #
@@ -178,8 +205,27 @@ export default function ExportAttendanceButton() {
                 ws.getCell(row, absentCol).value = {
                     formula: `COUNTIF(${first}${row}:${last}${row},"欠")`,
                 };
-            }
 
+                const stopCellAddress = ws.getCell(row, stopCol).address;
+                ws.getCell(row, totalHoursCol).value = {
+                    formula: `${baseHoursRef}-${stopCellAddress}`,
+                };
+
+            }
+            const thinBorder = {
+                top: { style: "thin" },
+                left: { style: "thin" },
+                bottom: { style: "thin" },
+                right: { style: "thin" },
+            } as const;
+
+            // Add borders to the NEW header cells
+            [spacerCol, totalHoursCol, afterTotalSpacerCol, baseHoursCol].forEach((col) => {
+                ws.getCell(1, col).border = thinBorder;
+            });
+
+            // Add border to the editable number cell (the 100 cell)
+            ws.getCell(2, baseHoursCol).border = thinBorder;
             // --- conditional formatting (same as before) ---
             const lastDateCol = 2 + dateHeaders.length;
             ws.addConditionalFormatting({
@@ -199,6 +245,12 @@ export default function ExportAttendanceButton() {
                     applyThinBorder(cell);
                     applyCenter(cell);
                 }
+            }
+
+            for (let r = 1; r <= lastRow; r++) {
+                const cell = ws.getCell(r, totalHoursCol);
+                applyThinBorder(cell);
+                applyCenter(cell);
             }
         };
 
