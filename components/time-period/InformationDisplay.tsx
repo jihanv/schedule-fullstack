@@ -16,6 +16,7 @@ import { useTranslations } from "next-intl";
 import { saveFullSchedule } from "@/app/actions/timeperiod";
 import { useState } from "react";
 import ExportAttendanceButton from "@/components/time-period/attendance-ex-btn";
+import { useAuth } from "@clerk/nextjs";
 
 export default function InformationDisplay() {
     const showWeeklyPreview = useTimePeriodStore((s) => s.showWeeklyPreview);
@@ -23,6 +24,7 @@ export default function InformationDisplay() {
     const { commitPendingHolidays } = useTimePeriodStore();
     const [isSaving, setIsSaving] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
+    const { isSignedIn } = useAuth();
 
     const t = useTranslations("CompleteSchedule")
     // const locale = useLocale();
@@ -112,11 +114,13 @@ export default function InformationDisplay() {
 
                     </div>
 
-                    <div className="flex flex-col">
-                        <Button className="w-55" onClick={handleSaveClick}>
-                            Save
-                        </Button>
-                    </div>
+                    {isSignedIn && (
+                        <div className="flex flex-col">
+                            <Button className="w-55" onClick={handleSaveClick}>
+                                Save
+                            </Button>
+                        </div>
+                    )}
 
                     <Dialog open={showWeeklyPreview} onOpenChange={setShowWeeklyPreview}>
                         <DialogContent className="h-[92vh] max-h-[92vh] flex flex-col">
