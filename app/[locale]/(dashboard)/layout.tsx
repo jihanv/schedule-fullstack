@@ -20,7 +20,7 @@ export default function Layout({
         </header>
 
         <main className="min-w-0">
-          <div className="mx-auto w-full max-w-5xl px-6 bg-red-100">
+          <div className="mx-auto w-full max-w-5xl px-6">
             {children}
           </div>
         </main>

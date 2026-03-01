@@ -1,4 +1,5 @@
 "use client";
+import LanguageInput from "@/components/language/language-input";
 import PeriodStepNav from "@/components/navigation/period-steps";
 import DateSelector from "@/components/time-period/date-selector";
 import HolidaySelector from "@/components/time-period/holiday-selector";
@@ -42,8 +43,12 @@ export default function Home() {
                     </Button>
                 </div>
                 <div className="flex flex-row">
-                    <PeriodStepNav />
-                    <div className="bg-blue-50 ml-5 w-full">
+                    <div>
+                        <LanguageInput />
+                        <PeriodStepNav />
+                    </div>
+
+                    <div className="ml-5 w-full">
                         {step === 1 && <DateSelector />}
                         {step === 2 && <HolidaySelector />}
                         {step === 3 && <SectionNameInput />}

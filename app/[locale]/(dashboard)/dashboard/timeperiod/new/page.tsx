@@ -42,7 +42,7 @@ export default function Home() {
       </div>
       <div className="flex flex-row">
         <PeriodStepNav />
-        <div className="bg-blue-50 ml-5 w-full">
+        <div className="ml-5 w-full">
           {step === 1 && <DateSelector />}
           {step === 2 && <HolidaySelector />}
           {step === 3 && <SectionNameInput />}

@@ -406,11 +406,7 @@ export default function ManualWeeklyEditor() {
                     </table>
                 </div>
 
-                {/* (Optional) quick hint for beginners */}
-                <div className="mt-3 text-xs text-muted-foreground">
-                    Tip: Click an <span className="font-medium">empty</span> cell to pick a section.
-                    Manual edits appear with a “Manual” label.
-                </div>
+
             </div>
         </section>
     );
