@@ -226,8 +226,26 @@ export default function ExportAttendanceButton() {
 
             // Add border to the editable number cell (the 100 cell)
             ws.getCell(2, baseHoursCol).border = thinBorder;
+
+
             // --- conditional formatting (same as before) ---
+
+            const totalColLetter = ws.getColumn(totalHoursCol).letter;
+            const totalHoursRange = `${totalColLetter}2:${totalColLetter}${lastRow}`;
+
+            const studentNameRange = `B2:B${lastRow}`;
+
+            // temporary debug so you can verify the ranges
+            console.log("Ranges:", { totalHoursRange, studentNameRange, baseHoursRef });
             const lastDateCol = 2 + dateHeaders.length;
+            const stopColLetter = ws.getColumn(stopCol).letter;
+            const absentColLetter = ws.getColumn(absentCol).letter;
+
+            const stopCountRange = `${stopColLetter}2:${stopColLetter}${lastRow}`;
+            const absentCountRange = `${absentColLetter}2:${absentColLetter}${lastRow}`;
+
+            // temporary: so you can see the ranges in your browser console
+            console.log("Count ranges:", { stopCountRange, absentCountRange });
             ws.addConditionalFormatting({
                 ref: `B2:${ws.getColumn(lastDateCol).letter}${lastRow}`,
                 rules: [
@@ -237,7 +255,65 @@ export default function ExportAttendanceButton() {
                     { type: "containsText", operator: "containsText", text: "欠", priority: 4, style: { fill: { type: "pattern", pattern: "solid", bgColor: { argb: "FFD9EAD3" } } } },
                 ],
             });
+            ws.addConditionalFormatting({
+                ref: stopCountRange,
+                rules: [
+                    {
+                        type: "cellIs",
+                        operator: "greaterThan",
+                        formulae: [0],
+                        priority: 10,
+                        style: {
+                            fill: { type: "pattern", pattern: "solid", bgColor: { argb: "FFFFE699" } }, // same as "停"
+                        },
+                    },
+                ],
+            });
 
+            ws.addConditionalFormatting({
+                ref: absentCountRange,
+                rules: [
+                    {
+                        type: "cellIs",
+                        operator: "greaterThan",
+                        formulae: [0],
+                        priority: 11,
+                        style: {
+                            fill: { type: "pattern", pattern: "solid", bgColor: { argb: "FFD9EAD3" } }, // same as "欠"
+                        },
+                    },
+                ],
+            });
+
+            ws.addConditionalFormatting({
+                ref: totalHoursRange,
+                rules: [
+                    {
+                        type: "expression",
+                        formulae: [`${totalColLetter}2<>${baseHoursRef}`],
+                        priority: 20,
+                        style: {
+                            fill: { type: "pattern", pattern: "solid", bgColor: { argb: "FFFFF2CC" } },
+                        },
+                    },
+                ],
+            });
+
+            ws.addConditionalFormatting({
+                ref: studentNameRange, // "B2:B43"
+                rules: [
+                    {
+                        type: "expression",
+                        // For B2, check the total-hours cell on the same row (e.g., K2) against base hours (e.g., $M$2).
+                        // When Excel applies it to B3, it becomes K3<>$M$2 automatically.
+                        formulae: [`$${totalColLetter}2<>${baseHoursRef}`],
+                        priority: 21,
+                        style: {
+                            fill: { type: "pattern", pattern: "solid", bgColor: { argb: "FFFFF2CC" } },
+                        },
+                    },
+                ],
+            });
             // --- borders + center for entire table ---
             for (let r = 1; r <= lastRow; r++) {
                 for (let c = 1; c <= absentCol; c++) {
