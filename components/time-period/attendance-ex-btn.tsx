@@ -13,7 +13,6 @@ type DeletedLesson = { dateKey: string; period: number };
 type Holiday = Date | string;
 
 export default function ExportAttendanceButton() {
-    console.log("Testing")
     const { sections, startDate, endDate, pendingHolidays, schedule, manualLessons, deletedLessons } =
         useTimePeriodStore();
 
@@ -29,13 +28,21 @@ export default function ExportAttendanceButton() {
             return;
         }
         const wb = new ExcelJS.Workbook();
+
+        // 1) Put allowed values on a hidden sheet
         const listWs = wb.addWorksheet("Lists");
-        ["忌", "停", "公", "欠"].forEach((v, i) => {
-            listWs.getCell(i + 1, 1).value = v; // A1..A5
+
+        const ALLOWED = ["忌", "停", "公", "欠", " "]; // <-- only these (or blank) are allowed
+
+        ALLOWED.forEach((v, i) => {
+            listWs.getCell(i + 1, 1).value = v; // A1..A4
         });
+
         listWs.state = "veryHidden";
+
+        // 2) Build the exact range string we will use in validation
+        const allowedRange = `Lists!$A$1:$A$${ALLOWED.length}`; // Lists!$A$1:$A$4
         // test dates for now (we will replace with real lesson dates next step)
-        // const dateHeaders = ["2026-02-28", "2026-03-03", "2026-03-07"];
 
         // if user hasn't added sections yet, still export 1 sheet
         const sectionNames = sections.length ? sections : ["Attendance"];
@@ -216,7 +223,29 @@ export default function ExportAttendanceButton() {
                     ws.getCell(row, col).dataValidation = {
                         type: "list",
                         allowBlank: true,
-                        formulae: ["Lists!$A$1:$A$5"],
+
+                        // use the range we created above (Lists!$A$1:$A$4)
+                        formulae: [allowedRange],
+
+                        // //makes Excel block bad values
+                        // showErrorMessage: true,
+                        // errorStyle: "error", // Excel “Stop” behavior in practice
+                        // errorTitle: "Invalid input",
+                        // error: "Use the dropdown only: 忌 / 停 / 公 / 欠 (or leave blank).",
+
+                        // // show a helpful tooltip when the cell is selected
+                        // showInputMessage: true,
+                        // promptTitle: "Attendance code",
+                        // prompt: "Choose one of: 忌, 停, 公, 欠. Leave blank if normal.",
+                        showErrorMessage: true,
+                        errorStyle: "error", // Excel “Stop” behavior in practice
+                        errorTitle: "入力エラー",
+                        error: "プルダウンからのみ選択してください：忌 / 停 / 公 / 欠（または空欄のまま）。",
+
+                        // optional: show a helpful tooltip when the cell is selected
+                        showInputMessage: true,
+                        promptTitle: "出欠コード",
+                        prompt: "忌・停・公・欠 のいずれかを選択してください。通常は空欄のままでOKです。",
                     };
                 }
 
