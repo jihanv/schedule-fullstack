@@ -13,7 +13,7 @@ type DeletedLesson = { dateKey: string; period: number };
 type Holiday = Date | string;
 
 export default function ExportAttendanceButton() {
-
+    console.log("Testing")
     const { sections, startDate, endDate, pendingHolidays, schedule, manualLessons, deletedLessons } =
         useTimePeriodStore();
 
