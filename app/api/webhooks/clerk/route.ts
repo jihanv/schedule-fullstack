@@ -45,13 +45,6 @@ export async function POST(req: Request) {
     return new Response("Invalid signature", { status: 400 });
   }
 
-  // For now, just log it so we know it works.
-  if (typeof evt === "object" && evt !== null && "type" in evt) {
-    console.log("✅ Clerk webhook received:", (evt as { type: string }).type);
-  } else {
-    console.log("✅ Clerk webhook received (no type field):", evt);
-  }
-
   if (
     typeof evt === "object" &&
     evt !== null &&

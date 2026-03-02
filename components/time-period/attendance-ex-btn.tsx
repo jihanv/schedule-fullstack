@@ -157,9 +157,13 @@ export default function ExportAttendanceButton() {
                 ws.getCell(3, col).value = `${slot.period} 時限`;
 
                 // Row 4: Lesson number (first is 1, then previous + 1)
-                ws.getCell(HEADER_ROW, col).value = {
-                    formula: `COLUMN()-${firstDateCol - 1}`, // firstDateCol is 3 (C), so this becomes COLUMN()-2
+                const cell = ws.getCell(HEADER_ROW, col);
+
+                cell.value = {
+                    formula: `COLUMN()-${firstDateCol - 1}`,
                 };
+
+                cell.numFmt = '"第"0"回"';
             });
 
             // ws.getRow(4).height = 45;
@@ -195,7 +199,7 @@ export default function ExportAttendanceButton() {
             // widths
             ws.getColumn(1).width = 10;  // Student #
             ws.getColumn(2).width = 18;  // Student Name
-            for (let i = 0; i < dateHeaders.length; i++) ws.getColumn(firstDateCol + i).width = 16;
+            for (let i = 0; i < dateHeaders.length; i++) ws.getColumn(firstDateCol + i).width = 10;
             ws.getColumn(stopCol).width = 6;
             ws.getColumn(absentCol).width = 6;
             ws.getColumn(spacerCol).width = 3;
@@ -255,7 +259,7 @@ export default function ExportAttendanceButton() {
             const studentNameRange = `B${FIRST_STUDENT_ROW}:B${lastRow}`;
 
             // temporary debug so you can verify the ranges
-            console.log("Ranges:", { totalHoursRange, studentNameRange, baseHoursRef });
+
             const lastDateCol = 2 + dateHeaders.length;
             const stopColLetter = ws.getColumn(stopCol).letter;
             const absentColLetter = ws.getColumn(absentCol).letter;
@@ -264,7 +268,7 @@ export default function ExportAttendanceButton() {
             const absentCountRange = `${absentColLetter}${FIRST_STUDENT_ROW}:${absentColLetter}${lastRow}`;
 
             // temporary: so you can see the ranges in your browser console
-            console.log("Count ranges:", { stopCountRange, absentCountRange });
+
             ws.addConditionalFormatting({
                 ref: `B${FIRST_STUDENT_ROW}:${ws.getColumn(lastDateCol).letter}${lastRow}`,
                 rules: [

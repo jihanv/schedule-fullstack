@@ -13,7 +13,7 @@ export default async function Home() {
     if (res.error === "Unauthorized") redirect("/sign-in");
     return <div>Error: {res.error}</div>;
   }
-  console.log(res.timePeriods);
+
   // Server Action
   return (
     <main className="flex flex-col gap-2 items-center">

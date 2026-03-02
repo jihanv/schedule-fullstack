@@ -348,10 +348,7 @@ export async function saveFullSchedule(input: SaveFullScheduleInput) {
   }
 
   const data = parsed.data;
-  console.log("saveFullSchedule counts:", {
-    deletedLessons: data.deletedLessons.length,
-    manualLessons: data.manualLessons.length,
-  });
+
   try {
     const result = await db.transaction(async (tx) => {
       // Step 5: Save the time period row

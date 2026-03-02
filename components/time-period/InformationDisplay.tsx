@@ -80,7 +80,7 @@ export default function InformationDisplay() {
                 manualLessons: snapshot.manualLessons,
             };
 
-            console.log("SAVE PAYLOAD (client):", payload);
+
 
             // 4) Send to server action (validation only for now)
             const result = await saveFullSchedule(payload);
@@ -88,7 +88,7 @@ export default function InformationDisplay() {
                 setShowSuccess(true);
             }
             // 5) Inspect server response
-            console.log("SAVE RESPONSE (server):", result);
+
         } catch (error) {
             console.error("Save failed:", error);
         } finally {

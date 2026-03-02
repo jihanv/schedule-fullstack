@@ -22,7 +22,7 @@ export default function DateSelector() {
 
   const handleSave = () => {
     if (!startDate || !endDate) return;
-    console.log(startDate, endDate);
+
     setActivateNext(true);
   };
   return (
