@@ -126,22 +126,43 @@ export default function ExportAttendanceButton() {
             };
 
             const NUM_STUDENTS = 42;
-            const lastRow = 1 + NUM_STUDENTS;
+
+            const HEADER_ROWS = 4;           // rows 1-4 are header area
+            const HEADER_ROW = 4;            // the “real” header labels sit on row 4
+            const FIRST_STUDENT_ROW = 5;     // students start here
+
+            const lastRow = HEADER_ROWS + NUM_STUDENTS; // 4 + 42 = 46
 
             // --- headers ---
-            ws.getCell("A1").value = "学番";
-            ws.getCell("B1").value = "Student Name";
-            ws.views = [{ state: "frozen", xSplit: 2, ySplit: 1 }];
+            ws.getCell("A4").value = "学番";
+            ws.getCell("B4").value = "Student Name";
+            ws.views = [{ state: "frozen", xSplit: 2, ySplit: 4 }]; // freeze top 4 rows now
             const meetingSlots = getMeetingSlotsForSection(sectionName);
-            const dateHeaders = meetingSlots.map(
-                (s, idx) => `${s.dateKey}\nPeriod ${s.period}\nLesson - ${idx + 1}`
-            );
+            const dateHeaders = meetingSlots.map((s) => s.dateKey); // only used for length/count now
 
             const firstDateCol = 3; // column C
-            dateHeaders.forEach((d, i) => {
-                ws.getCell(1, firstDateCol + i).value = d;
+
+            meetingSlots.forEach((slot, i) => {
+                const col = firstDateCol + i;
+
+                const [yyyy, mm, dd] = slot.dateKey.split("-");
+
+                // Row 1: Year
+                ws.getCell(1, col).value = Number(yyyy);
+
+                // Row 2: Month-Day
+                ws.getCell(2, col).value = `${mm}-${dd}`;
+
+                // Row 3: Period
+                ws.getCell(3, col).value = `${slot.period} 時限`;
+
+                // Row 4: Lesson number (first is 1, then previous + 1)
+                ws.getCell(HEADER_ROW, col).value = {
+                    formula: `COLUMN()-${firstDateCol - 1}`, // firstDateCol is 3 (C), so this becomes COLUMN()-2
+                };
             });
-            ws.getRow(1).height = 45;
+
+            // ws.getRow(4).height = 45;
             const stopCol = firstDateCol + dateHeaders.length; // after last date
             const absentCol = stopCol + 1;
 
@@ -153,24 +174,23 @@ export default function ExportAttendanceButton() {
             const baseHoursCol = afterTotalSpacerCol + 1;  // where user types the number
 
 
-            ws.getCell(1, stopCol).value = "停";
-            ws.getCell(1, absentCol).value = "欠";
+            ws.getCell(HEADER_ROW, stopCol).value = "停";
+            ws.getCell(HEADER_ROW, absentCol).value = "欠";
 
             // NEW headers
-            ws.getCell(1, spacerCol).value = "";           // blank column
-            ws.getCell(1, totalHoursCol).value = "総授業時数"; // you can rename later
-            ws.getCell(1, afterTotalSpacerCol).value = "";            // blank column
-            const baseHeaderCell = ws.getCell(1, baseHoursCol);
+            ws.getCell(HEADER_ROW, spacerCol).value = "";           // blank column
+            ws.getCell(HEADER_ROW, totalHoursCol).value = "総授業時数"; // you can rename later
+            ws.getCell(HEADER_ROW, afterTotalSpacerCol).value = "";            // blank column
+            const baseHeaderCell = ws.getCell(HEADER_ROW, baseHoursCol);
 
-            baseHeaderCell.value = "基準時数\n（編集）"; // \n makes the next line in the SAME cell
+            baseHeaderCell.value = "基準時数"; // \n makes the next line in the SAME cell
             baseHeaderCell.alignment = {
                 horizontal: "center",
                 vertical: "middle",
                 wrapText: true,
             };
-            ws.getCell(2, baseHoursCol).value = 100;
-
-            const baseHoursCell = ws.getCell(2, baseHoursCol); // the cell user edits
+            ws.getCell(FIRST_STUDENT_ROW, baseHoursCol).value = 100;
+            const baseHoursCell = ws.getCell(FIRST_STUDENT_ROW, baseHoursCol);
             const baseHoursRef = baseHoursCell.address.replace(/([A-Z]+)(\d+)/, "$$$1$$$2"); // makes $AB$2
             // widths
             ws.getColumn(1).width = 10;  // Student #
@@ -179,12 +199,12 @@ export default function ExportAttendanceButton() {
             ws.getColumn(stopCol).width = 6;
             ws.getColumn(absentCol).width = 6;
             ws.getColumn(spacerCol).width = 3;
-            ws.getColumn(totalHoursCol).width = 12;
+            ws.getColumn(totalHoursCol).width = 14;
             ws.getColumn(afterTotalSpacerCol).width = 3;
             ws.getColumn(baseHoursCol).width = 12;
             // --- rows ---
-            for (let row = 2; row < 2 + NUM_STUDENTS; row++) {
-                ws.getCell(row, 1).value = row - 1; // Student #
+            for (let row = FIRST_STUDENT_ROW; row < FIRST_STUDENT_ROW + NUM_STUDENTS; row++) {
+                ws.getCell(row, 1).value = row - HEADER_ROWS; // 5->1, 6->2, ...
                 ws.getCell(row, 2).value = "";      // Student Name blank
 
                 for (let i = 0; i < dateHeaders.length; i++) {
@@ -221,19 +241,18 @@ export default function ExportAttendanceButton() {
 
             // Add borders to the NEW header cells
             [spacerCol, totalHoursCol, afterTotalSpacerCol, baseHoursCol].forEach((col) => {
-                ws.getCell(1, col).border = thinBorder;
+                ws.getCell(HEADER_ROW, col).border = thinBorder;
             });
 
             // Add border to the editable number cell (the 100 cell)
-            ws.getCell(2, baseHoursCol).border = thinBorder;
+            ws.getCell(FIRST_STUDENT_ROW, baseHoursCol).border = thinBorder;
 
 
             // --- conditional formatting (same as before) ---
 
             const totalColLetter = ws.getColumn(totalHoursCol).letter;
-            const totalHoursRange = `${totalColLetter}2:${totalColLetter}${lastRow}`;
-
-            const studentNameRange = `B2:B${lastRow}`;
+            const totalHoursRange = `${totalColLetter}${FIRST_STUDENT_ROW}:${totalColLetter}${lastRow}`;
+            const studentNameRange = `B${FIRST_STUDENT_ROW}:B${lastRow}`;
 
             // temporary debug so you can verify the ranges
             console.log("Ranges:", { totalHoursRange, studentNameRange, baseHoursRef });
@@ -241,13 +260,13 @@ export default function ExportAttendanceButton() {
             const stopColLetter = ws.getColumn(stopCol).letter;
             const absentColLetter = ws.getColumn(absentCol).letter;
 
-            const stopCountRange = `${stopColLetter}2:${stopColLetter}${lastRow}`;
-            const absentCountRange = `${absentColLetter}2:${absentColLetter}${lastRow}`;
+            const stopCountRange = `${stopColLetter}${FIRST_STUDENT_ROW}:${stopColLetter}${lastRow}`;
+            const absentCountRange = `${absentColLetter}${FIRST_STUDENT_ROW}:${absentColLetter}${lastRow}`;
 
             // temporary: so you can see the ranges in your browser console
             console.log("Count ranges:", { stopCountRange, absentCountRange });
             ws.addConditionalFormatting({
-                ref: `B2:${ws.getColumn(lastDateCol).letter}${lastRow}`,
+                ref: `B${FIRST_STUDENT_ROW}:${ws.getColumn(lastDateCol).letter}${lastRow}`,
                 rules: [
                     { type: "containsText", operator: "containsText", text: "忌", priority: 1, style: { fill: { type: "pattern", pattern: "solid", bgColor: { argb: "FFFFC7CE" } } } },
                     { type: "containsText", operator: "containsText", text: "停", priority: 2, style: { fill: { type: "pattern", pattern: "solid", bgColor: { argb: "FFFFE699" } } } },
@@ -290,7 +309,7 @@ export default function ExportAttendanceButton() {
                 rules: [
                     {
                         type: "expression",
-                        formulae: [`${totalColLetter}2<>${baseHoursRef}`],
+                        formulae: [`${totalColLetter}${FIRST_STUDENT_ROW}<>${baseHoursRef}`],
                         priority: 20,
                         style: {
                             fill: { type: "pattern", pattern: "solid", bgColor: { argb: "FFFFF2CC" } },
@@ -306,7 +325,7 @@ export default function ExportAttendanceButton() {
                         type: "expression",
                         // For B2, check the total-hours cell on the same row (e.g., K2) against base hours (e.g., $M$2).
                         // When Excel applies it to B3, it becomes K3<>$M$2 automatically.
-                        formulae: [`$${totalColLetter}2<>${baseHoursRef}`],
+                        formulae: [`$${totalColLetter}${FIRST_STUDENT_ROW}<>${baseHoursRef}`],
                         priority: 21,
                         style: {
                             fill: { type: "pattern", pattern: "solid", bgColor: { argb: "FFFFF2CC" } },
