@@ -13,7 +13,7 @@ import { useTranslations } from "next-intl";
 
 export default function Home() {
   const { step, setSteps } = useNavigationStore();
-  const { setActivateNext, activateNext } = useTimePeriodStore();
+  const { setActivateNext, activateNext, commitPendingHolidays } = useTimePeriodStore();
   const t = useTranslations("Nav");
 
   return (
@@ -23,6 +23,7 @@ export default function Home() {
           className="w-24"
           disabled={step === 1}
           onClick={() => {
+
             setSteps(Number(step - 1) as Steps);
             setActivateNext(true);
           }}
@@ -32,6 +33,9 @@ export default function Home() {
         <Button
           className="w-24"
           onClick={() => {
+            if (step === 2) {
+              commitPendingHolidays();
+            }
             setSteps(Number(step + 1) as Steps);
             setActivateNext(false);
           }}
