@@ -83,10 +83,11 @@
     "holidayClassPlaceholder": "",
     "meetingLabel": "Lesson {count}",
     "skipped": "Cancelled Class",
-    "navigation":{
+    "navigation": {
       "next": "Next Week",
       "previous": "Previous Week"
-    }
+    },
+    "weekof": "Week starting"
   },
   "CompleteSchedule": {
     "title": "Complete Schedule",
@@ -136,8 +137,16 @@
   "TimePeriod": {
     "title": "Time Periods"
   },
-  "Export":{
+  "Export": {
     "timetable": "Download Timetable (Excel)",
     "attendance": "Download Attendance (Excel)"
+  },
+  "ManualEditorInstructions": {
+    "instructions": "Instructions",
+    "1": "Click an empty cell (or an existing manual cell) to choose a section and add/override a lesson for that date and period.",
+    "2": "Use the “×” on scheduled lessons to skip or restore that lesson; meeting numbers update automatically across the term.",
+    "3": "Use “Next Week” to go to the next week, and “Previous Week” to go to the previous week.",
+    "4": "Use Manual Edit when a specific day does not follow the normal weekly schedule. For example: There are classes in the morning, but no classes after lunch. The school is using a switched schedule (e.g., Thursday follows Monday’s schedule for the whole day).",
+    "ok": "OK"
   }
 }

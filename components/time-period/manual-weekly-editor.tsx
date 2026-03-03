@@ -248,7 +248,7 @@ export default function ManualWeeklyEditor() {
           </Button>
 
           <div className="text-sm text-muted-foreground">
-            Week starting{" "}
+            {t("weekof")}{" "}
             <span className="font-medium text-foreground">
               {format.dateTime(week.start, { dateStyle: "medium" })}
             </span>{" "}
