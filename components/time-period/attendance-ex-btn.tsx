@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import ExcelJS from "exceljs";
 import { useTimePeriodStore } from "@/stores/timePeriodStore";
 import { IoDownloadOutline } from "react-icons/io5";
+import { useTranslations } from "next-intl";
 type DayName = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat";
 
 type WeeklySchedule = Record<
@@ -505,11 +506,11 @@ export default function ExportAttendanceButton() {
     a.click();
     URL.revokeObjectURL(url);
   };
-
+  const t = useTranslations("Export");
   return (
-    <Button onClick={handleExport} variant="default">
+    <Button onClick={handleExport} variant="default" className="w-65">
       <IoDownloadOutline className="text-white" />
-      Export Attendance
+      {t("attendance")}
     </Button>
   );
 }

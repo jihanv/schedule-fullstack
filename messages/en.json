@@ -80,8 +80,9 @@
     "periodHeader": "Period",
     "holiday": "Holiday",
     "periodLabelShort": "{period}",
-    "holidayClassPlaceholder": "Class —",
-    "meetingLabel": "Meeting {count}"
+    "holidayClassPlaceholder": "",
+    "meetingLabel": "Lesson {count}",
+    "skipped": "Cancelled Class"
   },
   "CompleteSchedule": {
     "title": "Complete Schedule",
@@ -115,7 +116,7 @@
     "cells": {
       "periodLabel": "{period}",
       "periodLine": "Period {period}",
-      "meetingLine": "Meeting {count}",
+      "meetingLine": "Lesson {count}",
       "holidayLine": "{periodLabel} — {holiday}"
     }
   },
@@ -130,5 +131,9 @@
   },
   "TimePeriod": {
     "title": "Time Periods"
+  },
+  "Export":{
+    "timetable": "Download Timetable (Excel)",
+    "attendance": "Download Attendance (Excel)"
   }
 }

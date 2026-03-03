@@ -92,6 +92,7 @@ export default function ExportExcelButton() {
   } = useTimePeriodStore();
 
   const t = useTranslations("ExportExcel");
+  const b = useTranslations("Export");
   const format = useFormatter();
 
   const handleExport = async () => {
@@ -345,12 +346,12 @@ export default function ExportExcelButton() {
 
   return (
     <Button
-      className="w-55 text-white inline-flex items-center gap-2"
+      className="w-65 text-white inline-flex items-center gap-2"
       onClick={handleExport}
       variant="default"
     >
       <IoDownloadOutline className="text-white" />
-      {t("button")}
+      {b("timetable")}
     </Button>
   );
 }

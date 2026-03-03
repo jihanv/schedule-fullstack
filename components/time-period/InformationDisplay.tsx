@@ -17,6 +17,7 @@ import { saveFullSchedule } from "@/app/actions/timeperiod";
 import { useState } from "react";
 import ExportAttendanceButton from "@/components/time-period/attendance-ex-btn";
 import { useAuth } from "@clerk/nextjs";
+import { CiViewTable } from "react-icons/ci";
 
 export default function InformationDisplay() {
   const showWeeklyPreview = useTimePeriodStore((s) => s.showWeeklyPreview);
@@ -103,12 +104,13 @@ export default function InformationDisplay() {
         <div className="flex flex-col gap-2 pt-5 sm:justify-center items-center">
           <div className="flex flex-col">
             <Button
-              className="w-55"
+              className="w-65"
               onClick={() => {
                 commitPendingHolidays(); // sync local → global
                 setShowWeeklyPreview(true); // open preview dialog
               }}
             >
+              <CiViewTable />
               {t("showSchedule")}
             </Button>
           </div>

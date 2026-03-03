@@ -80,8 +80,9 @@
     "periodHeader": "時限",
     "holiday": "祝日",
     "periodLabelShort": "{period}限",
-    "holidayClassPlaceholder": "第—回",
-    "meetingLabel": "第{count}回"
+    "holidayClassPlaceholder": "",
+    "meetingLabel": "第{count}回",
+    "skipped": "休講の授業"
   },
   "CompleteSchedule": {
     "title": "全体スケジュール",
@@ -130,5 +131,9 @@
   },
   "TimePeriod": {
     "title": "期間設定"
+  },
+  "Export": {
+    "timetable": "時間割（Excel）をダウンロード",
+    "attendance": "出欠表（Excel）をダウンロード"
   }
 }

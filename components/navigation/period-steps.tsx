@@ -13,8 +13,8 @@ export default function PeriodStepNav({ onStepClick }: StepNavProps) {
   const t = useTranslations("Steps");
 
   return (
-    <div className="rounded-2xl w-80 text-foreground">
-      <div className="mt-6 space-y-3">
+    <div className="rounded-2xl w-60 text-foreground">
+      <div className="mt-6 flex flex-col items-center space-y-3">
         {steps.map((s) => {
           const isActive = s.step === step;
 
@@ -24,7 +24,7 @@ export default function PeriodStepNav({ onStepClick }: StepNavProps) {
               type="button"
               onClick={() => onStepClick?.(s.step)}
               className={[
-                "w-full rounded-xl px-4 py-3 text-left transition",
+                "w-3/4 rounded-xl px-4 py-3 text-left transition",
                 "flex items-center gap-3",
                 isActive
                   ? "bg-emerald-800 text-background"

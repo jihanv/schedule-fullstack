@@ -13,56 +13,55 @@ import { useTimePeriodStore } from "@/stores/timePeriodStore";
 import { useTranslations } from "next-intl";
 
 export default function Home() {
-    const { step, setSteps } = useNavigationStore();
-    const { setActivateNext, activateNext, commitPendingHolidays } = useTimePeriodStore();
-    const t = useTranslations("Nav");
+  const { step, setSteps } = useNavigationStore();
+  const { setActivateNext, activateNext, commitPendingHolidays } =
+    useTimePeriodStore();
+  const t = useTranslations("Nav");
 
-    return (
-        <>
-            <div className="mx-auto w-full max-w-5xl px-6">
-                <div className="flex flex-row gap-2 justify-center mt-10">
-                    <Button
-                        className="w-24"
-                        disabled={step === 1}
-                        onClick={() => {
+  return (
+    <>
+      <div className="mx-auto w-full lg:w-7xl px-6">
+        <div className="flex flex-row gap-2 justify-center mt-10">
+          <Button
+            className="w-24"
+            disabled={step === 1}
+            onClick={() => {
+              setSteps(Number(step - 1) as Steps);
+              setActivateNext(true);
+            }}
+          >
+            {t("previous")}
+          </Button>
+          <Button
+            className="w-24"
+            onClick={() => {
+              if (step === 2) {
+                commitPendingHolidays();
+              }
+              setSteps(Number(step + 1) as Steps);
+              setActivateNext(false);
+            }}
+            disabled={step >= 6 || !activateNext}
+          >
+            {t("next")}
+          </Button>
+        </div>
+        <div className="flex flex-row">
+          <div className="flex flex-col justify-center items-center">
+            <LanguageInput />
+            <PeriodStepNav />
+          </div>
 
-                            setSteps(Number(step - 1) as Steps);
-                            setActivateNext(true);
-                        }}
-                    >
-                        {t("previous")}
-                    </Button>
-                    <Button
-                        className="w-24"
-                        onClick={() => {
-                            if (step === 2) {
-                                commitPendingHolidays();
-                            }
-                            setSteps(Number(step + 1) as Steps);
-                            setActivateNext(false);
-                        }}
-                        disabled={step >= 6 || !activateNext}
-                    >
-                        {t("next")}
-                    </Button>
-                </div>
-                <div className="flex flex-row">
-                    <div>
-                        <LanguageInput />
-                        <PeriodStepNav />
-                    </div>
-
-                    <div className="ml-5 w-full">
-                        {step === 1 && <DateSelector />}
-                        {step === 2 && <HolidaySelector />}
-                        {step === 3 && <SectionNameInput />}
-                        {step === 4 && <PeriodSelector />}
-                        {step === 5 && <ManualEditor />}
-                        {step === 6 && <InformationDisplay />}
-                    </div>
-                </div>
-            </div>
-
-        </>
-    );
+          <div className="ml-5 w-full">
+            {step === 1 && <DateSelector />}
+            {step === 2 && <HolidaySelector />}
+            {step === 3 && <SectionNameInput />}
+            {step === 4 && <PeriodSelector />}
+            {step === 5 && <ManualEditor />}
+            {step === 6 && <InformationDisplay />}
+          </div>
+        </div>
+      </div>
+    </>
+  );
 }
