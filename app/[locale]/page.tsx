@@ -52,7 +52,7 @@ export default function Home() {
             <PeriodStepNav />
           </div>
 
-          <div className="ml-5 w-full">
+          <div className="ml-5 mt-4 w-full">
             {step === 1 && <DateSelector />}
             {step === 2 && <HolidaySelector />}
             {step === 3 && <SectionNameInput />}

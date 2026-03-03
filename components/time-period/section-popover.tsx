@@ -60,7 +60,7 @@ export default function SectionPopover({
                 </Button>
             </PopoverTrigger>
 
-            <PopoverContent className="p-0 w-30" align="start">
+            <PopoverContent className="p-0 w-full" align="start">
                 <Command>
                     <CommandList>
                         <CommandEmpty>{t("empty")}</CommandEmpty>
