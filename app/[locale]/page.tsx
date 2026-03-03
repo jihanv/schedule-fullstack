@@ -47,7 +47,7 @@ export default function Home() {
           </Button>
         </div>
         <div className="flex flex-row">
-          <div className="flex flex-col justify-center items-center">
+          <div className="flex flex-col items-center">
             <LanguageInput />
             <PeriodStepNav />
           </div>
