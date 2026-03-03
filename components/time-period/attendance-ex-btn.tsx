@@ -509,7 +509,7 @@ export default function ExportAttendanceButton() {
   const t = useTranslations("Export");
   return (
     <Button onClick={handleExport} variant="default" className="w-65">
-      <IoDownloadOutline className="text-white" />
+      <IoDownloadOutline />
       {t("attendance")}
     </Button>
   );

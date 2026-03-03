@@ -350,7 +350,7 @@ export default function ExportExcelButton() {
       onClick={handleExport}
       variant="default"
     >
-      <IoDownloadOutline className="text-white" />
+      <IoDownloadOutline />
       {b("timetable")}
     </Button>
   );
