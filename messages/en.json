@@ -82,7 +82,11 @@
     "periodLabelShort": "{period}",
     "holidayClassPlaceholder": "",
     "meetingLabel": "Lesson {count}",
-    "skipped": "Cancelled Class"
+    "skipped": "Cancelled Class",
+    "navigation":{
+      "next": "Next Week",
+      "previous": "Previous Week"
+    }
   },
   "CompleteSchedule": {
     "title": "Complete Schedule",

@@ -82,7 +82,11 @@
     "periodLabelShort": "{period}限",
     "holidayClassPlaceholder": "",
     "meetingLabel": "第{count}回",
-    "skipped": "休講の授業"
+    "skipped": "休講の授業",
+    "navigation":{
+      "next": "来週",
+      "previous": "先週"
+    }
   },
   "CompleteSchedule": {
     "title": "全体スケジュール",

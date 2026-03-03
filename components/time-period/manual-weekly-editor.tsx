@@ -237,14 +237,14 @@ export default function ManualWeeklyEditor() {
         {/* Pagination header */}
         <div className="flex items-center justify-between gap-3">
           <Button
-            variant="secondary"
+            variant="outline"
             disabled={!canPrev}
             onClick={() => {
               setOpenCell(null);
               setPage((p) => Math.max(0, p - 1));
             }}
           >
-            Prev week
+            {t("navigation.previous")}
           </Button>
 
           <div className="text-sm text-muted-foreground">
@@ -256,14 +256,14 @@ export default function ManualWeeklyEditor() {
           </div>
 
           <Button
-            variant="secondary"
+            variant="outline"
             disabled={!canNext}
             onClick={() => {
               setOpenCell(null);
               setPage((p) => Math.min(weeks.length - 1, p + 1));
             }}
           >
-            Next week
+            {t("navigation.next")}
           </Button>
         </div>
 
