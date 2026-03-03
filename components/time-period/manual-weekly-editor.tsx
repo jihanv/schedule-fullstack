@@ -365,7 +365,9 @@ export default function ManualWeeklyEditor() {
                               assigned={manual?.section}
                               subLabel={
                                 manual
-                                  ? `Meeting ${classNum ?? "—"}`
+                                  ? classNum != null
+                                    ? t("meetingLabel", { count: classNum })
+                                    : "Meeting —"
                                   : undefined
                               }
                               open={isThisOpen}
