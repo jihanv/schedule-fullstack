@@ -107,7 +107,7 @@ export default function SectionNameInput() {
                   className="w-full"
                   value={newSection}
                   onChange={(e) => setNewSection(e.target.value)}
-                  placeholder={t("placeholder")}
+
                 />
                 <Button
                   className="mt-auto"
@@ -129,9 +129,8 @@ export default function SectionNameInput() {
                 {sections.map((s, i) => (
                   <span
                     key={s}
-                    className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
-                      BADGE_COLORS[i % BADGE_COLORS.length]
-                    }`}
+                    className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${BADGE_COLORS[i % BADGE_COLORS.length]
+                      }`}
                   >
                     {s}
                     <button
@@ -143,9 +142,8 @@ export default function SectionNameInput() {
                   </span>
                 ))}
                 <div
-                  className={`mt-2 text-sm text-muted-foreground transition-opacity duration-500 ${
-                    fading ? "opacity-0" : "opacity-100"
-                  } motion-reduce:transition-none motion-reduce:duration-0`}
+                  className={`mt-2 text-sm text-muted-foreground transition-opacity duration-500 ${fading ? "opacity-0" : "opacity-100"
+                    } motion-reduce:transition-none motion-reduce:duration-0`}
                   aria-live="polite"
                 >
                   {feedback ?? ""}

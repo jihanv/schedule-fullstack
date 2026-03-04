@@ -162,7 +162,7 @@ export default function PeriodGridMobile() {
                                 <Button
                                     key={name}
                                     variant={name === assigned ? "default" : "outline"}
-                                    className="w-full justify-start"
+                                    className="w-full justify-center"
                                     onClick={() => {
                                         if (openPeriod == null) return;
                                         setSectionForPeriod(activeDay, openPeriod, name);

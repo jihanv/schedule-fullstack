@@ -87,6 +87,10 @@ type TimePeriodStore = {
     dateKey: string,
     period: number,
   ) => ManualLesson | undefined;
+
+  //Manual Editor Instructions
+  manualEditorIntroSeen: boolean;
+  setManualEditorIntroSeen: (seen: boolean) => void;
 };
 
 export const useTimePeriodStore = create<TimePeriodStore>((set, get) => ({
@@ -323,4 +327,8 @@ export const useTimePeriodStore = create<TimePeriodStore>((set, get) => ({
       (x) => x.dateKey === dateKey && x.period === period,
     );
   },
+  // in useTimePeriodStore
+  manualEditorIntroSeen: false,
+  setManualEditorIntroSeen: (seen: boolean) =>
+    set({ manualEditorIntroSeen: seen }),
 }));

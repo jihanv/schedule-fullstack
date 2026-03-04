@@ -48,19 +48,19 @@ export default function SectionPopover({
                     asChild
                     className={`w-full h-full min-h-14 rounded-md border px-2 text-sm
               flex flex-col items-center justify-center gap-0.5
-              ${assigned ? badgeColorFor(assigned) : "bg-background hover:bg-accent text-muted-foreground"}`}
+              ${assigned ? badgeColorFor(assigned) : "bg-neutral-200 hover:bg-accent text-muted-foreground"}`}
                     aria-label={`Select ${day} period ${period}`}
                 >
                     <div className="w-full h-full flex flex-col items-center justify-center gap-0.5 px-2">
                         <span className="font-medium leading-none">{period}</span>
                         <span className={`text-xs text-center wrap-break-word whitespace-normal leading-tight transition-opacity ${assigned ? "opacity-100" : "opacity-0"}`}>
-                            {assigned || "placeholder"}
+                            {assigned || ""}
                         </span>
                     </div>
                 </Button>
             </PopoverTrigger>
 
-            <PopoverContent className="p-0 w-56" align="start">
+            <PopoverContent className="p-0 w-full" align="start">
                 <Command>
                     <CommandList>
                         <CommandEmpty>{t("empty")}</CommandEmpty>
@@ -70,6 +70,7 @@ export default function SectionPopover({
                                 <CommandItem
                                     key={s}
                                     value={s}
+                                    className="justify-center"
                                     onSelect={() => {
                                         setSectionForPeriod(day, period, s);
                                         onOpenChange(false);
@@ -83,6 +84,7 @@ export default function SectionPopover({
                         <CommandGroup>
                             <CommandItem
                                 value="__clear"
+                                className="justify-center font-bold"
                                 onSelect={() => {
                                     clearPeriod(day, period);
                                     onOpenChange(false);
