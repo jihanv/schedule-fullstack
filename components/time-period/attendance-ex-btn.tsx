@@ -40,20 +40,25 @@ export default function ExportAttendanceButton() {
     }
     const wb = new ExcelJS.Workbook();
 
-    // 1) Put allowed values on a hidden sheet
     const listWs = wb.addWorksheet("Lists");
 
-    const ALLOWED = ["忌", "停", "公", "欠", " "]; // <-- only these (or blank) are allowed
+    // Column A: attendance options (5 items)
+    const ATTENDANCE_ALLOWED = ["忌", "停", "公", "欠", " "];
+    ATTENDANCE_ALLOWED.forEach((v, i) => {
+      listWs.getCell(i + 1, 1).value = v; // A1..A5
+    });
 
-    ALLOWED.forEach((v, i) => {
-      listWs.getCell(i + 1, 1).value = v; // A1..A4
+    // Column B: lesson status options (2 items)
+    const LESSON_STATUS = ["未実施", "実施済"];
+    LESSON_STATUS.forEach((v, i) => {
+      listWs.getCell(i + 1, 2).value = v; // B1..B2
     });
 
     listWs.state = "veryHidden";
 
-    // 2) Build the exact range string we will use in validation
-    const allowedRange = `Lists!$A$1:$A$${ALLOWED.length}`; // Lists!$A$1:$A$4
-    // test dates for now (we will replace with real lesson dates next step)
+    // Ranges we'll use later:
+    const attendanceRange = `Lists!$A$1:$A$5`;
+    const statusRange = `Lists!$B$1:$B$2`;
 
     // if user hasn't added sections yet, still export 1 sheet
     const sectionNames = sections.length ? sections : ["Attendance"];
@@ -152,16 +157,21 @@ export default function ExportAttendanceButton() {
 
       const NUM_STUDENTS = 42;
 
-      const HEADER_ROWS = 4; // rows 1-4 are header area
-      const HEADER_ROW = 4; // the “real” header labels sit on row 4
-      const FIRST_STUDENT_ROW = 5; // students start here
+      const STATUS_ROW = 1; // NEW row for finished/not finished (we'll use it next step)
+      const YEAR_ROW = 2; // was row 1
+      const DATE_ROW = 3; // was row 2
+      const PERIOD_ROW = 4; // was row 3
+
+      const HEADER_ROWS = 5; // header area is now rows 1-5
+      const HEADER_ROW = 5; // “番号/名前” + “第n回” row is now row 5
+      const FIRST_STUDENT_ROW = 6; // students start at row 6 now
 
       const lastRow = HEADER_ROWS + NUM_STUDENTS; // 4 + 42 = 46
 
       // --- headers ---
-      ws.getCell("A4").value = "番号";
-      ws.getCell("B4").value = "名前";
-      ws.views = [{ state: "frozen", xSplit: 2, ySplit: 4 }]; // freeze top 4 rows now
+      ws.getCell(HEADER_ROW, 1).value = "番号";
+      ws.getCell(HEADER_ROW, 2).value = "名前";
+      ws.views = [{ state: "frozen", xSplit: 2, ySplit: HEADER_ROWS }];
       const meetingSlots = getMeetingSlotsForSection(sectionName);
       const dateHeaders = meetingSlots.map((s) => s.dateKey); // only used for length/count now
 
@@ -169,19 +179,24 @@ export default function ExportAttendanceButton() {
 
       meetingSlots.forEach((slot, i) => {
         const col = firstDateCol + i;
-
+        // Row 1: lesson status dropdown (default: not finished)
+        const statusCell = ws.getCell(STATUS_ROW, col);
+        statusCell.value = "未実施";
+        statusCell.dataValidation = {
+          type: "list",
+          allowBlank: false,
+          formulae: [statusRange],
+          showErrorMessage: true,
+          errorStyle: "error",
+          errorTitle: "Invalid input",
+          error: "Choose only: not finished / finished",
+        };
         const [yyyy, mm, dd] = slot.dateKey.split("-");
 
         // Row 1: Year
-        ws.getCell(1, col).value = Number(yyyy);
-
-        // Row 2: Month-Day
-        ws.getCell(2, col).value = `${mm}-${dd}`;
-
-        // Row 3: Period
-        ws.getCell(3, col).value = `${slot.period} 時限`;
-
-        // Row 4: Lesson number (first is 1, then previous + 1)
+        ws.getCell(YEAR_ROW, col).value = Number(yyyy);
+        ws.getCell(DATE_ROW, col).value = `${mm}-${dd}`;
+        ws.getCell(PERIOD_ROW, col).value = `${slot.period} 時限`;
         const cell = ws.getCell(HEADER_ROW, col);
 
         cell.value = {
@@ -189,6 +204,31 @@ export default function ExportAttendanceButton() {
         };
 
         cell.numFmt = '"第"0"回"';
+
+        // --- NEW: gray out " " cells when status is finished ---
+        const colLetter = ws.getColumn(col).letter;
+
+        // Apply to the student rows in THIS column (e.g., C6:C46)
+        ws.addConditionalFormatting({
+          ref: `${colLetter}${FIRST_STUDENT_ROW}:${colLetter}${lastRow}`,
+          rules: [
+            {
+              type: "expression",
+              // Example (for column C): AND($C$1="finished", C6=" ")
+              formulae: [
+                `AND($${colLetter}$${STATUS_ROW}="実施済",${colLetter}${FIRST_STUDENT_ROW}=" ")`,
+              ],
+              priority: 50,
+              style: {
+                fill: {
+                  type: "pattern",
+                  pattern: "solid",
+                  bgColor: { argb: "FFD9D9D9" }, // light gray
+                },
+              },
+            },
+          ],
+        });
       });
 
       // ws.getRow(4).height = 45;
@@ -245,12 +285,13 @@ export default function ExportAttendanceButton() {
 
         for (let i = 0; i < dateHeaders.length; i++) {
           const col = firstDateCol + i;
+          ws.getCell(row, col).value = " ";
           ws.getCell(row, col).dataValidation = {
             type: "list",
             allowBlank: true,
 
             // use the range we created above (Lists!$A$1:$A$4)
-            formulae: [allowedRange],
+            formulae: [attendanceRange],
 
             // //makes Excel block bad values
             // showErrorMessage: true,
