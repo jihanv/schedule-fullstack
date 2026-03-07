@@ -1,31 +1,18 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse, type NextRequest } from "next/server";
+import createMiddleware from "next-intl/middleware";
+// import { NextResponse, type NextRequest } from "next/server";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const locales = ["en", "ja"] as const;
-type Locale = (typeof locales)[number];
-const defaultLocale: Locale = "en";
+// type Locale = (typeof locales)[number];
 
-// next-intl uses a cookie called NEXT_LOCALE to remember user choice :contentReference[oaicite:1]{index=1}
-const LOCALE_COOKIE = "NEXT_LOCALE";
+const handleI18n = createMiddleware({
+  locales,
+  defaultLocale: "en",
+  localePrefix: "always",
+});
 
-function detectLocale(req: NextRequest): Locale {
-  // 1) cookie (user preference)
-  const cookieLocale = req.cookies.get(LOCALE_COOKIE)?.value;
-  if (cookieLocale === "en" || cookieLocale === "ja") return cookieLocale;
-
-  // 2) Accept-Language header (first visit)
-  const accept = req.headers.get("accept-language") || "";
-  if (accept.toLowerCase().includes("ja")) return "ja";
-
-  // 3) fallback
-  return defaultLocale;
-}
-
-// IMPORTANT: auth pages are public, now locale-prefixed
 const isPublicRoute = createRouteMatcher([
   "/:locale",
-  "/:locale/",
   "/:locale/converter",
   "/:locale/signin(.*)",
   "/:locale/signup(.*)",
@@ -34,28 +21,20 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
-  const { pathname } = req.nextUrl;
+  // Let next-intl handle / -> /en, /converter -> /en/converter, etc.
+  const intlResponse = handleI18n(req);
 
-  if (pathname === "/") {
-    const locale = detectLocale(req);
-    return NextResponse.redirect(new URL(`/${locale}`, req.url));
+  // If next-intl wants to redirect to a locale-prefixed URL, do that first
+  if (intlResponse.headers.get("location")) {
+    return intlResponse;
   }
 
-  // Optional: if someone hits "/signin" or "/signup" without locale, redirect them
-  if (pathname === "/signin" || pathname === "/signup") {
-    const locale = detectLocale(req);
-    return NextResponse.redirect(new URL(`/${locale}${pathname}`, req.url));
-  }
-
-  // Protect everything except public routes
+  // Now we're on the locale-prefixed route, so auth checks make sense
   if (!isPublicRoute(req)) {
-    const locale = detectLocale(req);
-    await auth.protect({
-      unauthenticatedUrl: new URL(`/${locale}/signin`, req.url).toString(),
-    });
+    await auth.protect();
   }
 
-  return NextResponse.next();
+  return intlResponse;
 });
 
 export const config = {
