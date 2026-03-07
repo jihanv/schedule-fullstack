@@ -26,6 +26,7 @@ function detectLocale(req: NextRequest): Locale {
 const isPublicRoute = createRouteMatcher([
   "/:locale",
   "/:locale/",
+  "/:locale/converter",
   "/:locale/signin(.*)",
   "/:locale/signup(.*)",
   "/api/webhooks/clerk",
