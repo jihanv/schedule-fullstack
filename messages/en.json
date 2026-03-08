@@ -131,7 +131,8 @@
     "items": {
       "timePeriod": "Time Period",
       "attendance": "Attendance",
-      "documentation": "Documentation"
+      "documentation": "Documentation",
+      "converter": "Katakana Converter"
     }
   },
   "TimePeriod": {

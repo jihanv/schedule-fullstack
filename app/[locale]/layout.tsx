@@ -10,7 +10,7 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/navigation/app-sidebar";
+import { PublicSidebar } from "@/components/public-sidebar";
 
 
 const geistSans = Geist({
@@ -53,7 +53,7 @@ export default async function RootLayout({
           <NextIntlClientProvider locale={locale} messages={messages}>
 
             <SidebarProvider>
-              <AppSidebar />
+              <PublicSidebar />
 
               <SidebarInset>
                 <header className="flex h-14 items-center px-4">
