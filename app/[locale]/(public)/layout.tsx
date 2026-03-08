@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
@@ -12,15 +11,6 @@ import {
 } from "@/components/ui/sidebar";
 import { PublicSidebar } from "@/components/public-sidebar";
 
-const geistSans = Geist({
-    variable: "--font-geist-sans",
-    subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
-    subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
     title: "ClassMate",
@@ -43,29 +33,27 @@ export default async function RootLayout({
     const messages = await getMessages();
 
     return (
-        <html lang={locale}>
-            <body
-                className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-            >
-                <ClerkProvider>
-                    <NextIntlClientProvider locale={locale} messages={messages}>
-                        <SidebarProvider>
-                            <PublicSidebar />
-                            <SidebarInset>
-                                <header className="flex h-14 items-center px-4">
-                                    <SidebarTrigger />
-                                </header>
-                                <main className="min-w-0">
-                                    <div className="mx-auto w-full px-6">
 
-                                        {children}
-                                    </div>
-                                </main>
-                            </SidebarInset>
-                        </SidebarProvider>
-                    </NextIntlClientProvider>
-                </ClerkProvider>
-            </body>
-        </html>
+
+        <ClerkProvider>
+            <NextIntlClientProvider locale={locale} messages={messages}>
+                <SidebarProvider>
+                    <PublicSidebar />
+                    <SidebarInset>
+                        <header className="flex h-14 items-center px-4">
+                            <SidebarTrigger />
+                        </header>
+                        <main className="min-w-0">
+                            <div className="mx-auto w-full px-6">
+
+                                {children}
+                            </div>
+                        </main>
+                    </SidebarInset>
+                </SidebarProvider>
+            </NextIntlClientProvider>
+        </ClerkProvider>
+
+
     );
 }

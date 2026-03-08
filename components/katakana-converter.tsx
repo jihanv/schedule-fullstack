@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 type ConversionResult = {
@@ -275,7 +276,7 @@ function ActionButtons({ onCopy, onClear, copyLabel }: ActionButtonsProps) {
             <button
                 type="button"
                 onClick={onCopy}
-                className="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 dark:bg-slate-100 dark:text-slate-900"
+                className="w-40 rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 dark:bg-slate-100 dark:text-slate-900"
             >
                 {copyLabel}
             </button>
@@ -302,12 +303,11 @@ function OutputPanel({ label, value }: OutputPanelProps) {
 }
 
 export default function KatakanaRomajiConverter({
-    initialValue = "ｶﾀｶﾅ\nスーパー\nｼﾞｮﾝ･ｽﾐｽ",
-    title = "Katakana to Romaji Converter",
-    description = "Paste katakana in rows. Half-width katakana is normalized to full-width internally, then converted to romaji with title casing for names.",
+    initialValue = "ｶﾀｶﾅ\nスーパー",
 }: KatakanaRomajiConverterProps) {
     const [input, setInput] = useState<string>(initialValue);
-    const [copyLabel, setCopyLabel] = useState<string>("Copy Romaji");
+    const t = useTranslations("KatakanaConverter")
+    const [copyLabel, setCopyLabel] = useState<string>(t("copyButton"));
 
     const { romaji } = useMemo<ConversionResult>(() => convertText(input), [input]);
 
@@ -315,10 +315,10 @@ export default function KatakanaRomajiConverter({
         try {
             await navigator.clipboard.writeText(romaji);
             setCopyLabel("Copied");
-            window.setTimeout(() => setCopyLabel("Copy Romaji"), 1200);
+            window.setTimeout(() => setCopyLabel(t("copyButton")), 1200);
         } catch {
             setCopyLabel("Copy Failed");
-            window.setTimeout(() => setCopyLabel("Copy Romaji"), 1200);
+            window.setTimeout(() => setCopyLabel(t("copyButton")), 1200);
         }
     }
 
@@ -329,13 +329,13 @@ export default function KatakanaRomajiConverter({
     return (
         <section className="mx-auto w-full max-w-6xl space-y-6 px-4 py-8">
             <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{title}</h1>
-                <p className="max-w-3xl text-sm text-slate-600 dark:text-slate-300">{description}</p>
+                <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{t("title")}</h1>
+                <p className="max-w-3xl text-sm text-slate-600 dark:text-slate-300">{t("description")}</p>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
                 <Card>
-                    <SectionLabel>Input</SectionLabel>
+                    <SectionLabel>{t("inputLabel")}</SectionLabel>
                     <textarea
                         value={input}
                         onChange={(event) => setInput(event.target.value)}
@@ -345,7 +345,7 @@ export default function KatakanaRomajiConverter({
 
                 </Card>
 
-                <OutputPanel label="Romaji" value={romaji} />
+                <OutputPanel label={t("outputLabel")} value={romaji} />
                 <ActionButtons onCopy={handleCopy} onClear={handleClear} copyLabel={copyLabel} />
 
             </div>

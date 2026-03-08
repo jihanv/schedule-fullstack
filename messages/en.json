@@ -149,5 +149,13 @@
     "3": "Use “Next Week” to go to the next week, and “Previous Week” to go to the previous week.",
     "4": "Use Manual Edit when a specific day does not follow the normal weekly schedule. For example: There are classes in the morning, but no classes after lunch. The school is using a switched schedule (e.g., Thursday follows Monday’s schedule for the whole day).",
     "ok": "OK"
+  },
+  "KatakanaConverter": {
+    "title": "Katakana to Romaji Converter",
+    "description": "Paste katakana in rows. Half-width katakana is normalized to full-width internally, then converted to romaji with title casing for names.",
+    "inputLabel": "Input",
+    "outputLabel": "Romaji",
+    "copyButton": "Copy Romaji",
+    "clearButton": "Clear"
   }
 }
