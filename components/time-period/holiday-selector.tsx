@@ -60,7 +60,7 @@ export default function HolidaySelector() {
       setActivateNext(true);
     }
     if (showHolidaySelector) setPendingHolidays(holidays ?? []);
-  }, [showHolidaySelector, holidays, setPendingHolidays, noHolidays]);
+  }, [showHolidaySelector, holidays, setPendingHolidays, noHolidays, setActivateNext]);
 
   async function addNationalHolidays() {
     if (!startDate || !endDate) return;

@@ -5,12 +5,6 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import {
-  SidebarProvider,
-  SidebarTrigger,
-  SidebarInset,
-} from "@/components/ui/sidebar";
-import { PublicSidebar } from "@/components/public-sidebar";
 
 
 const geistSans = Geist({
@@ -51,22 +45,7 @@ export default async function RootLayout({
       >
         <ClerkProvider>
           <NextIntlClientProvider locale={locale} messages={messages}>
-
-            <SidebarProvider>
-              <PublicSidebar />
-
-              <SidebarInset>
-                <header className="flex h-14 items-center px-4">
-                  <SidebarTrigger />
-                </header>
-
-                <main className="min-w-0">
-                  <div className="mx-auto w-full max-w-5xl px-6">
-                    {children}
-                  </div>
-                </main>
-              </SidebarInset>
-            </SidebarProvider>
+            {children}
           </NextIntlClientProvider>
         </ClerkProvider>
       </body>
