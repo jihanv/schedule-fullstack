@@ -112,7 +112,7 @@ export default function HolidaySelector() {
           <CardDescription>{t("description")}</CardDescription>
         </CardHeader>
         {/* <div className="flex flex-col items-center"> */}
-        <CardContent className="min-h-0 flex-1 overflow-y-auto">
+        <CardContent className="min-h-0 flex-1 overflow-y-auto [scrollbar-gutter:stable] pb-4">
           {/* Country selector + Add button */}
           <div className="flex flex-col items-center">
             <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -135,7 +135,7 @@ export default function HolidaySelector() {
                 <option value="CA">{t("countries.CA")}</option>
               </select>
 
-              <Button onClick={addNationalHolidays} disabled={loadingHolidays}>
+              <Button className="w-50" onClick={addNationalHolidays} disabled={loadingHolidays}>
                 {loadingHolidays ? t("adding") : t("addNationalHolidays")}
               </Button>
             </div>
@@ -181,6 +181,7 @@ export default function HolidaySelector() {
                 {t("clearAll")}
               </Button>
               <Button
+
                 variant="default"
                 onClick={() => {
                   setActivateNext(true);
