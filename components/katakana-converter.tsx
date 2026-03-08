@@ -14,12 +14,6 @@ type KatakanaRomajiConverterProps = {
   description?: string;
 };
 
-type ActionButtonsProps = {
-  onCopy: () => Promise<void>;
-  onClear: () => void;
-  copyLabel: string;
-};
-
 type OutputPanelProps = {
   label: string;
   value: string;
@@ -274,27 +268,6 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-function ActionButtons({ onCopy, onClear, copyLabel }: ActionButtonsProps) {
-  return (
-    <div className="mt-4 flex flex-wrap gap-3">
-      <button
-        type="button"
-        onClick={onCopy}
-        className="w-40 rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 dark:bg-slate-100 dark:text-slate-900"
-      >
-        {copyLabel}
-      </button>
-      <button
-        type="button"
-        onClick={onClear}
-        className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-      >
-        Clear
-      </button>
-    </div>
-  );
-}
-
 function OutputPanel({ label, value }: OutputPanelProps) {
   return (
     <Card>
@@ -345,22 +318,35 @@ export default function KatakanaRomajiConverter({
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <SectionLabel>{t("inputLabel")}</SectionLabel>
-          <textarea
-            value={input}
-            onChange={(event) => setInput(event.target.value)}
-            placeholder={"ｶﾀｶﾅ"}
-            className="min-h-70 w-full rounded-2xl  border border-slate-300 bg-transparent p-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-500 dark:border-slate-700 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-slate-500"
-          />
-        </Card>
+        <div>
+          <Card>
+            <SectionLabel>{t("inputLabel")}</SectionLabel>
+            <textarea
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
+              placeholder={"ｶﾀｶﾅ"}
+              className="min-h-70 w-full rounded-2xl  border border-slate-300 bg-transparent p-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-500 dark:border-slate-700 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-slate-500"
+            />
+          </Card>
+          <button
+            type="button"
+            onClick={handleClear}
+            className="rounded-2xl border mt-2 border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+          >
+            Clear
+          </button>
+        </div>
 
-        <OutputPanel label={t("outputLabel")} value={romaji} />
-        <ActionButtons
-          onCopy={handleCopy}
-          onClear={handleClear}
-          copyLabel={copyLabel}
-        />
+        <div>
+          <OutputPanel label={t("outputLabel")} value={romaji} />
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="w-40 mt-2 rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 dark:bg-slate-100 dark:text-slate-900"
+          >
+            {copyLabel}
+          </button>
+        </div>
       </div>
     </section>
   );
