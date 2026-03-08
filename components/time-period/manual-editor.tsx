@@ -32,7 +32,7 @@ export default function ManualEditor() {
                     <div className="absolute inset-0 bg-black/60" />
 
                     {/* card */}
-                    <div className="relative w-full max-w-xl rounded-2xl bg-white p-6 shadow-xl">
+                    <div className="relative w-full rounded-2xl bg-white p-6 shadow-xl">
                         <h2 className="text-xl font-semibold">{t("instructions")}</h2>
                         <ol>
                             <li>

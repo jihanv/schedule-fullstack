@@ -45,7 +45,6 @@ export default async function RootLayout({
                         </header>
                         <main className="min-w-0">
                             <div className="mx-auto w-full px-6">
-
                                 {children}
                             </div>
                         </main>
