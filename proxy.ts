@@ -1,9 +1,8 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import createMiddleware from "next-intl/middleware";
-// import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 const locales = ["en", "ja"] as const;
-// type Locale = (typeof locales)[number];
 
 const handleI18n = createMiddleware({
   locales,
@@ -21,15 +20,24 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
-  // Let next-intl handle / -> /en, /converter -> /en/converter, etc.
+  const { pathname } = req.nextUrl;
+
+  // Never run next-intl on API/trpc routes
+  if (pathname.startsWith("/api") || pathname.startsWith("/trpc")) {
+    if (!isPublicRoute(req)) {
+      await auth.protect();
+    }
+    return NextResponse.next();
+  }
+
+  // Run i18n only for page routes
   const intlResponse = handleI18n(req);
 
-  // If next-intl wants to redirect to a locale-prefixed URL, do that first
+  // If next-intl wants to redirect page routes like / -> /en, let it
   if (intlResponse.headers.get("location")) {
     return intlResponse;
   }
 
-  // Now we're on the locale-prefixed route, so auth checks make sense
   if (!isPublicRoute(req)) {
     await auth.protect();
   }

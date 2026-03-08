@@ -20,7 +20,7 @@ export default function Home() {
 
   return (
     <>
-      <div className="mx-auto w-full lg:w-7xl px-6">
+      <div className="mx-auto w-full lg:w-[90%]px-6">
         <div className="flex flex-row gap-2 justify-center mt-10">
           <Button
             className="w-24"
