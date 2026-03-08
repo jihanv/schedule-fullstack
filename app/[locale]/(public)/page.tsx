@@ -46,7 +46,7 @@ export default function Home() {
                     </Button>
                 </div>
                 <div className="flex w-full mx-auto lg:3/4 flex-row justify-center">
-                    <div className="w-64 shrink-0">
+                    <div className=" shrink-0">
                         <PeriodStepNav />
                     </div>
 
