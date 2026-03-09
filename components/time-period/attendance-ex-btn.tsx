@@ -233,7 +233,8 @@ export default function ExportAttendanceButton() {
 
       // ws.getRow(4).height = 45;
       const stopCol = firstDateCol + dateHeaders.length; // after last date
-      const absentCol = stopCol + 1;
+      const stopMourningCol = stopCol + 1;
+      const absentCol = stopMourningCol + 1;
 
       // NEW: blank spacer column + total class hours column
       const spacerCol = absentCol + 1;
@@ -243,6 +244,7 @@ export default function ExportAttendanceButton() {
       const baseHoursCol = afterTotalSpacerCol + 1; // where user types the number
 
       ws.getCell(HEADER_ROW, stopCol).value = "停";
+      ws.getCell(HEADER_ROW, stopMourningCol).value = "停・忌";
       ws.getCell(HEADER_ROW, absentCol).value = "欠";
 
       // NEW headers
@@ -269,6 +271,7 @@ export default function ExportAttendanceButton() {
       for (let i = 0; i < dateHeaders.length; i++)
         ws.getColumn(firstDateCol + i).width = 10;
       ws.getColumn(stopCol).width = 6;
+      ws.getColumn(stopMourningCol).width = 8;
       ws.getColumn(absentCol).width = 6;
       ws.getColumn(spacerCol).width = 3;
       ws.getColumn(totalHoursCol).width = 14;
@@ -323,13 +326,19 @@ export default function ExportAttendanceButton() {
         ws.getCell(row, stopCol).value = {
           formula: `COUNTIF(${first}${row}:${last}${row},"停")`,
         };
+        ws.getCell(row, stopMourningCol).value = {
+          formula: `COUNTIF(${first}${row}:${last}${row},"停")+COUNTIF(${first}${row}:${last}${row},"忌")`,
+        };
         ws.getCell(row, absentCol).value = {
           formula: `COUNTIF(${first}${row}:${last}${row},"欠")`,
         };
 
-        const stopCellAddress = ws.getCell(row, stopCol).address;
+        const stopMourningCellAddress = ws.getCell(
+          row,
+          stopMourningCol,
+        ).address;
         ws.getCell(row, totalHoursCol).value = {
-          formula: `${baseHoursRef}-${stopCellAddress}`,
+          formula: `${baseHoursRef}-${stopMourningCellAddress}`,
         };
       }
       const thinBorder = {
@@ -360,8 +369,11 @@ export default function ExportAttendanceButton() {
       const lastDateCol = 2 + dateHeaders.length;
       const stopColLetter = ws.getColumn(stopCol).letter;
       const absentColLetter = ws.getColumn(absentCol).letter;
+      const stopMourningColLetter = ws.getColumn(stopMourningCol).letter;
 
       const stopCountRange = `${stopColLetter}${FIRST_STUDENT_ROW}:${stopColLetter}${lastRow}`;
+      const stopMourningCountRange = `${stopMourningColLetter}${FIRST_STUDENT_ROW}:${stopMourningColLetter}${lastRow}`;
+
       const absentCountRange = `${absentColLetter}${FIRST_STUDENT_ROW}:${absentColLetter}${lastRow}`;
 
       // temporary: so you can see the ranges in your browser console
@@ -502,6 +514,7 @@ export default function ExportAttendanceButton() {
           },
         ],
       });
+
       // --- borders + center for entire table ---
       for (let r = 1; r <= lastRow; r++) {
         for (let c = 1; c <= absentCol; c++) {
@@ -510,7 +523,24 @@ export default function ExportAttendanceButton() {
           applyCenter(cell);
         }
       }
-
+      ws.addConditionalFormatting({
+        ref: stopMourningCountRange,
+        rules: [
+          {
+            type: "cellIs",
+            operator: "greaterThan",
+            formulae: [0],
+            priority: 10,
+            style: {
+              fill: {
+                type: "pattern",
+                pattern: "solid",
+                bgColor: { argb: "FFFFE699" },
+              },
+            },
+          },
+        ],
+      });
       for (let r = 1; r <= lastRow; r++) {
         const cell = ws.getCell(r, totalHoursCol);
         applyThinBorder(cell);
