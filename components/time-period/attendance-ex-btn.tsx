@@ -231,9 +231,9 @@ export default function ExportAttendanceButton() {
         });
       });
 
-      // ws.getRow(4).height = 45;
       const stopCol = firstDateCol + dateHeaders.length; // after last date
-      const stopMourningCol = stopCol + 1;
+      const mourningCol = stopCol + 1;
+      const stopMourningCol = mourningCol + 1;
       const absentCol = stopMourningCol + 1;
 
       // NEW: blank spacer column + total class hours column
@@ -244,6 +244,7 @@ export default function ExportAttendanceButton() {
       const baseHoursCol = afterTotalSpacerCol + 1; // where user types the number
 
       ws.getCell(HEADER_ROW, stopCol).value = "停";
+      ws.getCell(HEADER_ROW, mourningCol).value = "忌";
       ws.getCell(HEADER_ROW, stopMourningCol).value = "停・忌";
       ws.getCell(HEADER_ROW, absentCol).value = "欠";
 
@@ -271,6 +272,7 @@ export default function ExportAttendanceButton() {
       for (let i = 0; i < dateHeaders.length; i++)
         ws.getColumn(firstDateCol + i).width = 10;
       ws.getColumn(stopCol).width = 6;
+      ws.getColumn(mourningCol).width = 6;
       ws.getColumn(stopMourningCol).width = 8;
       ws.getColumn(absentCol).width = 6;
       ws.getColumn(spacerCol).width = 3;
@@ -326,6 +328,9 @@ export default function ExportAttendanceButton() {
         ws.getCell(row, stopCol).value = {
           formula: `COUNTIF(${first}${row}:${last}${row},"停")`,
         };
+        ws.getCell(row, mourningCol).value = {
+          formula: `COUNTIF(${first}${row}:${last}${row},"忌")`,
+        };
         ws.getCell(row, stopMourningCol).value = {
           formula: `COUNTIF(${first}${row}:${last}${row},"停")+COUNTIF(${first}${row}:${last}${row},"忌")`,
         };
@@ -368,10 +373,12 @@ export default function ExportAttendanceButton() {
 
       const lastDateCol = 2 + dateHeaders.length;
       const stopColLetter = ws.getColumn(stopCol).letter;
+      const mourningColLetter = ws.getColumn(mourningCol).letter;
       const absentColLetter = ws.getColumn(absentCol).letter;
       const stopMourningColLetter = ws.getColumn(stopMourningCol).letter;
 
       const stopCountRange = `${stopColLetter}${FIRST_STUDENT_ROW}:${stopColLetter}${lastRow}`;
+      const mourningCountRange = `${mourningColLetter}${FIRST_STUDENT_ROW}:${mourningColLetter}${lastRow}`;
       const stopMourningCountRange = `${stopMourningColLetter}${FIRST_STUDENT_ROW}:${stopMourningColLetter}${lastRow}`;
 
       const absentCountRange = `${absentColLetter}${FIRST_STUDENT_ROW}:${absentColLetter}${lastRow}`;
@@ -453,7 +460,24 @@ export default function ExportAttendanceButton() {
           },
         ],
       });
-
+      ws.addConditionalFormatting({
+        ref: mourningCountRange,
+        rules: [
+          {
+            type: "cellIs",
+            operator: "greaterThan",
+            formulae: [0],
+            priority: 10,
+            style: {
+              fill: {
+                type: "pattern",
+                pattern: "solid",
+                bgColor: { argb: "FFFFC7CE" },
+              },
+            },
+          },
+        ],
+      });
       ws.addConditionalFormatting({
         ref: absentCountRange,
         rules: [
@@ -535,7 +559,7 @@ export default function ExportAttendanceButton() {
               fill: {
                 type: "pattern",
                 pattern: "solid",
-                bgColor: { argb: "FFFFE699" },
+                bgColor: { argb: "FFF3EEF9" },
               },
             },
           },
