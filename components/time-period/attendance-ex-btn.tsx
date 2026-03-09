@@ -233,7 +233,8 @@ export default function ExportAttendanceButton() {
 
       const stopCol = firstDateCol + dateHeaders.length; // after last date
       const mourningCol = stopCol + 1;
-      const homeCol = mourningCol + 1;
+      const absentOnlyCol = mourningCol + 1;
+      const homeCol = absentOnlyCol + 1;
       const stopMourningCol = homeCol + 1;
       const absentCol = stopMourningCol + 1;
 
@@ -246,9 +247,11 @@ export default function ExportAttendanceButton() {
 
       ws.getCell(HEADER_ROW, stopCol).value = "停";
       ws.getCell(HEADER_ROW, mourningCol).value = "忌";
+      ws.getCell(HEADER_ROW, absentOnlyCol).value = "欠";
       ws.getCell(HEADER_ROW, homeCol).value = "ホ";
       ws.getCell(HEADER_ROW, stopMourningCol).value = "停・忌";
       ws.getCell(HEADER_ROW, absentCol).value = "欠時";
+
       // NEW headers
       ws.getCell(HEADER_ROW, spacerCol).value = ""; // blank column
       ws.getCell(HEADER_ROW, totalHoursCol).value = "総授業時数"; // you can rename later
@@ -275,6 +278,7 @@ export default function ExportAttendanceButton() {
 
       ws.getColumn(stopCol).width = 6;
       ws.getColumn(mourningCol).width = 6;
+      ws.getColumn(absentOnlyCol).width = 6;
       ws.getColumn(homeCol).width = 6;
       ws.getColumn(stopMourningCol).width = 8;
       ws.getColumn(absentCol).width = 6;
@@ -328,12 +332,14 @@ export default function ExportAttendanceButton() {
 
         const first = ws.getColumn(firstDateCol).letter;
         const last = ws.getColumn(firstDateCol + dateHeaders.length - 1).letter;
-
         ws.getCell(row, stopCol).value = {
           formula: `COUNTIF(${first}${row}:${last}${row},"停")`,
         };
         ws.getCell(row, mourningCol).value = {
           formula: `COUNTIF(${first}${row}:${last}${row},"忌")`,
+        };
+        ws.getCell(row, absentOnlyCol).value = {
+          formula: `COUNTIF(${first}${row}:${last}${row},"欠")`,
         };
         ws.getCell(row, homeCol).value = {
           formula: `COUNTIF(${first}${row}:${last}${row},"ホ")`,
@@ -344,7 +350,6 @@ export default function ExportAttendanceButton() {
         ws.getCell(row, absentCol).value = {
           formula: `COUNTIF(${first}${row}:${last}${row},"ホ")+COUNTIF(${first}${row}:${last}${row},"欠")`,
         };
-
         const stopMourningCellAddress = ws.getCell(
           row,
           stopMourningCol,
@@ -381,12 +386,14 @@ export default function ExportAttendanceButton() {
       const lastDateCol = 2 + dateHeaders.length;
       const stopColLetter = ws.getColumn(stopCol).letter;
       const mourningColLetter = ws.getColumn(mourningCol).letter;
+      const absentOnlyColLetter = ws.getColumn(absentOnlyCol).letter;
       const homeColLetter = ws.getColumn(homeCol).letter;
       const absentColLetter = ws.getColumn(absentCol).letter;
       const stopMourningColLetter = ws.getColumn(stopMourningCol).letter;
 
       const stopCountRange = `${stopColLetter}${FIRST_STUDENT_ROW}:${stopColLetter}${lastRow}`;
       const mourningCountRange = `${mourningColLetter}${FIRST_STUDENT_ROW}:${mourningColLetter}${lastRow}`;
+      const absentOnlyCountRange = `${absentOnlyColLetter}${FIRST_STUDENT_ROW}:${absentOnlyColLetter}${lastRow}`;
       const homeCountRange = `${homeColLetter}${FIRST_STUDENT_ROW}:${homeColLetter}${lastRow}`;
       const stopMourningCountRange = `${stopMourningColLetter}${FIRST_STUDENT_ROW}:${stopMourningColLetter}${lastRow}`;
 
@@ -495,6 +502,24 @@ export default function ExportAttendanceButton() {
                 type: "pattern",
                 pattern: "solid",
                 bgColor: { argb: "FFFFC7CE" },
+              },
+            },
+          },
+        ],
+      });
+      ws.addConditionalFormatting({
+        ref: absentOnlyCountRange,
+        rules: [
+          {
+            type: "cellIs",
+            operator: "greaterThan",
+            formulae: [0],
+            priority: 10,
+            style: {
+              fill: {
+                type: "pattern",
+                pattern: "solid",
+                bgColor: { argb: "FFD9EAD3" },
               },
             },
           },
