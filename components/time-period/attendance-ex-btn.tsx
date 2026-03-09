@@ -248,8 +248,7 @@ export default function ExportAttendanceButton() {
       ws.getCell(HEADER_ROW, mourningCol).value = "忌";
       ws.getCell(HEADER_ROW, homeCol).value = "ホ";
       ws.getCell(HEADER_ROW, stopMourningCol).value = "停・忌";
-      ws.getCell(HEADER_ROW, absentCol).value = "欠";
-
+      ws.getCell(HEADER_ROW, absentCol).value = "欠時";
       // NEW headers
       ws.getCell(HEADER_ROW, spacerCol).value = ""; // blank column
       ws.getCell(HEADER_ROW, totalHoursCol).value = "総授業時数"; // you can rename later
@@ -343,7 +342,7 @@ export default function ExportAttendanceButton() {
           formula: `COUNTIF(${first}${row}:${last}${row},"停")+COUNTIF(${first}${row}:${last}${row},"忌")`,
         };
         ws.getCell(row, absentCol).value = {
-          formula: `COUNTIF(${first}${row}:${last}${row},"欠")`,
+          formula: `COUNTIF(${first}${row}:${last}${row},"ホ")+COUNTIF(${first}${row}:${last}${row},"欠")`,
         };
 
         const stopMourningCellAddress = ws.getCell(
@@ -531,8 +530,8 @@ export default function ExportAttendanceButton() {
               fill: {
                 type: "pattern",
                 pattern: "solid",
-                bgColor: { argb: "FFD9EAD3" },
-              }, // same as "欠"
+                bgColor: { argb: "FFFFC0CB" },
+              },
             },
           },
         ],
