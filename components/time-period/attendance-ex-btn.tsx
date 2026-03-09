@@ -235,10 +235,11 @@ export default function ExportAttendanceButton() {
       const mourningCol = stopCol + 1;
       const absentOnlyCol = mourningCol + 1;
       const homeCol = absentOnlyCol + 1;
-      const stopMourningCol = homeCol + 1;
+      const beforeMainSpacerCol = homeCol + 1;
+      const stopMourningCol = beforeMainSpacerCol + 1;
       const absentCol = stopMourningCol + 1;
 
-      // NEW: blank spacer column + total class hours column
+      // blank spacer column + total class hours column
       const spacerCol = absentCol + 1;
       const totalHoursCol = spacerCol + 1;
 
@@ -249,6 +250,7 @@ export default function ExportAttendanceButton() {
       ws.getCell(HEADER_ROW, mourningCol).value = "忌";
       ws.getCell(HEADER_ROW, absentOnlyCol).value = "欠";
       ws.getCell(HEADER_ROW, homeCol).value = "ホ";
+      ws.getCell(HEADER_ROW, beforeMainSpacerCol).value = "";
       ws.getCell(HEADER_ROW, stopMourningCol).value = "停・忌";
       ws.getCell(HEADER_ROW, absentCol).value = "欠時";
 
@@ -280,6 +282,7 @@ export default function ExportAttendanceButton() {
       ws.getColumn(mourningCol).width = 6;
       ws.getColumn(absentOnlyCol).width = 6;
       ws.getColumn(homeCol).width = 6;
+      ws.getColumn(beforeMainSpacerCol).width = 6;
       ws.getColumn(stopMourningCol).width = 8;
       ws.getColumn(absentCol).width = 6;
 
@@ -611,6 +614,10 @@ export default function ExportAttendanceButton() {
           applyThinBorder(cell);
           applyCenter(cell);
         }
+      }
+
+      for (let r = 1; r <= lastRow; r++) {
+        ws.getCell(r, beforeMainSpacerCol).border = {};
       }
       ws.addConditionalFormatting({
         ref: stopMourningCountRange,
