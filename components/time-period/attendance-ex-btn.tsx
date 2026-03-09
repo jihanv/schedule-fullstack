@@ -410,7 +410,7 @@ export default function ExportAttendanceButton() {
               fill: {
                 type: "pattern",
                 pattern: "solid",
-                bgColor: { argb: "FFFFE699" },
+                bgColor: { argb: "FFFFF2CC" },
               },
             },
           },
@@ -454,7 +454,7 @@ export default function ExportAttendanceButton() {
               fill: {
                 type: "pattern",
                 pattern: "solid",
-                bgColor: { argb: "FFFFE699" },
+                bgColor: { argb: "FFFFF2CC" },
               }, // same as "停"
             },
           },
@@ -510,7 +510,7 @@ export default function ExportAttendanceButton() {
               fill: {
                 type: "pattern",
                 pattern: "solid",
-                bgColor: { argb: "FFFFF2CC" },
+                bgColor: { argb: "FFEDE7F6" },
               },
             },
           },
@@ -532,7 +532,7 @@ export default function ExportAttendanceButton() {
               fill: {
                 type: "pattern",
                 pattern: "solid",
-                bgColor: { argb: "FFFFF2CC" },
+                bgColor: { argb: "FFEDE7F6" },
               },
             },
           },
@@ -559,7 +559,7 @@ export default function ExportAttendanceButton() {
               fill: {
                 type: "pattern",
                 pattern: "solid",
-                bgColor: { argb: "FFF3EEF9" },
+                bgColor: { argb: "FFEDE7F6" },
               },
             },
           },
