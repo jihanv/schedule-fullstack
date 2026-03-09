@@ -43,7 +43,7 @@ export default function ExportAttendanceButton() {
     const listWs = wb.addWorksheet("Lists");
 
     // Column A: attendance options (5 items)
-    const ATTENDANCE_ALLOWED = ["忌", "停", "公", "欠", " "];
+    const ATTENDANCE_ALLOWED = ["忌", "停", "公", "欠", "ホ", " "];
     ATTENDANCE_ALLOWED.forEach((v, i) => {
       listWs.getCell(i + 1, 1).value = v; // A1..A5
     });
@@ -57,7 +57,7 @@ export default function ExportAttendanceButton() {
     listWs.state = "veryHidden";
 
     // Ranges we'll use later:
-    const attendanceRange = `Lists!$A$1:$A$5`;
+    const attendanceRange = `Lists!$A$1:$A$6`;
     const statusRange = `Lists!$B$1:$B$2`;
 
     // if user hasn't added sections yet, still export 1 sheet
@@ -233,7 +233,8 @@ export default function ExportAttendanceButton() {
 
       const stopCol = firstDateCol + dateHeaders.length; // after last date
       const mourningCol = stopCol + 1;
-      const stopMourningCol = mourningCol + 1;
+      const homeCol = mourningCol + 1;
+      const stopMourningCol = homeCol + 1;
       const absentCol = stopMourningCol + 1;
 
       // NEW: blank spacer column + total class hours column
@@ -245,6 +246,7 @@ export default function ExportAttendanceButton() {
 
       ws.getCell(HEADER_ROW, stopCol).value = "停";
       ws.getCell(HEADER_ROW, mourningCol).value = "忌";
+      ws.getCell(HEADER_ROW, homeCol).value = "ホ";
       ws.getCell(HEADER_ROW, stopMourningCol).value = "停・忌";
       ws.getCell(HEADER_ROW, absentCol).value = "欠";
 
@@ -271,10 +273,13 @@ export default function ExportAttendanceButton() {
       ws.getColumn(2).width = 18; // Student Name
       for (let i = 0; i < dateHeaders.length; i++)
         ws.getColumn(firstDateCol + i).width = 10;
+
       ws.getColumn(stopCol).width = 6;
       ws.getColumn(mourningCol).width = 6;
+      ws.getColumn(homeCol).width = 6;
       ws.getColumn(stopMourningCol).width = 8;
       ws.getColumn(absentCol).width = 6;
+
       ws.getColumn(spacerCol).width = 3;
       ws.getColumn(totalHoursCol).width = 14;
       ws.getColumn(afterTotalSpacerCol).width = 3;
@@ -331,6 +336,9 @@ export default function ExportAttendanceButton() {
         ws.getCell(row, mourningCol).value = {
           formula: `COUNTIF(${first}${row}:${last}${row},"忌")`,
         };
+        ws.getCell(row, homeCol).value = {
+          formula: `COUNTIF(${first}${row}:${last}${row},"ホ")`,
+        };
         ws.getCell(row, stopMourningCol).value = {
           formula: `COUNTIF(${first}${row}:${last}${row},"停")+COUNTIF(${first}${row}:${last}${row},"忌")`,
         };
@@ -374,11 +382,13 @@ export default function ExportAttendanceButton() {
       const lastDateCol = 2 + dateHeaders.length;
       const stopColLetter = ws.getColumn(stopCol).letter;
       const mourningColLetter = ws.getColumn(mourningCol).letter;
+      const homeColLetter = ws.getColumn(homeCol).letter;
       const absentColLetter = ws.getColumn(absentCol).letter;
       const stopMourningColLetter = ws.getColumn(stopMourningCol).letter;
 
       const stopCountRange = `${stopColLetter}${FIRST_STUDENT_ROW}:${stopColLetter}${lastRow}`;
       const mourningCountRange = `${mourningColLetter}${FIRST_STUDENT_ROW}:${mourningColLetter}${lastRow}`;
+      const homeCountRange = `${homeColLetter}${FIRST_STUDENT_ROW}:${homeColLetter}${lastRow}`;
       const stopMourningCountRange = `${stopMourningColLetter}${FIRST_STUDENT_ROW}:${stopMourningColLetter}${lastRow}`;
 
       const absentCountRange = `${absentColLetter}${FIRST_STUDENT_ROW}:${absentColLetter}${lastRow}`;
@@ -430,6 +440,19 @@ export default function ExportAttendanceButton() {
           {
             type: "containsText",
             operator: "containsText",
+            text: "ホ",
+            priority: 5,
+            style: {
+              fill: {
+                type: "pattern",
+                pattern: "solid",
+                bgColor: { argb: "FFFFFF99" },
+              },
+            },
+          },
+          {
+            type: "containsText",
+            operator: "containsText",
             text: "欠",
             priority: 4,
             style: {
@@ -473,6 +496,24 @@ export default function ExportAttendanceButton() {
                 type: "pattern",
                 pattern: "solid",
                 bgColor: { argb: "FFFFC7CE" },
+              },
+            },
+          },
+        ],
+      });
+      ws.addConditionalFormatting({
+        ref: homeCountRange,
+        rules: [
+          {
+            type: "cellIs",
+            operator: "greaterThan",
+            formulae: [0],
+            priority: 10,
+            style: {
+              fill: {
+                type: "pattern",
+                pattern: "solid",
+                bgColor: { argb: "FFFFFF99" },
               },
             },
           },
