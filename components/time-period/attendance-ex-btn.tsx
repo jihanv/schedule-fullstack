@@ -175,12 +175,17 @@ export default function ExportAttendanceButton() {
       const dateHeaders = meetingSlots.map((s) => s.dateKey);
 
       if (hasNoPeriods) {
+        ws.mergeCells("A1:D3");
         ws.getCell("A1").value = "このクラスには選択された時限がありません";
         ws.getCell("A1").alignment = {
           horizontal: "center",
           vertical: "middle",
+          wrapText: true,
         };
-        ws.getColumn(1).width = 40;
+        ws.getColumn(1).width = 15;
+        ws.getColumn(2).width = 15;
+        ws.getColumn(3).width = 15;
+        ws.getColumn(4).width = 15;
         return;
       }
       ws.getCell(HEADER_ROW, 1).value = "番号";
