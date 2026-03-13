@@ -169,15 +169,14 @@ export default function ExportAttendanceButton() {
       const lastRow = HEADER_ROWS + NUM_STUDENTS; // 4 + 42 = 46
 
       // --- headers ---
-      ws.getCell(HEADER_ROW, 1).value = "番号";
-      ws.getCell(HEADER_ROW, 2).value = "名前";
-      ws.views = [{ state: "frozen", xSplit: 2, ySplit: HEADER_ROWS }];
-
       const meetingSlots = getMeetingSlotsForSection(sectionName);
       const hasNoPeriods = meetingSlots.length === 0;
 
-      const dateHeaders = meetingSlots.map((s) => s.dateKey); // only used for length/count now
+      const dateHeaders = meetingSlots.map((s) => s.dateKey);
 
+      ws.getCell(HEADER_ROW, 1).value = "番号";
+      ws.getCell(HEADER_ROW, 2).value = "名前";
+      ws.views = [{ state: "frozen", xSplit: 2, ySplit: HEADER_ROWS }];
       const firstDateCol = 3; // column C
 
       meetingSlots.forEach((slot, i) => {
