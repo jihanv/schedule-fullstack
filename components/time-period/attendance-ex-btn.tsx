@@ -172,7 +172,10 @@ export default function ExportAttendanceButton() {
       ws.getCell(HEADER_ROW, 1).value = "番号";
       ws.getCell(HEADER_ROW, 2).value = "名前";
       ws.views = [{ state: "frozen", xSplit: 2, ySplit: HEADER_ROWS }];
+
       const meetingSlots = getMeetingSlotsForSection(sectionName);
+      const hasNoPeriods = meetingSlots.length === 0;
+
       const dateHeaders = meetingSlots.map((s) => s.dateKey); // only used for length/count now
 
       const firstDateCol = 3; // column C
