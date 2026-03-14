@@ -13,6 +13,7 @@ import { format } from "date-fns";
 import { ja } from "date-fns/locale";
 import { useTimePeriodStore } from "@/stores/timePeriodStore";
 import { useLocale, useTranslations } from "next-intl";
+import { toDateKey } from "@/lib/utils"
 
 function dayKeyFromDate(
     d: Date,
@@ -45,9 +46,9 @@ export default function MeetingListEditor() {
         deletedLessons,
         manualLessons
     } = useTimePeriodStore();
-    function toDateKey(d: Date) {
-        return format(d, "yyyy-MM-dd");
-    }
+    // function toDateKey(d: Date) {
+    //     return format(d, "yyyy-MM-dd");
+    // }
     const locale = useLocale();
     const uiLocale = locale === 'ja' ? 'ja' : 'en';
     const t = useTranslations("MeetingList")

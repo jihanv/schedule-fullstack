@@ -13,3 +13,11 @@ export function badgeColorFor(section: string | undefined, sections: string[]) {
     ? BADGE_COLORS[i % BADGE_COLORS.length]
     : "bg-secondary text-secondary-foreground";
 }
+
+export function toDateKey(d: Date) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+
+  return `${y}-${m}-${day}`;
+}
