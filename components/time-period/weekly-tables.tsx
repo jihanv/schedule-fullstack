@@ -5,6 +5,7 @@ import { PERIODS } from "@/lib/constants";
 import { badgeColorFor } from "@/lib/utils";
 import { useTimePeriodStore } from "@/stores/timePeriodStore";
 import { useFormatter, useTranslations } from "next-intl";
+import { toDateKey } from "@/lib/utils"
 
 /**
  * Utility: get Monday of the week for a given date
@@ -83,13 +84,6 @@ function isHoliday(d: Date, list: Date[]) {
   return list?.some((h) => sameDay(h, d));
 }
 
-function dateKey(d: Date) {
-  // Use local Y-M-D to avoid TZ drift; keeps keys stable
-  const y = d.getFullYear();
-  const m = d.getMonth() + 1;
-  const day = d.getDate();
-  return `${y}-${String(m).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-}
 export default function WeeklyTables() {
   const {
     startDate,
@@ -135,7 +129,7 @@ export default function WeeklyTables() {
         if (d < startDate || d > endDate) continue;
         if (isHoliday(d, holidays)) continue;
 
-        const dk = dateKey(d);
+        const dk = toDateKey(d);
         const dayKey = dayKeyFromDate(d);
 
         for (const p of PERIODS) {
@@ -167,7 +161,7 @@ export default function WeeklyTables() {
     for (const s of slots) {
       const next = (perSection.get(s.section) ?? 0) + 1;
       perSection.set(s.section, next);
-      map.set(`${dateKey(s.date)}|${s.period}`, next);
+      map.set(`${toDateKey(s.date)}|${s.period}`, next);
     }
 
     return map;
@@ -210,9 +204,8 @@ export default function WeeklyTables() {
                       return (
                         <th
                           key={i}
-                          className={`text-left text-xs font-medium px-3 py-2 border-b ${
-                            hol ? "bg-muted/70" : "bg-card"
-                          }`}
+                          className={`text-left text-xs font-medium px-3 py-2 border-b ${hol ? "bg-muted/70" : "bg-card"
+                            }`}
                         >
                           <div className="flex items-center gap-2">
                             <div className="font-semibold tracking-tight">
@@ -242,7 +235,7 @@ export default function WeeklyTables() {
                         const outOfRange = d < startDate! || d > endDate!;
                         const key = dayKeyFromDate(d); // "Mon" | ... | "Sat"
                         const assigned = schedule[key]?.[p];
-                        const cellDateKey = dateKey(d);
+                        const cellDateKey = toDateKey(d);
 
                         const manual = manualLessons.find(
                           (x) => x.dateKey === cellDateKey && x.period === p,
@@ -308,11 +301,10 @@ export default function WeeklyTables() {
                         return (
                           <td key={i} className="align-top px-3 py-2 border-b">
                             <div
-                              className={`rounded-md p-2 h-17 flex flex-col ${
-                                hol || outOfRange
-                                  ? "bg-muted/40 text-muted-foreground"
-                                  : colorClasses || "bg-background"
-                              }`}
+                              className={`rounded-md p-2 h-17 flex flex-col ${hol || outOfRange
+                                ? "bg-muted/40 text-muted-foreground"
+                                : colorClasses || "bg-background"
+                                }`}
                             >
                               {content}
                             </div>
