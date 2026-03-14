@@ -18,6 +18,7 @@ import { useState } from "react";
 import ExportAttendanceButton from "@/components/time-period/attendance-ex-btn";
 import { useAuth } from "@clerk/nextjs";
 import { CiViewTable } from "react-icons/ci";
+import { toDateKey } from "@/lib/utils"
 
 export default function InformationDisplay() {
   const showWeeklyPreview = useTimePeriodStore((s) => s.showWeeklyPreview);
@@ -32,14 +33,6 @@ export default function InformationDisplay() {
   const t = useTranslations("CompleteSchedule");
   // const locale = useLocale();
   // const uiLocale = locale === 'ja' ? 'ja' : 'en';
-
-  // Convert Date -> YYYY-MM-DD using local date parts
-  const toYmd = (d: Date) => {
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
 
   // Convert Zustand schedule shape into server payload shape:
   // - period keys become strings
@@ -76,9 +69,9 @@ export default function InformationDisplay() {
 
       // 3) Build the payload
       const payload = {
-        startDate: toYmd(snapshot.startDate),
-        endDate: toYmd(snapshot.endDate),
-        holidays: snapshot.holidays.map(toYmd),
+        startDate: toDateKey(snapshot.startDate),
+        endDate: toDateKey(snapshot.endDate),
+        holidays: snapshot.holidays.map(toDateKey),
         sections: snapshot.sections,
         schedule: normalizeScheduleForSave(snapshot.schedule),
         deletedLessons: snapshot.deletedLessons,
@@ -134,7 +127,7 @@ export default function InformationDisplay() {
               </div>
             </DialogContent>
           </Dialog>
-          <Dialog open={isSaving} onOpenChange={() => {}}>
+          <Dialog open={isSaving} onOpenChange={() => { }}>
             <DialogContent
               className="w-[92vw] max-w-md p-8 text-center"
               onInteractOutside={(e) => e.preventDefault()}
