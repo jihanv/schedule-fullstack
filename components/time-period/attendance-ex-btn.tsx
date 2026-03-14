@@ -5,6 +5,9 @@ import ExcelJS from "exceljs";
 import { useTimePeriodStore } from "@/stores/timePeriodStore";
 import { IoDownloadOutline } from "react-icons/io5";
 import { useTranslations } from "next-intl";
+import { toDateKey } from "@/lib/utils"
+
+
 type DayName = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat";
 
 type WeeklySchedule = Record<
@@ -69,12 +72,6 @@ export default function ExportAttendanceButton() {
 
     const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
 
-    const toDateKey = (d: Date) => {
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, "0");
-      const day = String(d.getDate()).padStart(2, "0");
-      return `${y}-${m}-${day}`;
-    };
 
     const holidayKeys = new Set(
       (pendingHolidays as Holiday[]).map((h) =>
