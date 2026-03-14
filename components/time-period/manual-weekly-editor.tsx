@@ -7,6 +7,7 @@ import { useTimePeriodStore } from "@/stores/timePeriodStore";
 import { useFormatter, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import ManualSectionPopover from "@/components/time-period/manual-section-popover";
+import { toDateKey } from "@/lib/utils"
 
 /**
  * Utility: get Monday of the week for a given date
@@ -86,14 +87,6 @@ function isHoliday(d: Date, list: Date[]) {
   return list?.some((h) => sameDay(h, d));
 }
 
-function dateKey(d: Date) {
-  // Use local Y-M-D to avoid TZ drift; keeps keys stable
-  const y = d.getFullYear();
-  const m = d.getMonth() + 1;
-  const day = d.getDate();
-  return `${y}-${String(m).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-}
-
 export default function ManualWeeklyEditor() {
   const {
     startDate,
@@ -150,7 +143,7 @@ export default function ManualWeeklyEditor() {
         // Skip holidays
         if (isHoliday(d, holidays)) continue;
 
-        const dk = dateKey(d);
+        const dk = toDateKey(d);
         const dayKey = dayKeyFromDate(d);
 
         for (const p of PERIODS) {
@@ -187,7 +180,7 @@ export default function ManualWeeklyEditor() {
     for (const s of slots) {
       const next = (perSection.get(s.section) ?? 0) + 1;
       perSection.set(s.section, next);
-      map.set(`${dateKey(s.date)}|${s.period}`, next);
+      map.set(`${toDateKey(s.date)}|${s.period}`, next);
     }
 
     return map;
@@ -305,7 +298,7 @@ export default function ManualWeeklyEditor() {
 
                     const key = dayKeyFromDate(d);
                     const assigned = schedule[key]?.[p];
-                    const cellDateKey = dateKey(d);
+                    const cellDateKey = toDateKey(d);
 
                     const manual = manualLessons.find(
                       (x) => x.dateKey === cellDateKey && x.period === p,
