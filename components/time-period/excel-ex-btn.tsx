@@ -15,6 +15,7 @@ import {
 import { useTimePeriodStore } from "@/stores/timePeriodStore";
 import { useTranslations, useFormatter } from "next-intl";
 import { IoDownloadOutline } from "react-icons/io5";
+import { toDateKey } from "@/lib/utils"
 
 // ----- helpers -----
 function startOfWeekMonday(d: Date) {
@@ -71,13 +72,7 @@ function isHoliday(d: Date, list: Date[]) {
   return list?.some((h) => sameDay(h, d));
 }
 
-function dateKey(d: Date) {
-  // local YYYY-MM-DD (stable, avoids TZ drift)
-  const y = d.getFullYear();
-  const m = d.getMonth() + 1;
-  const day = d.getDate();
-  return `${y}-${String(m).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-}
+
 
 export default function ExportExcelButton() {
   const {
@@ -122,7 +117,7 @@ export default function ExportExcelButton() {
         if (d < startDate || d > endDate) continue; // out-of-range day
         if (isHoliday(d, pendingHolidays)) continue; // holiday day
         const key = dayKeyFromDate(d); // "Mon".."Sat"
-        const dk = dateKey(d);
+        const dk = toDateKey(d);
 
         for (const p of PERIODS) {
           const slotKey = `${dk}|${p}`;
@@ -158,7 +153,7 @@ export default function ExportExcelButton() {
     for (const s of slots) {
       const n = (perSection.get(s.section) ?? 0) + 1;
       perSection.set(s.section, n);
-      meetingCount.set(`${dateKey(s.date)}|${s.period}`, n);
+      meetingCount.set(`${toDateKey(s.date)}|${s.period}`, n);
     }
 
     const wb = new ExcelJS.Workbook();
@@ -273,7 +268,7 @@ export default function ExportExcelButton() {
 
           // Normal day with assignment (manual wins)
           const key = dayKeyFromDate(d);
-          const slotKey = `${dateKey(d)}|${p}`;
+          const slotKey = `${toDateKey(d)}|${p}`;
 
           const manualSection = manualMap.get(slotKey);
           const isManual = !!manualSection;
