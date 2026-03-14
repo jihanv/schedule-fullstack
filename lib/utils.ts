@@ -21,3 +21,16 @@ export function toDateKey(d: Date) {
 
   return `${y}-${m}-${day}`;
 }
+
+export type ScheduleDayKey = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat";
+
+export function dayKeyFromDate(d: Date): ScheduleDayKey {
+  const day = d.getDay(); // 0=Sun, 1=Mon, ... 6=Sat
+  const KEYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
+
+  // Sunday is not scheduled in this app.
+  // We return "Mon" only as a safe fallback.
+  if (day === 0) return "Mon";
+
+  return KEYS[day - 1];
+}

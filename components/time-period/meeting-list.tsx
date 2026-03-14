@@ -14,15 +14,7 @@ import { ja } from "date-fns/locale";
 import { useTimePeriodStore } from "@/stores/timePeriodStore";
 import { useLocale, useTranslations } from "next-intl";
 import { toDateKey } from "@/lib/utils"
-
-function dayKeyFromDate(
-    d: Date,
-): "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" {
-    const day = d.getDay(); // 0=Sun..6=Sat
-    const KEYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
-    if (day === 0) return "Mon"; // we never schedule Sunday; safe fallback
-    return KEYS[day - 1];
-}
+import { dayKeyFromDate } from "@/lib/utils"
 
 function sameDay(a: Date, b: Date) {
     return (
