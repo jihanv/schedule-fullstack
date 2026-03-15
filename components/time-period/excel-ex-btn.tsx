@@ -16,6 +16,7 @@ import { useTimePeriodStore } from "@/stores/timePeriodStore";
 import { useTranslations, useFormatter } from "next-intl";
 import { IoDownloadOutline } from "react-icons/io5";
 import { toDateKey } from "@/lib/utils"
+import { dayKeyFromDate } from "@/lib/utils"
 
 // ----- helpers -----
 function startOfWeekMonday(d: Date) {
@@ -30,16 +31,6 @@ function addDays(base: Date, days: number) {
   const d = new Date(base);
   d.setDate(d.getDate() + days);
   return d;
-}
-
-// Map Date -> your weekday keys ("Mon" | ... | "Sat")
-function dayKeyFromDate(
-  d: Date,
-): "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" {
-  const day = d.getDay();
-  const KEYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
-  if (day === 0) return "Mon"; // we never export Sunday; safe fallback
-  return KEYS[day - 1];
 }
 
 function excelColorsForSection(section: string, sections: string[]) {
