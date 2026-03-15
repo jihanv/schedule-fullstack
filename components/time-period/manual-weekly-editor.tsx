@@ -8,6 +8,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import ManualSectionPopover from "@/components/time-period/manual-section-popover";
 import { toDateKey } from "@/lib/utils"
+import { dayKeyFromDate } from "@/lib/utils"
 
 /**
  * Utility: get Monday of the week for a given date
@@ -61,18 +62,6 @@ function buildWeeks(start: Date, end: Date) {
     cur = addDays(cur, 7);
   }
   return weeks;
-}
-
-function dayKeyFromDate(
-  d: Date,
-): "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" {
-  // JS: 0=Sun, 1=Mon, ... 6=Sat
-  const day = d.getDay();
-  const KEYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
-  // If it's Sunday (0), we’ll never render it because our weeks are Mon–Sat,
-  // but just in case, fall back to Monday.
-  if (day === 0) return "Mon";
-  return KEYS[day - 1];
 }
 
 function sameDay(a: Date, b: Date) {
