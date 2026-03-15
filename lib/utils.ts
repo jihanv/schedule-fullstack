@@ -34,3 +34,11 @@ export function dayKeyFromDate(d: Date): ScheduleDayKey {
 
   return KEYS[day - 1];
 }
+
+export function sameDay(a: Date, b: Date) {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}

@@ -15,14 +15,7 @@ import { useTimePeriodStore } from "@/stores/timePeriodStore";
 import { useLocale, useTranslations } from "next-intl";
 import { toDateKey } from "@/lib/utils"
 import { dayKeyFromDate } from "@/lib/utils"
-
-function sameDay(a: Date, b: Date) {
-    return (
-        a.getFullYear() === b.getFullYear() &&
-        a.getMonth() === b.getMonth() &&
-        a.getDate() === b.getDate()
-    );
-}
+import { sameDay } from "@/lib/utils"
 
 function isHoliday(d: Date, holidays: Date[]) {
     return holidays?.some((h) => sameDay(h, d));
