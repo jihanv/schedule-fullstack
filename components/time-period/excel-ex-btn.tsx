@@ -15,8 +15,7 @@ import {
 import { useTimePeriodStore } from "@/stores/timePeriodStore";
 import { useTranslations, useFormatter } from "next-intl";
 import { IoDownloadOutline } from "react-icons/io5";
-import { toDateKey } from "@/lib/utils"
-import { dayKeyFromDate } from "@/lib/utils"
+import { dayKeyFromDate, sameDay, toDateKey } from "@/lib/utils"
 
 // ----- helpers -----
 function startOfWeekMonday(d: Date) {
@@ -51,14 +50,6 @@ function* weekStartsBetween(start: Date, end: Date) {
   }
 }
 
-// Same-day + holiday detectors
-function sameDay(a: Date, b: Date) {
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  );
-}
 function isHoliday(d: Date, list: Date[]) {
   return list?.some((h) => sameDay(h, d));
 }
