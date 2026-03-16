@@ -7,8 +7,7 @@ import { useTimePeriodStore } from "@/stores/timePeriodStore";
 import { useFormatter, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import ManualSectionPopover from "@/components/time-period/manual-section-popover";
-import { toDateKey } from "@/lib/utils"
-import { dayKeyFromDate } from "@/lib/utils"
+import { dayKeyFromDate, sameDay, toDateKey } from "@/lib/utils"
 
 /**
  * Utility: get Monday of the week for a given date
@@ -62,14 +61,6 @@ function buildWeeks(start: Date, end: Date) {
     cur = addDays(cur, 7);
   }
   return weeks;
-}
-
-function sameDay(a: Date, b: Date) {
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  );
 }
 
 function isHoliday(d: Date, list: Date[]) {
