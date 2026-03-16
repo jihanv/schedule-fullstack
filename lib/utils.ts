@@ -42,3 +42,7 @@ export function sameDay(a: Date, b: Date) {
     a.getDate() === b.getDate()
   );
 }
+
+export function isHoliday(d: Date, list: Date[] = []) {
+  return list.some((h) => sameDay(h, d));
+}
