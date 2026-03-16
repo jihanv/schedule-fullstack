@@ -5,7 +5,7 @@ import { PERIODS } from "@/lib/constants";
 import { badgeColorFor } from "@/lib/utils";
 import { useTimePeriodStore } from "@/stores/timePeriodStore";
 import { useFormatter, useTranslations } from "next-intl";
-import { dayKeyFromDate, sameDay, toDateKey } from "@/lib/utils"
+import { dayKeyFromDate, isHoliday, toDateKey } from "@/lib/utils"
 /**
  * Utility: get Monday of the week for a given date
  */
@@ -58,10 +58,6 @@ function buildWeeks(start: Date, end: Date) {
     cur = addDays(cur, 7);
   }
   return weeks;
-}
-
-function isHoliday(d: Date, list: Date[]) {
-  return list?.some((h) => sameDay(h, d));
 }
 
 export default function WeeklyTables() {
