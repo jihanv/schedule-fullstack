@@ -78,6 +78,25 @@ export function buildWeeks(start: Date, end: Date) {
   return weeks;
 }
 
+// export function formatHeader(d: Date) {
+//   return `${d.getMonth() + 1}/${d.getDate()}`;
+// }
+
 export function formatHeader(d: Date) {
-  return `${d.getMonth() + 1}/${d.getDate()}`;
+  const wd = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()];
+  const mo = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ][d.getMonth()];
+  return `${wd}, ${mo} ${d.getDate()}`;
 }

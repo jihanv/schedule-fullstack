@@ -5,26 +5,13 @@ import { PERIODS } from "@/lib/constants";
 import { badgeColorFor } from "@/lib/utils";
 import { useTimePeriodStore } from "@/stores/timePeriodStore";
 import { useFormatter, useTranslations } from "next-intl";
-import { dayKeyFromDate, isHoliday, toDateKey, buildWeeks } from "@/lib/utils";
-
-function formatHeader(d: Date) {
-  const wd = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()];
-  const mo = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ][d.getMonth()];
-  return `${wd}, ${mo} ${d.getDate()}`;
-}
+import {
+  dayKeyFromDate,
+  isHoliday,
+  toDateKey,
+  buildWeeks,
+  formatHeader,
+} from "@/lib/utils";
 
 export default function WeeklyTables() {
   const {
