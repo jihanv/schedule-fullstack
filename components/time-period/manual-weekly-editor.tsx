@@ -7,7 +7,7 @@ import { useTimePeriodStore } from "@/stores/timePeriodStore";
 import { useFormatter, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import ManualSectionPopover from "@/components/time-period/manual-section-popover";
-import { dayKeyFromDate, sameDay, toDateKey } from "@/lib/utils"
+import { dayKeyFromDate, isHoliday, toDateKey } from "@/lib/utils";
 
 /**
  * Utility: get Monday of the week for a given date
@@ -61,10 +61,6 @@ function buildWeeks(start: Date, end: Date) {
     cur = addDays(cur, 7);
   }
   return weeks;
-}
-
-function isHoliday(d: Date, list: Date[]) {
-  return list?.some((h) => sameDay(h, d));
 }
 
 export default function ManualWeeklyEditor() {
@@ -253,8 +249,9 @@ export default function ManualWeeklyEditor() {
                   return (
                     <th
                       key={i}
-                      className={`text-left text-xs font-medium px-3 py-2 border-b ${hol ? "bg-muted/70" : "bg-card"
-                        }`}
+                      className={`text-left text-xs font-medium px-3 py-2 border-b ${
+                        hol ? "bg-muted/70" : "bg-card"
+                      }`}
                     >
                       <div className="font-semibold tracking-tight">
                         {formatHeader(d)}
@@ -360,10 +357,11 @@ export default function ManualWeeklyEditor() {
                         ) : (
                           // Normal assigned-class cell (weekly template)
                           <div
-                            className={`rounded-md p-2 h-17 flex flex-col ${isSkipped
-                              ? "bg-red-100 text-red-900"
-                              : colorClasses || "bg-background"
-                              }`}
+                            className={`rounded-md p-2 h-17 flex flex-col ${
+                              isSkipped
+                                ? "bg-red-100 text-red-900"
+                                : colorClasses || "bg-background"
+                            }`}
                           >
                             <div className="flex items-start justify-between gap-1">
                               <div className="font-medium leading-4"> {p}</div>
@@ -398,10 +396,11 @@ export default function ManualWeeklyEditor() {
                             </div>
 
                             <div
-                              className={`text-xs leading-4 ${assigned
-                                ? "font-semibold"
-                                : "text-muted-foreground"
-                                }`}
+                              className={`text-xs leading-4 ${
+                                assigned
+                                  ? "font-semibold"
+                                  : "text-muted-foreground"
+                              }`}
                             >
                               {assigned ?? "—"}
                             </div>
