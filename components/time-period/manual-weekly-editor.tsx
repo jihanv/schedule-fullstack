@@ -7,13 +7,7 @@ import { useTimePeriodStore } from "@/stores/timePeriodStore";
 import { useFormatter, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import ManualSectionPopover from "@/components/time-period/manual-section-popover";
-import {
-  dayKeyFromDate,
-  isHoliday,
-  toDateKey,
-  startOfWeekMonday,
-  addDays,
-} from "@/lib/utils";
+import { dayKeyFromDate, isHoliday, toDateKey, buildWeeks } from "@/lib/utils";
 
 function formatHeader(d: Date) {
   const wd = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()];
@@ -32,23 +26,6 @@ function formatHeader(d: Date) {
     "Dec",
   ][d.getMonth()];
   return `${wd}, ${mo} ${d.getDate()}`;
-}
-
-/**
- * Build a list of Monday-start weeks between start and end
- */
-function buildWeeks(start: Date, end: Date) {
-  const weeks: { start: Date; days: Date[] }[] = [];
-  let cur = startOfWeekMonday(start);
-  while (cur <= end) {
-    const days = [0, 1, 2, 3, 4, 5].map((i) => addDays(cur, i)); // Mon..Sat
-    // include only if week intersects range at all
-    if (days.some((d) => d >= start && d <= end)) {
-      weeks.push({ start: new Date(cur), days });
-    }
-    cur = addDays(cur, 7);
-  }
-  return weeks;
 }
 
 export default function ManualWeeklyEditor() {
