@@ -21,6 +21,7 @@ import {
   isHoliday,
   startOfWeekMonday,
   addDays,
+  buildWeeks,
 } from "@/lib/utils";
 
 // ----- helpers -----
@@ -32,16 +33,16 @@ function excelColorsForSection(section: string, sections: string[]) {
   return slot;
 }
 
-function* weekStartsBetween(start: Date, end: Date) {
-  // If the selected period starts on Sunday, skip it.
-  // Our schedule/export only uses Mon–Sat, so starting on Sunday would create an empty “previous week” block.
-  const effectiveStart = start.getDay() === 0 ? addDays(start, 1) : start;
-  let cur = startOfWeekMonday(effectiveStart);
-  while (cur <= end) {
-    yield new Date(cur);
-    cur = addDays(cur, 7);
-  }
-}
+// function* weekStartsBetween(start: Date, end: Date) {
+//   // If the selected period starts on Sunday, skip it.
+//   // Our schedule/export only uses Mon–Sat, so starting on Sunday would create an empty “previous week” block.
+//   const effectiveStart = start.getDay() === 0 ? addDays(start, 1) : start;
+//   let cur = startOfWeekMonday(effectiveStart);
+//   while (cur <= end) {
+//     yield new Date(cur);
+//     cur = addDays(cur, 7);
+//   }
+// }
 export default function ExportExcelButton() {
   const {
     startDate,
@@ -65,7 +66,7 @@ export default function ExportExcelButton() {
       alert(t("alerts.missingDates"));
       return;
     }
-
+    const weeks = buildWeeks(startDate, endDate);
     const deletedSet = new Set(
       deletedLessons.map((x) => `${x.dateKey}|${x.period}`),
     );
@@ -79,9 +80,8 @@ export default function ExportExcelButton() {
     // Build chronological list of actual meetings (in range, non-holiday, assigned)
     const slots: Slot[] = [];
 
-    for (const weekStart of weekStartsBetween(startDate, endDate)) {
-      const days = [0, 1, 2, 3, 4, 5].map((i) => addDays(weekStart, i)); // Mon..Sat
-      for (const d of days) {
+    for (const week of weeks) {
+      for (const d of week.days) {
         if (d < startDate || d > endDate) continue; // out-of-range day
         if (isHoliday(d, pendingHolidays)) continue; // holiday day
         const key = dayKeyFromDate(d); // "Mon".."Sat"
@@ -140,7 +140,8 @@ export default function ExportExcelButton() {
 
     let row = 1; // running row pointer
 
-    for (const weekStart of weekStartsBetween(startDate, endDate)) {
+    for (const week of weeks) {
+      const weekStart = week.start;
       // --- Title row ---
       ws.getCell(row, 1).value = t("headers.weekTitle", {
         date: format.dateTime(weekStart, {
@@ -154,7 +155,7 @@ export default function ExportExcelButton() {
       row += 2; // leave a blank row for spacing (title on row, blank row next)
 
       // --- Header row: Mon–Sat with dates ---
-      const days = [0, 1, 2, 3, 4, 5].map((i) => addDays(weekStart, i)); // Mon..Sat
+      const days = week.days;
       ws.getRow(row).values = [
         t("headers.period"),
         ...days.map((d) =>
