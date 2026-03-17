@@ -55,3 +55,8 @@ export function startOfWeekMonday(d: Date) {
   copy.setHours(0, 0, 0, 0);
   return copy;
 }
+export function addDays(base: Date, days: number) {
+  const d = new Date(base);
+  d.setDate(d.getDate() + days);
+  return d;
+}
