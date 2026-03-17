@@ -5,7 +5,7 @@ import ExcelJS from "exceljs";
 import { useTimePeriodStore } from "@/stores/timePeriodStore";
 import { IoDownloadOutline } from "react-icons/io5";
 import { useTranslations } from "next-intl";
-import { toDateKey } from "@/lib/utils"
+import { toDateKey, dayKeyFromDate } from "@/lib/utils"
 
 
 type DayName = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat";
@@ -70,7 +70,7 @@ export default function ExportAttendanceButton() {
     const sanitizeSheetName = (name: string) =>
       name.replace(/[\[\]\*\?\/\\:]/g, "").slice(0, 31) || "Sheet";
 
-    const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
+    // const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
 
 
     const holidayKeys = new Set(
@@ -86,13 +86,12 @@ export default function ExportAttendanceButton() {
 
       // walk day-by-day
       for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        const dayName = DAYS[d.getDay()];
-        if (dayName === "Sun") continue;
+        if (d.getDay() === 0) continue;
 
         const dateKey = toDateKey(d);
         if (holidayKeys.has(dateKey)) continue;
 
-        const weekday = dayName as DayName; // safe because we already "continue" on Sun
+        const weekday = dayKeyFromDate(d);
         const daySchedule =
           (schedule as unknown as WeeklySchedule)[weekday] ?? {};
 
