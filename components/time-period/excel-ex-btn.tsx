@@ -15,7 +15,7 @@ import {
 import { useTimePeriodStore } from "@/stores/timePeriodStore";
 import { useTranslations, useFormatter } from "next-intl";
 import { IoDownloadOutline } from "react-icons/io5";
-import { dayKeyFromDate, sameDay, toDateKey } from "@/lib/utils"
+import { dayKeyFromDate, toDateKey, isHoliday } from "@/lib/utils";
 
 // ----- helpers -----
 function startOfWeekMonday(d: Date) {
@@ -49,13 +49,6 @@ function* weekStartsBetween(start: Date, end: Date) {
     cur = addDays(cur, 7);
   }
 }
-
-function isHoliday(d: Date, list: Date[]) {
-  return list?.some((h) => sameDay(h, d));
-}
-
-
-
 export default function ExportExcelButton() {
   const {
     startDate,
