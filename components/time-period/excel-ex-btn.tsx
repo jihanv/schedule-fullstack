@@ -15,17 +15,15 @@ import {
 import { useTimePeriodStore } from "@/stores/timePeriodStore";
 import { useTranslations, useFormatter } from "next-intl";
 import { IoDownloadOutline } from "react-icons/io5";
-import { dayKeyFromDate, toDateKey, isHoliday } from "@/lib/utils";
+import {
+  dayKeyFromDate,
+  toDateKey,
+  isHoliday,
+  startOfWeekMonday,
+} from "@/lib/utils";
 
 // ----- helpers -----
-function startOfWeekMonday(d: Date) {
-  const copy = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  const day = copy.getDay(); // 0=Sun..6=Sat
-  const diff = day === 0 ? -6 : 1 - day;
-  copy.setDate(copy.getDate() + diff);
-  copy.setHours(0, 0, 0, 0);
-  return copy;
-}
+
 function addDays(base: Date, days: number) {
   const d = new Date(base);
   d.setDate(d.getDate() + days);

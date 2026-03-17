@@ -7,19 +7,12 @@ import { useTimePeriodStore } from "@/stores/timePeriodStore";
 import { useFormatter, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import ManualSectionPopover from "@/components/time-period/manual-section-popover";
-import { dayKeyFromDate, isHoliday, toDateKey } from "@/lib/utils";
-
-/**
- * Utility: get Monday of the week for a given date
- */
-function startOfWeekMonday(d: Date) {
-  const copy = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  const day = copy.getDay(); // 0=Sun .. 6=Sat
-  const diff = day === 0 ? -6 : 1 - day; // shift so Monday is start
-  copy.setDate(copy.getDate() + diff);
-  copy.setHours(0, 0, 0, 0);
-  return copy;
-}
+import {
+  dayKeyFromDate,
+  isHoliday,
+  toDateKey,
+  startOfWeekMonday,
+} from "@/lib/utils";
 
 function addDays(base: Date, days: number) {
   const d = new Date(base);

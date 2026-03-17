@@ -5,18 +5,15 @@ import { PERIODS } from "@/lib/constants";
 import { badgeColorFor } from "@/lib/utils";
 import { useTimePeriodStore } from "@/stores/timePeriodStore";
 import { useFormatter, useTranslations } from "next-intl";
-import { dayKeyFromDate, isHoliday, toDateKey } from "@/lib/utils"
+import {
+  dayKeyFromDate,
+  isHoliday,
+  toDateKey,
+  startOfWeekMonday,
+} from "@/lib/utils";
 /**
  * Utility: get Monday of the week for a given date
  */
-function startOfWeekMonday(d: Date) {
-  const copy = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  const day = copy.getDay(); // 0=Sun .. 6=Sat
-  const diff = day === 0 ? -6 : 1 - day; // shift so Monday is start
-  copy.setDate(copy.getDate() + diff);
-  copy.setHours(0, 0, 0, 0);
-  return copy;
-}
 
 function addDays(base: Date, days: number) {
   const d = new Date(base);
@@ -180,8 +177,9 @@ export default function WeeklyTables() {
                       return (
                         <th
                           key={i}
-                          className={`text-left text-xs font-medium px-3 py-2 border-b ${hol ? "bg-muted/70" : "bg-card"
-                            }`}
+                          className={`text-left text-xs font-medium px-3 py-2 border-b ${
+                            hol ? "bg-muted/70" : "bg-card"
+                          }`}
                         >
                           <div className="flex items-center gap-2">
                             <div className="font-semibold tracking-tight">
@@ -277,10 +275,11 @@ export default function WeeklyTables() {
                         return (
                           <td key={i} className="align-top px-3 py-2 border-b">
                             <div
-                              className={`rounded-md p-2 h-17 flex flex-col ${hol || outOfRange
-                                ? "bg-muted/40 text-muted-foreground"
-                                : colorClasses || "bg-background"
-                                }`}
+                              className={`rounded-md p-2 h-17 flex flex-col ${
+                                hol || outOfRange
+                                  ? "bg-muted/40 text-muted-foreground"
+                                  : colorClasses || "bg-background"
+                              }`}
                             >
                               {content}
                             </div>
