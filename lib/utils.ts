@@ -46,3 +46,12 @@ export function sameDay(a: Date, b: Date) {
 export function isHoliday(d: Date, list: Date[] = []) {
   return list.some((h) => sameDay(h, d));
 }
+
+export function startOfWeekMonday(d: Date) {
+  const copy = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const day = copy.getDay(); // 0=Sun .. 6=Sat
+  const diff = day === 0 ? -6 : 1 - day; // shift so Monday is start
+  copy.setDate(copy.getDate() + diff);
+  copy.setHours(0, 0, 0, 0);
+  return copy;
+}
