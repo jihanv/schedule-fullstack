@@ -77,3 +77,7 @@ export function buildWeeks(start: Date, end: Date) {
 
   return weeks;
 }
+
+export function formatHeader(d: Date) {
+  return `${d.getMonth() + 1}/${d.getDate()}`;
+}
