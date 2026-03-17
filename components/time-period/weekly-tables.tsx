@@ -10,16 +10,8 @@ import {
   isHoliday,
   toDateKey,
   startOfWeekMonday,
+  addDays,
 } from "@/lib/utils";
-/**
- * Utility: get Monday of the week for a given date
- */
-
-function addDays(base: Date, days: number) {
-  const d = new Date(base);
-  d.setDate(d.getDate() + days);
-  return d;
-}
 
 function formatHeader(d: Date) {
   const wd = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()];

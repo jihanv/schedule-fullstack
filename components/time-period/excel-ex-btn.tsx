@@ -20,15 +20,10 @@ import {
   toDateKey,
   isHoliday,
   startOfWeekMonday,
+  addDays,
 } from "@/lib/utils";
 
 // ----- helpers -----
-
-function addDays(base: Date, days: number) {
-  const d = new Date(base);
-  d.setDate(d.getDate() + days);
-  return d;
-}
 
 function excelColorsForSection(section: string, sections: string[]) {
   const i = sections.indexOf(section);

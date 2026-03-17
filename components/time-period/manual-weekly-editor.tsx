@@ -12,13 +12,8 @@ import {
   isHoliday,
   toDateKey,
   startOfWeekMonday,
+  addDays,
 } from "@/lib/utils";
-
-function addDays(base: Date, days: number) {
-  const d = new Date(base);
-  d.setDate(d.getDate() + days);
-  return d;
-}
 
 function formatHeader(d: Date) {
   const wd = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()];
