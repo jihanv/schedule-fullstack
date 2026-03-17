@@ -60,3 +60,20 @@ export function addDays(base: Date, days: number) {
   d.setDate(d.getDate() + days);
   return d;
 }
+
+export function buildWeeks(start: Date, end: Date) {
+  const weeks: { start: Date; days: Date[] }[] = [];
+  let cur = startOfWeekMonday(start);
+
+  while (cur <= end) {
+    const days = [0, 1, 2, 3, 4, 5].map((i) => addDays(cur, i)); // Mon..Sat
+
+    if (days.some((d) => d >= start && d <= end)) {
+      weeks.push({ start: new Date(cur), days });
+    }
+
+    cur = addDays(cur, 7);
+  }
+
+  return weeks;
+}
