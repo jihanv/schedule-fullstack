@@ -23,6 +23,7 @@ export default function WeeklyTables() {
     holidays,
     manualLessons,
     deletedLessons,
+    getManualLesson
   } = useTimePeriodStore();
   const showWeeklyPreview = useTimePeriodStore((s) => s.showWeeklyPreview);
   const format = useFormatter();
@@ -164,10 +165,7 @@ export default function WeeklyTables() {
                         const assigned = schedule[key]?.[p];
                         const cellDateKey = toDateKey(d);
 
-                        const manual = manualLessons.find(
-                          (x) => x.dateKey === cellDateKey && x.period === p,
-                        );
-
+                        const manual = getManualLesson(cellDateKey, p);
                         // ✅ if the slot is deleted AND there is no manual override, hide the template lesson
                         const isDeleted = deletedLessons.some(
                           (x) => x.dateKey === cellDateKey && x.period === p,

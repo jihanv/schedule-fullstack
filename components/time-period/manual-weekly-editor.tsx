@@ -27,6 +27,7 @@ export default function ManualWeeklyEditor() {
     addDeletedLesson,
     removeDeletedLesson,
     manualLessons,
+    getManualLesson
   } = useTimePeriodStore();
   const t = useTranslations("WeeklyTables");
   const format = useFormatter();
@@ -223,9 +224,7 @@ export default function ManualWeeklyEditor() {
                     const assigned = schedule[key]?.[p];
                     const cellDateKey = toDateKey(d);
 
-                    const manual = manualLessons.find(
-                      (x) => x.dateKey === cellDateKey && x.period === p,
-                    );
+                    const manual = getManualLesson(cellDateKey, p);
 
                     const displaySection = manual?.section ?? assigned;
 
