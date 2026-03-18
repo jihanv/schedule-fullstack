@@ -27,7 +27,8 @@ export default function ManualWeeklyEditor() {
     addDeletedLesson,
     removeDeletedLesson,
     manualLessons,
-    getManualLesson
+    getManualLesson,
+    isDeletedLesson
   } = useTimePeriodStore();
   const t = useTranslations("WeeklyTables");
   const format = useFormatter();
@@ -234,9 +235,7 @@ export default function ManualWeeklyEditor() {
                       !outOfRange &&
                       !!assigned &&
                       !manual &&
-                      deletedLessons.some(
-                        (x) => x.dateKey === cellDateKey && x.period === p,
-                      );
+                      isDeletedLesson(cellDateKey, p);
 
                     const colorClasses =
                       !hol && !outOfRange && displaySection && !isSkipped

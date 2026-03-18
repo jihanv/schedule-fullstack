@@ -23,8 +23,8 @@ export default function MeetingListEditor() {
         schedule,
         sections,
         pendingHolidays,
-        deletedLessons,
-        manualLessons
+        manualLessons,
+        isDeletedLesson
     } = useTimePeriodStore();
     // function toDateKey(d: Date) {
     //     return format(d, "yyyy-MM-dd");
@@ -77,9 +77,7 @@ export default function MeetingListEditor() {
                     if (!assigned) continue;
 
                     // deletedLessons only applies to weekly-schedule lessons
-                    const isDeleted = deletedLessons.some(
-                        (x) => x.dateKey === dk && x.period === p
-                    );
+                    const isDeleted = isDeletedLesson(dk, p);
                     if (isDeleted) continue;
 
                     rawSlots.push({
@@ -138,7 +136,7 @@ export default function MeetingListEditor() {
         for (const [, n] of perSectionCounts) if (n > max) max = n;
 
         return { perSectionCounts, perSectionMeetings, maxMeetings: max };
-    }, [startDate, endDate, sections, schedule, pendingHolidays, deletedLessons, manualLessons]);    //   const items = useMemo(
+    }, [startDate, endDate, sections, schedule, pendingHolidays, manualLessons, isDeletedLesson]);    //   const items = useMemo(
     //     () => Array.from({ length: maxMeetings }, (_, i) => i + 1),
     //     [maxMeetings],
     //   );

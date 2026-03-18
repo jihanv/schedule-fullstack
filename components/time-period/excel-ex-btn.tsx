@@ -50,8 +50,8 @@ export default function ExportExcelButton() {
     sections,
     pendingHolidays,
     commitPendingHolidays,
-    deletedLessons,
     manualLessons,
+    isDeletedLesson
   } = useTimePeriodStore();
 
   const t = useTranslations("ExportExcel");
@@ -66,9 +66,6 @@ export default function ExportExcelButton() {
       return;
     }
     const weeks = buildWeeks(startDate, endDate);
-    const deletedSet = new Set(
-      deletedLessons.map((x) => `${x.dateKey}|${x.period}`),
-    );
 
     // Manual lessons lookup: `${YYYY-MM-DD}|${period}` -> section
     const manualMap = buildManualLessonMap(manualLessons);
@@ -98,7 +95,7 @@ export default function ExportExcelButton() {
           if (!section) continue;
 
           // deletedLessons only applies to weekly schedule lessons
-          if (deletedSet.has(slotKey)) continue;
+          if (isDeletedLesson(dk, p)) continue;
 
           slots.push({ date: d, period: p, section });
         }
@@ -241,7 +238,7 @@ export default function ExportExcelButton() {
           const section = manualSection ?? schedule[key]?.[p] ?? "";
 
           // deletedLessons only applies to weekly schedule lessons
-          const isDeleted = !isManual && deletedSet.has(slotKey);
+          const isDeleted = !isManual && isDeletedLesson(toDateKey(d), p);
 
           if (!section || isDeleted) {
             cell.value = "";
