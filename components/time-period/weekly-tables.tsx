@@ -11,6 +11,7 @@ import {
   toDateKey,
   buildWeeks,
   formatHeader,
+  buildManualLessonMap
 } from "@/lib/utils";
 
 export default function WeeklyTables() {
@@ -40,10 +41,7 @@ export default function WeeklyTables() {
     const perSection = new Map<string, number>();
 
     // Quick lookup for manual lessons (manual wins for that slot)
-    const manualMap = new Map<string, string>();
-    for (const ml of manualLessons) {
-      manualMap.set(`${ml.dateKey}|${ml.period}`, ml.section);
-    }
+    const manualMap = buildManualLessonMap(manualLessons);
 
     // Quick lookup for deleted lessons (skip template lessons for that slot)
     const deletedSet = new Set<string>();
@@ -133,9 +131,8 @@ export default function WeeklyTables() {
                       return (
                         <th
                           key={i}
-                          className={`text-left text-xs font-medium px-3 py-2 border-b ${
-                            hol ? "bg-muted/70" : "bg-card"
-                          }`}
+                          className={`text-left text-xs font-medium px-3 py-2 border-b ${hol ? "bg-muted/70" : "bg-card"
+                            }`}
                         >
                           <div className="flex items-center gap-2">
                             <div className="font-semibold tracking-tight">
@@ -231,11 +228,10 @@ export default function WeeklyTables() {
                         return (
                           <td key={i} className="align-top px-3 py-2 border-b">
                             <div
-                              className={`rounded-md p-2 h-17 flex flex-col ${
-                                hol || outOfRange
-                                  ? "bg-muted/40 text-muted-foreground"
-                                  : colorClasses || "bg-background"
-                              }`}
+                              className={`rounded-md p-2 h-17 flex flex-col ${hol || outOfRange
+                                ? "bg-muted/40 text-muted-foreground"
+                                : colorClasses || "bg-background"
+                                }`}
                             >
                               {content}
                             </div>

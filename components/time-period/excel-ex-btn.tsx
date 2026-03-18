@@ -19,9 +19,8 @@ import {
   dayKeyFromDate,
   toDateKey,
   isHoliday,
-  startOfWeekMonday,
-  addDays,
   buildWeeks,
+  buildManualLessonMap
 } from "@/lib/utils";
 
 // ----- helpers -----
@@ -72,10 +71,7 @@ export default function ExportExcelButton() {
     );
 
     // Manual lessons lookup: `${YYYY-MM-DD}|${period}` -> section
-    const manualMap = new Map<string, string>();
-    for (const ml of manualLessons) {
-      manualMap.set(`${ml.dateKey}|${ml.period}`, ml.section);
-    }
+    const manualMap = buildManualLessonMap(manualLessons);
 
     // Build chronological list of actual meetings (in range, non-holiday, assigned)
     const slots: Slot[] = [];
