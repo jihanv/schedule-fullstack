@@ -13,9 +13,8 @@ import { format } from "date-fns";
 import { ja } from "date-fns/locale";
 import { useTimePeriodStore } from "@/stores/timePeriodStore";
 import { useLocale, useTranslations } from "next-intl";
-import { toDateKey } from "@/lib/utils"
-import { dayKeyFromDate } from "@/lib/utils"
-import { isHoliday } from "@/lib/utils"
+import { toDateKey, buildManualLessonMap, dayKeyFromDate, isHoliday } from "@/lib/utils"
+
 
 export default function MeetingListEditor() {
     const {
@@ -48,10 +47,7 @@ export default function MeetingListEditor() {
 
         // 1) Walk every day in the chosen range
         const rawSlots: { date: Date; period: number; section: string }[] = [];
-        const manualMap = new Map<string, string>();
-        for (const ml of manualLessons) {
-            manualMap.set(`${ml.dateKey}|${ml.period}`, ml.section);
-        }
+        const manualMap = buildManualLessonMap(manualLessons);
 
         const cur = new Date(startDate);
         const end = new Date(endDate);

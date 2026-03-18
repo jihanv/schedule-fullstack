@@ -100,3 +100,15 @@ export function formatHeader(d: Date) {
   ][d.getMonth()];
   return `${wd}, ${mo} ${d.getDate()}`;
 }
+
+export function buildManualLessonMap(
+  manualLessons: { dateKey: string; period: number; section: string }[],
+) {
+  const map = new Map<string, string>();
+
+  for (const ml of manualLessons) {
+    map.set(`${ml.dateKey}|${ml.period}`, ml.section);
+  }
+
+  return map;
+}
