@@ -132,7 +132,7 @@
       "timePeriod": "期間設定",
       "attendance": "出欠",
       "documentation": "ドキュメント",
-      "converter": "Kローマ字に変換"
+      "converter": "ローマ字に変換"
     }
   },
   "TimePeriod": {
