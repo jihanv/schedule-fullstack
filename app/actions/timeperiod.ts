@@ -14,6 +14,7 @@ import {
   TimePeriod,
   WeeklyTemplateSlots,
 } from "@/app/db/schema";
+import { emptySchedule, ScheduleByDay, WeekdayKey } from "@/lib/constants";
 
 // YYYY-MM-DD (simple format check)
 function isRealYmdDate(ymd: string): boolean {
@@ -738,17 +739,10 @@ export async function getEditableScheduleForPeriod(input: unknown) {
       asc(ManualLessonOverrides.timeSlot),
     );
 
-  const schedule: Record<string, Record<string, string | null>> = {
-    Mon: {},
-    Tue: {},
-    Wed: {},
-    Thu: {},
-    Fri: {},
-    Sat: {},
-  };
+  const schedule: ScheduleByDay = emptySchedule();
 
   for (const slot of weeklyTemplateSlots) {
-    schedule[slot.weekday][String(slot.timeSlot)] = slot.courseName;
+    schedule[slot.weekday as WeekdayKey][slot.timeSlot] = slot.courseName;
   }
 
   return {
