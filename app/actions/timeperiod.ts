@@ -12,6 +12,7 @@ import {
   TimePeriod,
   WeeklyTemplateSlots,
   DeletedLessonExceptions,
+  ManualLessonOverrides,
 } from "@/app/db/schema";
 
 // YYYY-MM-DD (simple format check)
@@ -487,6 +488,37 @@ export async function saveFullSchedule(input: SaveFullScheduleInput) {
               DeletedLessonExceptions.period_id,
               DeletedLessonExceptions.lessonDate,
               DeletedLessonExceptions.timeSlot,
+            ],
+          });
+      }
+      const manualLessonRows = data.manualLessons.map((item) => {
+        const trimmedSection = item.section.trim();
+        const courseId = courseIdByName.get(trimmedSection);
+
+        if (!courseId) {
+          throw new Error(
+            `Could not find saved course_id for manual lesson course "${trimmedSection}"`,
+          );
+        }
+
+        return {
+          manual_lesson_override_id: createId(),
+          period_id: periodId,
+          course_id: courseId,
+          lessonDate: item.dateKey,
+          timeSlot: item.period,
+        };
+      });
+
+      if (manualLessonRows.length > 0) {
+        await tx
+          .insert(ManualLessonOverrides)
+          .values(manualLessonRows)
+          .onConflictDoNothing({
+            target: [
+              ManualLessonOverrides.period_id,
+              ManualLessonOverrides.lessonDate,
+              ManualLessonOverrides.timeSlot,
             ],
           });
       }
