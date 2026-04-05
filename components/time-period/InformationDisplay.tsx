@@ -13,12 +13,9 @@ import MeetingList from "./meeting-list";
 import H1 from "@/components/format/h1";
 import { useTimePeriodStore } from "@/stores/timePeriodStore";
 import { useTranslations } from "next-intl";
-import {
-  getEditableScheduleForPeriod,
-  saveFullSchedule,
-} from "@/app/actions/timeperiod";
-import { useState, useTransition } from "react";
-import { useNavigationStore } from "@/stores/navigationStore";
+import { saveFullSchedule } from "@/app/actions/timeperiod";
+import { useState } from "react";
+import { Link } from "@/i18n/navigation";
 import ExportAttendanceButton from "@/components/time-period/attendance-ex-btn";
 import { useAuth } from "@clerk/nextjs";
 import { CiViewTable } from "react-icons/ci";
@@ -33,13 +30,7 @@ export default function InformationDisplay() {
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [savedPeriodId, setSavedPeriodId] = useState<string | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [isLoadingSaved, startLoadingSaved] = useTransition();
   const { isSignedIn } = useAuth();
-
-
-  const loadSavedSchedule = useTimePeriodStore((s) => s.loadSavedSchedule);
-  const setSteps = useNavigationStore((s) => s.setSteps);
   const t = useTranslations("CompleteSchedule");
   // const locale = useLocale();
   // const uiLocale = locale === 'ja' ? 'ja' : 'en';
@@ -92,7 +83,6 @@ export default function InformationDisplay() {
       const result = await saveFullSchedule(payload);
       if (result.ok) {
         setSavedPeriodId(result.period_id);
-        setLoadError(null);
         setShowSuccess(true);
       }
       // 5) Inspect server response
@@ -103,29 +93,7 @@ export default function InformationDisplay() {
     }
   };
 
-  const handleLoadSavedClick = () => {
-    if (!savedPeriodId) {
-      setLoadError("No saved period id was returned.");
-      return;
-    }
 
-    setLoadError(null);
-
-    startLoadingSaved(async () => {
-      const result = await getEditableScheduleForPeriod({
-        periodId: savedPeriodId,
-      });
-
-      if (!result.ok) {
-        setLoadError(result.error);
-        return;
-      }
-
-      loadSavedSchedule(result.editableSchedule);
-      setShowSuccess(false);
-      setSteps(1);
-    });
-  };
   return (
     <div className="flex flex-col items-center">
       <div className="flex flex-col sm:w-132.5 items-center p-10 border mt-10">
@@ -195,14 +163,14 @@ export default function InformationDisplay() {
                 </p>
               ) : null}
 
-              {loadError ? (
-                <p className="mt-2 text-sm text-red-600">{loadError}</p>
-              ) : null}
-
               <div className="mt-4 flex flex-col gap-2">
-                <Button onClick={handleLoadSavedClick} disabled={isLoadingSaved}>
-                  {isLoadingSaved ? "Loading..." : "Load saved version"}
-                </Button>
+                {savedPeriodId ? (
+                  <Button asChild>
+                    <Link href={`/dashboard/timeperiod/saved/${savedPeriodId}`}>
+                      Open saved schedule
+                    </Link>
+                  </Button>
+                ) : null}
 
                 <Button variant="outline" onClick={() => setShowSuccess(false)}>
                   Close
