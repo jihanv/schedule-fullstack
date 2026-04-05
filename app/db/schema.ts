@@ -14,6 +14,15 @@ import {
 
 export const accountTypeEnum = pgEnum("account_type", ["free", "paid"]);
 
+export const weekdayEnum = pgEnum("weekday", [
+  "Mon",
+  "Tue",
+  "Wed",
+  "Thu",
+  "Fri",
+  "Sat",
+]);
+
 export const Users = pgTable(
   "users",
   {
@@ -64,6 +73,43 @@ export const Courses = pgTable(
     uniqueIndex("courses_period_lesson_name_unique").on(
       t.period_id,
       t.courseName,
+    ),
+  ],
+);
+
+export const WeeklyTemplateSlots = pgTable(
+  "weekly_template_slots",
+  {
+    template_slot_id: text("template_slot_id").primaryKey().notNull(),
+
+    period_id: text("period_id")
+      .notNull()
+      .references(() => TimePeriod.period_id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+
+    course_id: text("course_id")
+      .notNull()
+      .references(() => Courses.course_id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+
+    weekday: weekdayEnum("weekday").notNull(),
+
+    timeSlot: integer("time_slot").notNull(),
+
+    createTs: timestamp("create_ts").defaultNow().notNull(),
+  },
+  (t) => [
+    index("weekly_template_slots_period_id_idx").on(t.period_id),
+    index("weekly_template_slots_course_id_idx").on(t.course_id),
+
+    uniqueIndex("weekly_template_slots_period_weekday_slot_unique").on(
+      t.period_id,
+      t.weekday,
+      t.timeSlot,
     ),
   ],
 );
