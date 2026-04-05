@@ -11,6 +11,7 @@ import {
   Lessons,
   TimePeriod,
   WeeklyTemplateSlots,
+  DeletedLessonExceptions,
 } from "@/app/db/schema";
 
 // YYYY-MM-DD (simple format check)
@@ -470,7 +471,25 @@ export async function saveFullSchedule(input: SaveFullScheduleInput) {
       if (weeklyTemplateRows.length > 0) {
         await tx.insert(WeeklyTemplateSlots).values(weeklyTemplateRows);
       }
+      const deletedLessonRows = data.deletedLessons.map((item) => ({
+        deleted_lesson_exception_id: createId(),
+        period_id: periodId,
+        lessonDate: item.dateKey,
+        timeSlot: item.period,
+      }));
 
+      if (deletedLessonRows.length > 0) {
+        await tx
+          .insert(DeletedLessonExceptions)
+          .values(deletedLessonRows)
+          .onConflictDoNothing({
+            target: [
+              DeletedLessonExceptions.period_id,
+              DeletedLessonExceptions.lessonDate,
+              DeletedLessonExceptions.timeSlot,
+            ],
+          });
+      }
       const lessonRows = generatedLessons.map((lesson) => {
         const courseId = courseIdByName.get(lesson.courseName);
 
