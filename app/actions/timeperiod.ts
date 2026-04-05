@@ -7,12 +7,12 @@ import { and, desc, eq, asc, inArray } from "drizzle-orm";
 import { db } from "@/app/db";
 import {
   Courses,
+  DeletedLessonExceptions,
   Holidays,
   Lessons,
+  ManualLessonOverrides,
   TimePeriod,
   WeeklyTemplateSlots,
-  DeletedLessonExceptions,
-  ManualLessonOverrides,
 } from "@/app/db/schema";
 
 // YYYY-MM-DD (simple format check)
@@ -650,6 +650,121 @@ export async function getTimePeriodById(input: unknown) {
 const inputSchema = z.object({
   periodId: z.string().min(1),
 });
+
+export async function getEditableScheduleForPeriod(input: unknown) {
+  const { userId } = await auth();
+  if (!userId) return { ok: false as const, error: "Unauthorized" };
+
+  const parsed = byIdSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false as const,
+      error: "Invalid input",
+      issues: parsed.error.issues,
+    };
+  }
+
+  const { periodId } = parsed.data;
+
+  const periodRows = await db
+    .select({
+      period_id: TimePeriod.period_id,
+      startDate: TimePeriod.startDate,
+      endDate: TimePeriod.endDate,
+    })
+    .from(TimePeriod)
+    .where(
+      and(eq(TimePeriod.period_id, periodId), eq(TimePeriod.user_id, userId)),
+    )
+    .limit(1);
+
+  const period = periodRows[0];
+  if (!period) return { ok: false as const, error: "Not found" };
+
+  const holidays = await db
+    .select({
+      holidayDate: Holidays.holidayDate,
+    })
+    .from(Holidays)
+    .where(eq(Holidays.period_id, periodId))
+    .orderBy(asc(Holidays.holidayDate));
+
+  const courses = await db
+    .select({
+      course_id: Courses.course_id,
+      courseName: Courses.courseName,
+    })
+    .from(Courses)
+    .where(eq(Courses.period_id, periodId))
+    .orderBy(asc(Courses.courseName));
+
+  const weeklyTemplateSlots = await db
+    .select({
+      weekday: WeeklyTemplateSlots.weekday,
+      timeSlot: WeeklyTemplateSlots.timeSlot,
+      courseName: Courses.courseName,
+    })
+    .from(WeeklyTemplateSlots)
+    .innerJoin(Courses, eq(WeeklyTemplateSlots.course_id, Courses.course_id))
+    .where(eq(WeeklyTemplateSlots.period_id, periodId))
+    .orderBy(
+      asc(WeeklyTemplateSlots.weekday),
+      asc(WeeklyTemplateSlots.timeSlot),
+    );
+
+  const deletedLessons = await db
+    .select({
+      dateKey: DeletedLessonExceptions.lessonDate,
+      period: DeletedLessonExceptions.timeSlot,
+    })
+    .from(DeletedLessonExceptions)
+    .where(eq(DeletedLessonExceptions.period_id, periodId))
+    .orderBy(
+      asc(DeletedLessonExceptions.lessonDate),
+      asc(DeletedLessonExceptions.timeSlot),
+    );
+
+  const manualLessons = await db
+    .select({
+      dateKey: ManualLessonOverrides.lessonDate,
+      period: ManualLessonOverrides.timeSlot,
+      section: Courses.courseName,
+    })
+    .from(ManualLessonOverrides)
+    .innerJoin(Courses, eq(ManualLessonOverrides.course_id, Courses.course_id))
+    .where(eq(ManualLessonOverrides.period_id, periodId))
+    .orderBy(
+      asc(ManualLessonOverrides.lessonDate),
+      asc(ManualLessonOverrides.timeSlot),
+    );
+
+  const schedule: Record<string, Record<string, string | null>> = {
+    Mon: {},
+    Tue: {},
+    Wed: {},
+    Thu: {},
+    Fri: {},
+    Sat: {},
+  };
+
+  for (const slot of weeklyTemplateSlots) {
+    schedule[slot.weekday][String(slot.timeSlot)] = slot.courseName;
+  }
+
+  return {
+    ok: true as const,
+    editableSchedule: {
+      periodId: period.period_id,
+      startDate: period.startDate,
+      endDate: period.endDate,
+      holidays: holidays.map((h) => h.holidayDate),
+      sections: courses.map((c) => c.courseName),
+      schedule,
+      deletedLessons,
+      manualLessons,
+    },
+  };
+}
 
 export async function getCoursesAndLessonsForPeriod(input: unknown) {
   const { userId } = await auth();
