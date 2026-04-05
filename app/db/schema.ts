@@ -106,7 +106,43 @@ export const DeletedLessonExceptions = pgTable(
     ),
   ],
 );
+export const ManualLessonOverrides = pgTable(
+  "manual_lesson_overrides",
+  {
+    manual_lesson_override_id: text("manual_lesson_override_id")
+      .primaryKey()
+      .notNull(),
 
+    period_id: text("period_id")
+      .notNull()
+      .references(() => TimePeriod.period_id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+
+    course_id: text("course_id")
+      .notNull()
+      .references(() => Courses.course_id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+
+    lessonDate: date("lesson_date").notNull(),
+    timeSlot: integer("time_slot").notNull(),
+
+    createTs: timestamp("create_ts").defaultNow().notNull(),
+  },
+  (t) => [
+    index("manual_lesson_overrides_period_id_idx").on(t.period_id),
+    index("manual_lesson_overrides_course_id_idx").on(t.course_id),
+
+    uniqueIndex("manual_lesson_overrides_period_date_slot_unique").on(
+      t.period_id,
+      t.lessonDate,
+      t.timeSlot,
+    ),
+  ],
+);
 export const WeeklyTemplateSlots = pgTable(
   "weekly_template_slots",
   {
