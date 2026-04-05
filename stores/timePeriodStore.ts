@@ -20,6 +20,16 @@ export type ManualLesson = {
   section: string;
 };
 
+export type LoadedSavedSchedule = {
+  startDate: string;
+  endDate: string;
+  holidays: string[];
+  sections: string[];
+  schedule: ScheduleByDay;
+  deletedLessons: DeletedLesson[];
+  manualLessons: ManualLesson[];
+};
+
 type TimePeriodStore = {
   activateNext: boolean;
   setActivateNext: (activated: boolean) => void;
@@ -91,7 +101,14 @@ type TimePeriodStore = {
   //Manual Editor Instructions
   manualEditorIntroSeen: boolean;
   setManualEditorIntroSeen: (seen: boolean) => void;
+
+  loadSavedSchedule: (payload: LoadedSavedSchedule) => void;
 };
+
+function parseYmdAsLocalDate(ymd: string): Date {
+  const [year, month, day] = ymd.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
 
 export const useTimePeriodStore = create<TimePeriodStore>((set, get) => ({
   activateNext: false,
@@ -99,7 +116,26 @@ export const useTimePeriodStore = create<TimePeriodStore>((set, get) => ({
     set(() => ({
       activateNext: activated,
     })),
+  loadSavedSchedule: (payload) =>
+    set(() => ({
+      activateNext: true,
 
+      startDate: parseYmdAsLocalDate(payload.startDate),
+      endDate: parseYmdAsLocalDate(payload.endDate),
+
+      holidays: payload.holidays.map(parseYmdAsLocalDate),
+      pendingHolidays: payload.holidays.map(parseYmdAsLocalDate),
+
+      sections: payload.sections.map((s) => s.trim()).filter(Boolean),
+      schedule: payload.schedule,
+
+      deletedLessons: payload.deletedLessons,
+      manualLessons: payload.manualLessons,
+
+      showHolidaySelector: true,
+      showWeeklyPreview: false,
+      noHolidays: payload.holidays.length === 0,
+    })),
   startDate: undefined,
 
   setStartDate: (date) =>
