@@ -5,7 +5,13 @@ import { createId } from "@paralleldrive/cuid2";
 import { z } from "zod";
 import { and, desc, eq, asc, inArray } from "drizzle-orm";
 import { db } from "@/app/db";
-import { Courses, Holidays, Lessons, TimePeriod } from "@/app/db/schema";
+import {
+  Courses,
+  Holidays,
+  Lessons,
+  TimePeriod,
+  WeeklyTemplateSlots,
+} from "@/app/db/schema";
 
 // YYYY-MM-DD (simple format check)
 function isRealYmdDate(ymd: string): boolean {
@@ -427,6 +433,43 @@ export async function saveFullSchedule(input: SaveFullScheduleInput) {
       const courseIdByName = new Map(
         savedCourses.map((course) => [course.courseName, course.course_id]),
       );
+
+      const weeklyTemplateRows = Object.entries(data.schedule).flatMap(
+        ([dayKey, periods]) =>
+          Object.entries(periods).flatMap(([periodKey, sectionName]) => {
+            const trimmedSection = sectionName?.trim();
+
+            if (!trimmedSection) return [];
+
+            const courseId = courseIdByName.get(trimmedSection);
+
+            if (!courseId) {
+              throw new Error(
+                `Could not find saved course_id for course "${trimmedSection}"`,
+              );
+            }
+
+            return [
+              {
+                template_slot_id: createId(),
+                period_id: periodId,
+                course_id: courseId,
+                weekday: dayKey as
+                  | "Mon"
+                  | "Tue"
+                  | "Wed"
+                  | "Thu"
+                  | "Fri"
+                  | "Sat",
+                timeSlot: Number(periodKey),
+              },
+            ];
+          }),
+      );
+
+      if (weeklyTemplateRows.length > 0) {
+        await tx.insert(WeeklyTemplateSlots).values(weeklyTemplateRows);
+      }
 
       const lessonRows = generatedLessons.map((lesson) => {
         const courseId = courseIdByName.get(lesson.courseName);
