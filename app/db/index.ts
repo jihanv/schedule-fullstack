@@ -10,6 +10,7 @@ import {
   TimePeriod,
   Users,
   WeeklyTemplateSlots,
+  DeletedLessonExceptions,
 } from "./schema";
 
 if (!process.env.DATABASE_URL) {
@@ -30,5 +31,6 @@ export const db = drizzle({
     Courses,
     Lessons,
     WeeklyTemplateSlots,
+    DeletedLessonExceptions,
   },
 });

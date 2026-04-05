@@ -77,6 +77,36 @@ export const Courses = pgTable(
   ],
 );
 
+export const DeletedLessonExceptions = pgTable(
+  "deleted_lesson_exceptions",
+  {
+    deleted_lesson_exception_id: text("deleted_lesson_exception_id")
+      .primaryKey()
+      .notNull(),
+
+    period_id: text("period_id")
+      .notNull()
+      .references(() => TimePeriod.period_id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+
+    lessonDate: date("lesson_date").notNull(),
+    timeSlot: integer("time_slot").notNull(),
+
+    createTs: timestamp("create_ts").defaultNow().notNull(),
+  },
+  (t) => [
+    index("deleted_lesson_exceptions_period_id_idx").on(t.period_id),
+
+    uniqueIndex("deleted_lesson_exceptions_period_date_slot_unique").on(
+      t.period_id,
+      t.lessonDate,
+      t.timeSlot,
+    ),
+  ],
+);
+
 export const WeeklyTemplateSlots = pgTable(
   "weekly_template_slots",
   {
