@@ -8,6 +8,7 @@ import { BADGE_COLORS } from "@/lib/constants";
 import { Link } from "@/i18n/navigation";
 import { toggleDeletedLessonForPeriod } from "@/app/actions/timeperiod";
 import SavedManualCellPopover from "./saved-manual-cell-popover";
+import SavedLessonCellPopover from "./saved-lesson-cell-popover";
 
 const PERIODS = [1, 2, 3, 4, 5, 6, 7] as const;
 function makeCourseColorMap(
@@ -82,6 +83,7 @@ export default function SavedWeekPager({ data }: { data: Data }) {
     const [pendingCellKey, setPendingCellKey] = useState<string | null>(null);
     const [actionError, setActionError] = useState<string | null>(null);
     const [openManualCellKey, setOpenManualCellKey] = useState<string | null>(null);
+    const [openLessonCellKey, setOpenLessonCellKey] = useState<string | null>(null);
 
     const courseColorMap = useMemo(() => {
         const names = data.courses.map((c) => c.courseName);
@@ -310,7 +312,6 @@ export default function SavedWeekPager({ data }: { data: Data }) {
                                                 </div>
                                             ) : isManualCell || !lesson ? (
                                                 <SavedManualCellPopover
-                                                    period={p}
                                                     sections={sectionNames}
                                                     assigned={isManualCell ? lesson?.courseName : undefined}
                                                     lessonNumber={isManualCell ? lesson?.lessonNumber : undefined}
@@ -322,6 +323,7 @@ export default function SavedWeekPager({ data }: { data: Data }) {
                                                         }`}
                                                     open={openManualCellKey === cellKey}
                                                     onOpenChange={(open) => {
+                                                        setOpenLessonCellKey(null);
                                                         setOpenManualCellKey(open ? cellKey : null);
                                                     }}
                                                     onSelectSection={(section) => {
@@ -339,25 +341,18 @@ export default function SavedWeekPager({ data }: { data: Data }) {
                                                     }}
                                                 />
                                             ) : (
-                                                <div
-                                                    className={`${cellBoxClass} ${courseColorMap.get(lesson.courseName) ?? "bg-background"
-                                                        }`}
-                                                >
-                                                    <div className="text-sm font-semibold truncate">{lesson.courseName}</div>
-
-                                                    <div className="text-xs text-muted-foreground truncate">
-                                                        Lesson {lesson.lessonNumber}
-                                                    </div>
-
-                                                    <Button
-                                                        size="xs"
-                                                        variant="outline"
-                                                        disabled={isPending}
-                                                        onClick={() => handleToggleDeletedLesson(ymd, p)}
-                                                    >
-                                                        {isPending ? "Saving..." : "Delete"}
-                                                    </Button>
-                                                </div>
+                                                <SavedLessonCellPopover
+                                                    assigned={lesson.courseName}
+                                                    lessonNumber={lesson.lessonNumber}
+                                                    className={`${cellBoxClass} ${courseColorMap.get(lesson.courseName) ?? "bg-background"}`}
+                                                    open={openLessonCellKey === cellKey}
+                                                    onOpenChange={(open) => {
+                                                        setOpenManualCellKey(null);
+                                                        setOpenLessonCellKey(open ? cellKey : null);
+                                                    }}
+                                                    onDelete={() => handleToggleDeletedLesson(ymd, p)}
+                                                    disabled={isPending}
+                                                />
                                             )}
                                         </td>
                                     );

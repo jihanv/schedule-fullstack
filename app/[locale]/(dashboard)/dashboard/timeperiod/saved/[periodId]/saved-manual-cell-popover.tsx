@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/command";
 
 type SavedManualCellPopoverProps = {
-    period: number;
     sections: string[];
     assigned?: string;
     lessonNumber?: number;
@@ -23,7 +22,6 @@ type SavedManualCellPopoverProps = {
     className?: string;
 };
 export default function SavedManualCellPopover({
-    period,
     sections,
     assigned,
     lessonNumber,
@@ -45,26 +43,21 @@ export default function SavedManualCellPopover({
                         "h-24 w-full rounded-md p-2 flex flex-col justify-between items-start text-left overflow-hidden"
                     }
                 >
-                    <div className="flex items-start justify-between gap-1 w-full">
-                        <div className="font-medium leading-4">{period}</div>
-                        <div className="w-4 h-4 flex items-center justify-center shrink-0 opacity-50">
-                            ▾
-                        </div>
-                    </div>
-
-                    <div className="min-h-8">
+                    <div className="flex items-start justify-between gap-2 w-full">
                         <div
-                            className={`text-xs leading-4 ${assigned ? "font-semibold" : "text-muted-foreground"
+                            className={`text-sm leading-4 truncate ${assigned ? "font-semibold" : "text-muted-foreground"
                                 }`}
                         >
                             {assigned ?? "—"}
                         </div>
 
-                        {typeof lessonNumber === "number" ? (
-                            <div className="text-xs leading-4 text-muted-foreground">
-                                Lesson {lessonNumber}
-                            </div>
-                        ) : null}
+                        <div className="w-4 h-4 flex items-center justify-center shrink-0 opacity-50">
+                            ▾
+                        </div>
+                    </div>
+
+                    <div className="text-xs leading-4 min-h-4 text-muted-foreground">
+                        {typeof lessonNumber === "number" ? `Lesson ${lessonNumber}` : ""}
                     </div>
 
                     <div className={`text-xs leading-4 min-h-4 ${subLabelClassName ?? "text-muted-foreground"}`}>
