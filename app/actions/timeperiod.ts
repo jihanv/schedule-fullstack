@@ -201,6 +201,27 @@ function addUtcDays(date: Date, days: number): Date {
   return next;
 }
 
+function toYmdValue(value: string | Date): string {
+  if (typeof value === "string") return value.slice(0, 10);
+  return formatUtcDateToYmd(value);
+}
+
+function scheduleByDayToSchedulePayload(
+  schedule: ScheduleByDay,
+): SchedulePayload {
+  const result: SchedulePayload = {};
+
+  for (const [dayKey, periods] of Object.entries(schedule)) {
+    result[dayKey] = {};
+
+    for (const [periodKey, value] of Object.entries(periods)) {
+      result[dayKey][periodKey] = value ?? null;
+    }
+  }
+
+  return result;
+}
+
 function getScheduleDayForDate(
   schedule: SchedulePayload,
   date: Date,
@@ -572,6 +593,258 @@ export async function saveFullSchedule(input: SaveFullScheduleInput) {
   }
 }
 
+const toggleDeletedLessonInputSchema = z.object({
+  periodId: z.string().min(1),
+  dateKey: ymdSchema,
+  period: z.number().int().positive(),
+});
+
+export async function toggleDeletedLessonForPeriod(input: unknown) {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return { ok: false as const, error: "Unauthorized" };
+  }
+
+  const parsed = toggleDeletedLessonInputSchema.safeParse(input);
+
+  if (!parsed.success) {
+    return {
+      ok: false as const,
+      error: "Invalid input",
+      issues: parsed.error.issues,
+    };
+  }
+
+  const { periodId, dateKey, period } = parsed.data;
+
+  try {
+    const result = await db.transaction(async (tx) => {
+      const periodRows = await tx
+        .select({
+          period_id: TimePeriod.period_id,
+          startDate: TimePeriod.startDate,
+          endDate: TimePeriod.endDate,
+        })
+        .from(TimePeriod)
+        .where(
+          and(
+            eq(TimePeriod.period_id, periodId),
+            eq(TimePeriod.user_id, userId),
+          ),
+        )
+        .limit(1);
+
+      const savedPeriod = periodRows[0];
+
+      if (!savedPeriod) {
+        return { ok: false as const, error: "Not found" };
+      }
+
+      const startDate = toYmdValue(savedPeriod.startDate);
+      const endDate = toYmdValue(savedPeriod.endDate);
+
+      if (dateKey < startDate || dateKey > endDate) {
+        return {
+          ok: false as const,
+          error: "Lesson date must be within the saved period",
+        };
+      }
+
+      const manualLessonAtCell = await tx
+        .select({
+          manual_lesson_override_id:
+            ManualLessonOverrides.manual_lesson_override_id,
+        })
+        .from(ManualLessonOverrides)
+        .where(
+          and(
+            eq(ManualLessonOverrides.period_id, periodId),
+            eq(ManualLessonOverrides.lessonDate, dateKey),
+            eq(ManualLessonOverrides.timeSlot, period),
+          ),
+        )
+        .limit(1);
+
+      if (manualLessonAtCell[0]) {
+        return {
+          ok: false as const,
+          error: "Manual lessons cannot be deleted from this page yet",
+        };
+      }
+
+      const existingDeleted = await tx
+        .select({
+          deleted_lesson_exception_id:
+            DeletedLessonExceptions.deleted_lesson_exception_id,
+        })
+        .from(DeletedLessonExceptions)
+        .where(
+          and(
+            eq(DeletedLessonExceptions.period_id, periodId),
+            eq(DeletedLessonExceptions.lessonDate, dateKey),
+            eq(DeletedLessonExceptions.timeSlot, period),
+          ),
+        )
+        .limit(1);
+
+      const mode = existingDeleted[0] ? "restored" : "deleted";
+
+      if (existingDeleted[0]) {
+        await tx
+          .delete(DeletedLessonExceptions)
+          .where(
+            eq(
+              DeletedLessonExceptions.deleted_lesson_exception_id,
+              existingDeleted[0].deleted_lesson_exception_id,
+            ),
+          );
+      } else {
+        await tx.insert(DeletedLessonExceptions).values({
+          deleted_lesson_exception_id: createId(),
+          period_id: periodId,
+          lessonDate: dateKey,
+          timeSlot: period,
+        });
+      }
+
+      const courses = await tx
+        .select({
+          course_id: Courses.course_id,
+          courseName: Courses.courseName,
+        })
+        .from(Courses)
+        .where(eq(Courses.period_id, periodId))
+        .orderBy(asc(Courses.courseName));
+
+      const courseIds = courses.map((course) => course.course_id);
+      const allowedCourseNames = courses.map((course) => course.courseName);
+
+      const courseIdByName = new Map(
+        courses.map((course) => [course.courseName, course.course_id]),
+      );
+
+      const holidays = await tx
+        .select({
+          holidayDate: Holidays.holidayDate,
+        })
+        .from(Holidays)
+        .where(eq(Holidays.period_id, periodId))
+        .orderBy(asc(Holidays.holidayDate));
+
+      const weeklyTemplateSlots = await tx
+        .select({
+          weekday: WeeklyTemplateSlots.weekday,
+          timeSlot: WeeklyTemplateSlots.timeSlot,
+          courseName: Courses.courseName,
+        })
+        .from(WeeklyTemplateSlots)
+        .innerJoin(
+          Courses,
+          eq(WeeklyTemplateSlots.course_id, Courses.course_id),
+        )
+        .where(eq(WeeklyTemplateSlots.period_id, periodId))
+        .orderBy(
+          asc(WeeklyTemplateSlots.weekday),
+          asc(WeeklyTemplateSlots.timeSlot),
+        );
+
+      const deletedLessons = await tx
+        .select({
+          dateKey: DeletedLessonExceptions.lessonDate,
+          period: DeletedLessonExceptions.timeSlot,
+        })
+        .from(DeletedLessonExceptions)
+        .where(eq(DeletedLessonExceptions.period_id, periodId))
+        .orderBy(
+          asc(DeletedLessonExceptions.lessonDate),
+          asc(DeletedLessonExceptions.timeSlot),
+        );
+
+      const manualLessons = await tx
+        .select({
+          dateKey: ManualLessonOverrides.lessonDate,
+          period: ManualLessonOverrides.timeSlot,
+          section: Courses.courseName,
+        })
+        .from(ManualLessonOverrides)
+        .innerJoin(
+          Courses,
+          eq(ManualLessonOverrides.course_id, Courses.course_id),
+        )
+        .where(eq(ManualLessonOverrides.period_id, periodId))
+        .orderBy(
+          asc(ManualLessonOverrides.lessonDate),
+          asc(ManualLessonOverrides.timeSlot),
+        );
+
+      const schedule: ScheduleByDay = emptySchedule();
+
+      for (const slot of weeklyTemplateSlots) {
+        schedule[slot.weekday as WeekdayKey][slot.timeSlot] = slot.courseName;
+      }
+
+      const normalizedSchedule = scheduleByDayToSchedulePayload(schedule);
+
+      const generatedLessons = buildGeneratedLessons({
+        startDate,
+        endDate,
+        holidays: holidays.map((holiday) => toYmdValue(holiday.holidayDate)),
+        schedule: normalizedSchedule,
+        allowedCourseNames,
+        deletedLessons: deletedLessons.map((item) => ({
+          dateKey: toYmdValue(item.dateKey),
+          period: item.period,
+        })),
+        manualLessons: manualLessons.map((item) => ({
+          dateKey: toYmdValue(item.dateKey),
+          period: item.period,
+          section: item.section,
+        })),
+      });
+
+      if (courseIds.length > 0) {
+        await tx.delete(Lessons).where(inArray(Lessons.course_id, courseIds));
+      }
+
+      const lessonRows = generatedLessons.map((lesson) => {
+        const courseId = courseIdByName.get(lesson.courseName);
+
+        if (!courseId) {
+          throw new Error(
+            `Could not find saved course_id for course "${lesson.courseName}"`,
+          );
+        }
+
+        return {
+          lesson_id: createId(),
+          course_id: courseId,
+          lessonNumber: lesson.lessonNumber,
+          lessonDate: lesson.lessonDate,
+          timeSlot: lesson.timeSlot,
+        };
+      });
+
+      if (lessonRows.length > 0) {
+        await tx.insert(Lessons).values(lessonRows);
+      }
+
+      return {
+        ok: true as const,
+        mode,
+      };
+    });
+
+    return result;
+  } catch (error) {
+    console.error("toggleDeletedLessonForPeriod failed:", error);
+
+    return {
+      ok: false as const,
+      error: "Failed to update saved schedule",
+    };
+  }
+}
 // List all time periods for the signed-in user
 const listSchema = z.object({
   limit: z.number().int().positive().max(200).optional(),
