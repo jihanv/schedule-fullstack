@@ -8,7 +8,6 @@ import {
     CommandItem,
     CommandList,
 } from "@/components/ui/command";
-import { BADGE_COLORS } from "@/lib/constants";
 
 type SavedManualCellPopoverProps = {
     period: number;
@@ -19,19 +18,8 @@ type SavedManualCellPopoverProps = {
     onOpenChange: (open: boolean) => void;
     onSelectSection: (section: string) => void;
     onClear: () => void;
+    className?: string;
 };
-
-function badgeColorFor(section: string | undefined, sections: string[]) {
-    if (!section) return "bg-muted/70 hover:bg-muted/20 text-muted-foreground";
-
-    const index = sections.indexOf(section);
-
-    if (index === -1) {
-        return "bg-secondary text-secondary-foreground";
-    }
-
-    return BADGE_COLORS[index % BADGE_COLORS.length]!;
-}
 
 export default function SavedManualCellPopover({
     period,
@@ -42,16 +30,17 @@ export default function SavedManualCellPopover({
     onOpenChange,
     onSelectSection,
     onClear,
+    className,
 }: SavedManualCellPopoverProps) {
     return (
         <Popover open={open} onOpenChange={onOpenChange}>
             <PopoverTrigger asChild>
                 <button
                     type="button"
-                    className={`rounded-md p-2 h-17 w-full flex flex-col items-start text-left ${badgeColorFor(
-                        assigned,
-                        sections,
-                    )}`}
+                    className={
+                        className ??
+                        "h-24 w-full rounded-md p-2 flex flex-col justify-between items-start text-left overflow-hidden"
+                    }
                 >
                     <div className="flex items-start justify-between gap-1 w-full">
                         <div className="font-medium leading-4">{period}</div>

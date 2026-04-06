@@ -81,7 +81,7 @@ export default function SavedWeekPager({ data }: { data: Data }) {
     const router = useRouter();
     const [pendingCellKey, setPendingCellKey] = useState<string | null>(null);
     const [actionError, setActionError] = useState<string | null>(null);
-    const [opeManualCellKey, setOpenManualCellKey] = useState<string | null>(null)
+    const [openManualCellKey, setOpenManualCellKey] = useState<string | null>(null);
 
     const courseColorMap = useMemo(() => {
         const names = data.courses.map((c) => c.courseName);
@@ -92,6 +92,8 @@ export default function SavedWeekPager({ data }: { data: Data }) {
         () => data.courses.map((c) => c.courseName),
         [data.courses],
     );
+    const cellBoxClass =
+        "h-24 w-full rounded-md p-2 flex flex-col justify-between items-start text-left overflow-hidden";
 
     const periodStart = useMemo(
         () => parseYmdLocal(data.period.startDate),
@@ -285,82 +287,76 @@ export default function SavedWeekPager({ data }: { data: Data }) {
 
                                     return (
                                         <td key={`${ymd}-${p}`} className="px-3 py-2 border-b align-top">
-                                            <div
-                                                className={[
-                                                    "rounded-md p-2 min-h-20",
-                                                    "flex flex-col justify-between",
-                                                    "overflow-hidden",
-                                                    hol
-                                                        ? "bg-muted/40"
-                                                        : lesson
-                                                            ? (courseColorMap.get(lesson.courseName) ?? "bg-background")
-                                                            : isDeletedCell
-                                                                ? "bg-muted/30 border border-dashed"
-                                                                : "bg-background",
-                                                ].join(" ")}
-                                            >
-                                                {hol ? (
+                                            {hol ? (
+                                                <div className={`${cellBoxClass} bg-muted/40`}>
+                                                    <div className="text-sm font-medium">{p}</div>
                                                     <div className="text-xs text-muted-foreground">—</div>
-                                                ) : isDeletedCell ? (
-                                                    <div className="space-y-1">
-                                                        <div className="text-xs font-medium text-muted-foreground">
-                                                            Deleted lesson
-                                                        </div>
-
-                                                        <Button
-                                                            size="xs"
-                                                            variant="outline"
-                                                            disabled={isPending}
-                                                            onClick={() => handleToggleDeletedLesson(ymd, p)}
-                                                        >
-                                                            {isPending ? "Saving..." : "Restore"}
-                                                        </Button>
+                                                    <div className="text-xs text-muted-foreground">Holiday</div>
+                                                </div>
+                                            ) : isDeletedCell ? (
+                                                <div className={`${cellBoxClass} bg-muted/30 border border-dashed`}>
+                                                    <div className="text-sm font-medium">{p}</div>
+                                                    <div className="text-xs font-medium text-muted-foreground">
+                                                        Deleted lesson
                                                     </div>
-                                                ) : isManualCell || !lesson ? (
-                                                    <SavedManualCellPopover
-                                                        period={p}
-                                                        sections={sectionNames}
-                                                        assigned={isManualCell ? lesson?.courseName : undefined}
-                                                        subLabel={isManualCell ? "Manual lesson" : "Add manual lesson"}
-                                                        open={opeManualCellKey === cellKey}
-                                                        onOpenChange={(open) => {
-                                                            setOpenManualCellKey(open ? cellKey : null);
-                                                        }}
-                                                        onSelectSection={(section) => {
-                                                            console.log("TODO: save manual lesson", {
-                                                                dateKey: ymd,
-                                                                period: p,
-                                                                section,
-                                                            });
-                                                        }}
-                                                        onClear={() => {
-                                                            console.log("TODO: clear manual lesson", {
-                                                                dateKey: ymd,
-                                                                period: p,
-                                                            });
-                                                        }}
-                                                    />
-                                                ) : (
-                                                    <div className="space-y-1">
-                                                        <div className="text-sm font-semibold truncate">
-                                                            {lesson.courseName}
-                                                        </div>
+                                                    <Button
+                                                        size="xs"
+                                                        variant="outline"
+                                                        disabled={isPending}
+                                                        onClick={() => handleToggleDeletedLesson(ymd, p)}
+                                                    >
+                                                        {isPending ? "Saving..." : "Restore"}
+                                                    </Button>
+                                                </div>
+                                            ) : isManualCell || !lesson ? (
+                                                <SavedManualCellPopover
+                                                    period={p}
+                                                    sections={sectionNames}
+                                                    assigned={isManualCell ? lesson?.courseName : undefined}
+                                                    subLabel={isManualCell ? "Manual lesson" : "Add manual lesson"}
+                                                    className={`${cellBoxClass} ${isManualCell && lesson
+                                                        ? (courseColorMap.get(lesson.courseName) ?? "bg-background")
+                                                        : "bg-muted/30"
+                                                        }`}
+                                                    open={openManualCellKey === cellKey}
+                                                    onOpenChange={(open) => {
+                                                        setOpenManualCellKey(open ? cellKey : null);
+                                                    }}
+                                                    onSelectSection={(section) => {
+                                                        console.log("TODO: save manual lesson", {
+                                                            dateKey: ymd,
+                                                            period: p,
+                                                            section,
+                                                        });
+                                                    }}
+                                                    onClear={() => {
+                                                        console.log("TODO: clear manual lesson", {
+                                                            dateKey: ymd,
+                                                            period: p,
+                                                        });
+                                                    }}
+                                                />
+                                            ) : (
+                                                <div
+                                                    className={`${cellBoxClass} ${courseColorMap.get(lesson.courseName) ?? "bg-background"
+                                                        }`}
+                                                >
+                                                    <div className="text-sm font-semibold truncate">{lesson.courseName}</div>
 
-                                                        <div className="text-xs text-muted-foreground truncate">
-                                                            Lesson {lesson.lessonNumber}
-                                                        </div>
-
-                                                        <Button
-                                                            size="xs"
-                                                            variant="outline"
-                                                            disabled={isPending}
-                                                            onClick={() => handleToggleDeletedLesson(ymd, p)}
-                                                        >
-                                                            {isPending ? "Saving..." : "Delete"}
-                                                        </Button>
+                                                    <div className="text-xs text-muted-foreground truncate">
+                                                        Lesson {lesson.lessonNumber}
                                                     </div>
-                                                )}
-                                            </div>
+
+                                                    <Button
+                                                        size="xs"
+                                                        variant="outline"
+                                                        disabled={isPending}
+                                                        onClick={() => handleToggleDeletedLesson(ymd, p)}
+                                                    >
+                                                        {isPending ? "Saving..." : "Delete"}
+                                                    </Button>
+                                                </div>
+                                            )}
                                         </td>
                                     );
                                 })}
