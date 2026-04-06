@@ -2,9 +2,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { BADGE_COLORS } from "@/lib/constants";
 import { Link } from "@/i18n/navigation";
+import { toggleDeletedLessonForPeriod } from "@/app/actions/timeperiod";
 
 const PERIODS = [1, 2, 3, 4, 5, 6, 7] as const;
 function makeCourseColorMap(
@@ -75,6 +77,10 @@ type Data = {
 };
 
 export default function SavedWeekPager({ data }: { data: Data }) {
+    const router = useRouter();
+    const [pendingCellKey, setPendingCellKey] = useState<string | null>(null);
+    const [actionError, setActionError] = useState<string | null>(null);
+
     const courseColorMap = useMemo(() => {
         const names = data.courses.map((c) => c.courseName);
         return makeCourseColorMap(names, BADGE_COLORS);
@@ -153,6 +159,33 @@ export default function SavedWeekPager({ data }: { data: Data }) {
         return m;
     }, [lessonsByWeek, weekIndex]);
 
+    async function handleToggleDeletedLesson(dateKey: string, period: number) {
+        const cellKey = `${dateKey}|${period}`;
+
+        setActionError(null);
+        setPendingCellKey(cellKey);
+
+        try {
+            const result = await toggleDeletedLessonForPeriod({
+                periodId: data.period.periodId,
+                dateKey,
+                period,
+            });
+
+            if (!result.ok) {
+                setActionError(result.error);
+                return;
+            }
+
+            router.refresh();
+        } catch (error) {
+            console.error("Failed to update saved lesson:", error);
+            setActionError("Could not update this lesson.");
+        } finally {
+            setPendingCellKey(null);
+        }
+    }
+
     return (
         <main className="p-6 space-y-4">
             <div className="flex flex-col gap-3">
@@ -197,6 +230,12 @@ export default function SavedWeekPager({ data }: { data: Data }) {
                 </div>
             </div>
 
+            {actionError ? (
+                <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+                    {actionError}
+                </div>
+            ) : null}
+
             <div className="overflow-x-auto rounded-xl border">
                 <table className="w-full table-fixed border-separate border-spacing-0">
                     <thead>
@@ -234,6 +273,7 @@ export default function SavedWeekPager({ data }: { data: Data }) {
                                     const lesson = lessonByCell.get(cellKey);
                                     const isDeletedCell = deletedSet.has(cellKey);
                                     const isManualCell = manualSet.has(cellKey);
+                                    const isPending = pendingCellKey === cellKey;
 
                                     return (
                                         <td key={`${ymd}-${p}`} className="px-3 py-2 border-b align-top">
@@ -254,24 +294,44 @@ export default function SavedWeekPager({ data }: { data: Data }) {
                                                 {hol ? (
                                                     <div className="text-xs text-muted-foreground">—</div>
                                                 ) : lesson ? (
-                                                    <div className="space-y-0.5">
+                                                    <div className="space-y-1">
                                                         <div className="text-sm font-semibold truncate">
                                                             {lesson.courseName}
                                                         </div>
+
                                                         <div className="text-xs text-muted-foreground truncate">
                                                             Lesson {lesson.lessonNumber}
                                                         </div>
+
                                                         {isManualCell ? (
                                                             <div className="text-[11px] text-muted-foreground">
                                                                 Manual lesson
                                                             </div>
-                                                        ) : null}
+                                                        ) : (
+                                                            <Button
+                                                                size="xs"
+                                                                variant="outline"
+                                                                disabled={isPending}
+                                                                onClick={() => handleToggleDeletedLesson(ymd, p)}
+                                                            >
+                                                                {isPending ? "Saving..." : "Delete"}
+                                                            </Button>
+                                                        )}
                                                     </div>
                                                 ) : isDeletedCell ? (
-                                                    <div className="space-y-0.5">
+                                                    <div className="space-y-1">
                                                         <div className="text-xs font-medium text-muted-foreground">
                                                             Deleted lesson
                                                         </div>
+
+                                                        <Button
+                                                            size="xs"
+                                                            variant="outline"
+                                                            disabled={isPending}
+                                                            onClick={() => handleToggleDeletedLesson(ymd, p)}
+                                                        >
+                                                            {isPending ? "Saving..." : "Restore"}
+                                                        </Button>
                                                     </div>
                                                 ) : (
                                                     <div className="text-xs text-muted-foreground">—</div>
