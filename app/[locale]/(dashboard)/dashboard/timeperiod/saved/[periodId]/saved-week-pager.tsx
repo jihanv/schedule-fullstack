@@ -4,6 +4,7 @@
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { BADGE_COLORS } from "@/lib/constants";
+import { Link } from "@/i18n/navigation";
 
 const PERIODS = [1, 2, 3, 4, 5, 6, 7] as const;
 function makeCourseColorMap(
@@ -138,29 +139,45 @@ export default function SavedWeekPager({ data }: { data: Data }) {
 
     return (
         <main className="p-6 space-y-4">
-            <div className="flex items-center justify-between gap-3">
-                <div>
-                    <div className="text-sm text-muted-foreground">
-                        Period: {data.period.startDate} → {data.period.endDate}
-                    </div>
-                    <div className="text-lg font-semibold">
-                        {formatRange(weekStarts[weekIndex]!)}
-                    </div>
+            <div className="flex flex-col gap-3">
+                <div className="flex flex-wrap gap-2">
+                    <Button asChild variant="outline">
+                        <Link href={`/dashboard/timeperiod/saved/${data.period.periodId}`}>
+                            Back to saved schedule
+                        </Link>
+                    </Button>
+
+                    <Button asChild variant="outline">
+                        <Link href="/dashboard/timeperiod/saved">
+                            All saved schedules
+                        </Link>
+                    </Button>
                 </div>
 
-                <div className="flex gap-2">
-                    <Button
-                        disabled={weekIndex === 0}
-                        onClick={() => setWeekIndex((x) => Math.max(0, x - 1))}
-                    >
-                        Prev
-                    </Button>
-                    <Button
-                        disabled={weekIndex === totalWeeks - 1}
-                        onClick={() => setWeekIndex((x) => Math.min(totalWeeks - 1, x + 1))}
-                    >
-                        Next
-                    </Button>
+                <div className="flex items-center justify-between gap-3">
+                    <div>
+                        <div className="text-sm text-muted-foreground">
+                            Period: {data.period.startDate} → {data.period.endDate}
+                        </div>
+                        <div className="text-lg font-semibold">
+                            {formatRange(weekStarts[weekIndex]!)}
+                        </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                        <Button
+                            disabled={weekIndex === 0}
+                            onClick={() => setWeekIndex((x) => Math.max(0, x - 1))}
+                        >
+                            Prev
+                        </Button>
+                        <Button
+                            disabled={weekIndex === totalWeeks - 1}
+                            onClick={() => setWeekIndex((x) => Math.min(totalWeeks - 1, x + 1))}
+                        >
+                            Next
+                        </Button>
+                    </div>
                 </div>
             </div>
 
