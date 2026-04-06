@@ -19,9 +19,22 @@ const isPublicRoute = createRouteMatcher([
   "/api/holidays(.*)",
 ]);
 
+const isRedirectToDashboardRoute = createRouteMatcher([
+  "/:locale",
+  "/:locale/converter",
+  "/:locale/signin(.*)",
+  "/:locale/signup(.*)",
+]);
+
 export default clerkMiddleware(async (auth, req) => {
   const { pathname } = req.nextUrl;
+  const { isAuthenticated } = await auth();
 
+  if (isAuthenticated && isRedirectToDashboardRoute(req)) {
+    return NextResponse.redirect(
+      new URL(`/${pathname.split("/")[1]}/dashboard`, req.url),
+    );
+  }
   // Never run next-intl on API/trpc routes
   if (pathname.startsWith("/api") || pathname.startsWith("/trpc")) {
     if (!isPublicRoute(req)) {
