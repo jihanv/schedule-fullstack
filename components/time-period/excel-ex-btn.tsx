@@ -13,7 +13,9 @@ import {
   Slot,
 } from "@/lib/constants";
 import { useTimePeriodStore } from "@/stores/timePeriodStore";
-import { useTranslations, useFormatter } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { format } from "date-fns";
+import { enUS, ja } from "date-fns/locale";
 import { IoDownloadOutline } from "react-icons/io5";
 import {
   dayKeyFromDate,
@@ -56,7 +58,29 @@ export default function ExportExcelButton() {
 
   const t = useTranslations("ExportExcel");
   const b = useTranslations("Export");
-  const format = useFormatter();
+  const locale = useLocale();
+  const dateFnsLocale = locale === "ja" ? ja : enUS;
+
+  const weekdayHeaders = [
+    t("headers.mon"),
+    t("headers.tue"),
+    t("headers.wed"),
+    t("headers.thu"),
+    t("headers.fri"),
+    t("headers.sat"),
+  ] as const;
+
+  const formatWeekTitleDate = (date: Date) =>
+    format(date, locale === "ja" ? "yyyy/M/d" : "MMM d, yyyy", {
+      locale: dateFnsLocale,
+    });
+
+  const formatHeaderDate = (date: Date, columnIndex: number) =>
+    `${weekdayHeaders[columnIndex]} ${format(
+      date,
+      locale === "ja" ? "M/d" : "MMM d",
+      { locale: dateFnsLocale },
+    )}`;
 
   const handleExport = async () => {
     commitPendingHolidays();
@@ -137,11 +161,7 @@ export default function ExportExcelButton() {
       const weekStart = week.start;
       // --- Title row ---
       ws.getCell(row, 1).value = t("headers.weekTitle", {
-        date: format.dateTime(weekStart, {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        }),
+        date: formatWeekTitleDate(weekStart),
       });
       ws.getRow(row).font = { bold: true };
       ws.getRow(row).height = ROW_HEIGHT_4_LINES / 2;
@@ -151,13 +171,7 @@ export default function ExportExcelButton() {
       const days = week.days;
       ws.getRow(row).values = [
         t("headers.period"),
-        ...days.map((d) =>
-          format.dateTime(d, {
-            weekday: "short",
-            month: "short",
-            day: "numeric",
-          }),
-        ),
+        ...days.map((d, i) => formatHeaderDate(d, i)),
       ];
       ws.getRow(row).font = { bold: true };
       ws.getRow(row).height = ROW_HEIGHT_4_LINES / 2;
@@ -167,11 +181,7 @@ export default function ExportExcelButton() {
         if (isHoliday(d, pendingHolidays)) {
           const cell = ws.getRow(row).getCell(i + 2); // B..G
           // Add a 2nd line that says "Holiday"
-          cell.value = format.dateTime(d, {
-            weekday: "short",
-            month: "short",
-            day: "numeric",
-          });
+          cell.value = formatHeaderDate(d, i);
           cell.alignment = {
             vertical: "middle",
             horizontal: "left",
