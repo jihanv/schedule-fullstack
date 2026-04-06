@@ -313,7 +313,9 @@ export default function SavedWeekPager({ data }: { data: Data }) {
                                                     period={p}
                                                     sections={sectionNames}
                                                     assigned={isManualCell ? lesson?.courseName : undefined}
+                                                    lessonNumber={isManualCell ? lesson?.lessonNumber : undefined}
                                                     subLabel={isManualCell ? "Manual lesson" : "Add manual lesson"}
+                                                    subLabelClassName={isManualCell ? "font-bold text-red-700" : "text-muted-foreground"}
                                                     className={`${cellBoxClass} ${isManualCell && lesson
                                                         ? (courseColorMap.get(lesson.courseName) ?? "bg-background")
                                                         : "bg-muted/30"

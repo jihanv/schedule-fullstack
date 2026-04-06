@@ -13,19 +13,22 @@ type SavedManualCellPopoverProps = {
     period: number;
     sections: string[];
     assigned?: string;
+    lessonNumber?: number;
     subLabel?: string;
+    subLabelClassName?: string;
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSelectSection: (section: string) => void;
     onClear: () => void;
     className?: string;
 };
-
 export default function SavedManualCellPopover({
     period,
     sections,
     assigned,
+    lessonNumber,
     subLabel,
+    subLabelClassName,
     open,
     onOpenChange,
     onSelectSection,
@@ -49,14 +52,22 @@ export default function SavedManualCellPopover({
                         </div>
                     </div>
 
-                    <div
-                        className={`text-xs leading-4 ${assigned ? "font-semibold" : "text-muted-foreground"
-                            }`}
-                    >
-                        {assigned ?? "—"}
+                    <div className="min-h-8">
+                        <div
+                            className={`text-xs leading-4 ${assigned ? "font-semibold" : "text-muted-foreground"
+                                }`}
+                        >
+                            {assigned ?? "—"}
+                        </div>
+
+                        {typeof lessonNumber === "number" ? (
+                            <div className="text-xs leading-4 text-muted-foreground">
+                                Lesson {lessonNumber}
+                            </div>
+                        ) : null}
                     </div>
 
-                    <div className="text-xs leading-4 min-h-4 text-muted-foreground">
+                    <div className={`text-xs leading-4 min-h-4 ${subLabelClassName ?? "text-muted-foreground"}`}>
                         {subLabel ?? ""}
                     </div>
                 </button>
