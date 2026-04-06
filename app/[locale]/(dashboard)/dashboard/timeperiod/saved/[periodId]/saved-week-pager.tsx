@@ -64,6 +64,14 @@ type Data = {
         course_id: string;
         courseName: string;
     }[];
+    deletedLessons: {
+        dateKey: string;
+        period: number;
+    }[];
+    manualLessons: {
+        dateKey: string;
+        period: number;
+    }[];
 };
 
 export default function SavedWeekPager({ data }: { data: Data }) {
@@ -128,7 +136,15 @@ export default function SavedWeekPager({ data }: { data: Data }) {
         () => new Set((holidaysByWeek[weekIndex] ?? []).map((h) => h.holidayDate)),
         [holidaysByWeek, weekIndex],
     );
+    const deletedSet = useMemo(
+        () => new Set(data.deletedLessons.map((item) => `${item.dateKey}|${item.period}`)),
+        [data.deletedLessons],
+    );
 
+    const manualSet = useMemo(
+        () => new Set(data.manualLessons.map((item) => `${item.dateKey}|${item.period}`)),
+        [data.manualLessons],
+    );
     const lessonByCell = useMemo(() => {
         const m = new Map<string, Data["lessons"][number]>();
         for (const l of lessonsByWeek[weekIndex] ?? []) {
@@ -213,30 +229,48 @@ export default function SavedWeekPager({ data }: { data: Data }) {
                                 <td className="px-3 py-2 text-sm font-medium border-b">{p}</td>
 
                                 {days.map((ymd) => {
+                                    const cellKey = `${ymd}|${p}`;
                                     const hol = holidaySet.has(ymd);
-                                    const lesson = lessonByCell.get(`${ymd}|${p}`);
+                                    const lesson = lessonByCell.get(cellKey);
+                                    const isDeletedCell = deletedSet.has(cellKey);
+                                    const isManualCell = manualSet.has(cellKey);
 
                                     return (
                                         <td key={`${ymd}-${p}`} className="px-3 py-2 border-b align-top">
                                             <div
                                                 className={[
-                                                    "rounded-md p-2 h-16",                 // fixed height to prevent shifting
+                                                    "rounded-md p-2 min-h-20",
                                                     "flex flex-col justify-between",
                                                     "overflow-hidden",
                                                     hol
                                                         ? "bg-muted/40"
                                                         : lesson
                                                             ? (courseColorMap.get(lesson.courseName) ?? "bg-background")
-                                                            : "bg-background",
+                                                            : isDeletedCell
+                                                                ? "bg-muted/30 border border-dashed"
+                                                                : "bg-background",
                                                 ].join(" ")}
                                             >
                                                 {hol ? (
                                                     <div className="text-xs text-muted-foreground">—</div>
                                                 ) : lesson ? (
                                                     <div className="space-y-0.5">
-                                                        <div className="text-sm font-semibold truncate">{lesson.courseName}</div>
+                                                        <div className="text-sm font-semibold truncate">
+                                                            {lesson.courseName}
+                                                        </div>
                                                         <div className="text-xs text-muted-foreground truncate">
                                                             Lesson {lesson.lessonNumber}
+                                                        </div>
+                                                        {isManualCell ? (
+                                                            <div className="text-[11px] text-muted-foreground">
+                                                                Manual lesson
+                                                            </div>
+                                                        ) : null}
+                                                    </div>
+                                                ) : isDeletedCell ? (
+                                                    <div className="space-y-0.5">
+                                                        <div className="text-xs font-medium text-muted-foreground">
+                                                            Deleted lesson
                                                         </div>
                                                     </div>
                                                 ) : (

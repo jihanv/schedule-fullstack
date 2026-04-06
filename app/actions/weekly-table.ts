@@ -5,7 +5,14 @@ import { auth } from "@clerk/nextjs/server";
 import { z } from "zod";
 import { and, asc, eq } from "drizzle-orm";
 import { db } from "@/app/db";
-import { Courses, Holidays, Lessons, TimePeriod } from "@/app/db/schema";
+import {
+  Courses,
+  DeletedLessonExceptions,
+  Holidays,
+  Lessons,
+  ManualLessonOverrides,
+  TimePeriod,
+} from "@/app/db/schema";
 
 const inputSchema = z.object({ periodId: z.string().min(1) });
 
@@ -83,6 +90,29 @@ export async function getSavedPeriodData(input: unknown) {
     .where(eq(Courses.period_id, periodId))
     .orderBy(asc(Lessons.lessonDate), asc(Lessons.timeSlot));
 
+  const deletedLessons = await db
+    .select({
+      dateKey: DeletedLessonExceptions.lessonDate,
+      period: DeletedLessonExceptions.timeSlot,
+    })
+    .from(DeletedLessonExceptions)
+    .where(eq(DeletedLessonExceptions.period_id, periodId))
+    .orderBy(
+      asc(DeletedLessonExceptions.lessonDate),
+      asc(DeletedLessonExceptions.timeSlot),
+    );
+
+  const manualLessons = await db
+    .select({
+      dateKey: ManualLessonOverrides.lessonDate,
+      period: ManualLessonOverrides.timeSlot,
+    })
+    .from(ManualLessonOverrides)
+    .where(eq(ManualLessonOverrides.period_id, periodId))
+    .orderBy(
+      asc(ManualLessonOverrides.lessonDate),
+      asc(ManualLessonOverrides.timeSlot),
+    );
   return {
     ok: true as const,
     period: {
@@ -98,6 +128,14 @@ export async function getSavedPeriodData(input: unknown) {
     lessons: lessons.map((l) => ({
       ...l,
       lessonDate: toYmd(l.lessonDate),
+    })),
+    deletedLessons: deletedLessons.map((item) => ({
+      dateKey: toYmd(item.dateKey),
+      period: item.period,
+    })),
+    manualLessons: manualLessons.map((item) => ({
+      dateKey: toYmd(item.dateKey),
+      period: item.period,
     })),
   };
 }
