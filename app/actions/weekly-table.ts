@@ -106,8 +106,10 @@ export async function getSavedPeriodData(input: unknown) {
     .select({
       dateKey: ManualLessonOverrides.lessonDate,
       period: ManualLessonOverrides.timeSlot,
+      section: Courses.courseName,
     })
     .from(ManualLessonOverrides)
+    .innerJoin(Courses, eq(ManualLessonOverrides.course_id, Courses.course_id))
     .where(eq(ManualLessonOverrides.period_id, periodId))
     .orderBy(
       asc(ManualLessonOverrides.lessonDate),
@@ -136,6 +138,7 @@ export async function getSavedPeriodData(input: unknown) {
     manualLessons: manualLessons.map((item) => ({
       dateKey: toYmd(item.dateKey),
       period: item.period,
+      section: item.section,
     })),
   };
 }
