@@ -325,7 +325,7 @@ export default function SavedWeekPager({ data }: { data: Data }) {
                                                     <Button
                                                         size="xs"
                                                         variant="outline"
-                                                        disabled={isPending}
+                                                        disabled={isPending || isSaving}
                                                         onClick={() => handleToggleDeletedLesson(ymd, p)}
                                                     >
                                                         {isPending ? "Saving..." : "Restore"}
@@ -333,6 +333,7 @@ export default function SavedWeekPager({ data }: { data: Data }) {
                                                 </div>
                                             ) : draftManualSection !== undefined || isManualCell || !lesson ? (
                                                 <SavedManualCellPopover
+                                                    disabled={isSaving}
                                                     sections={sectionNames}
                                                     assigned={draftManualSection ?? (isManualCell ? lesson?.courseName : undefined)}
                                                     lessonNumber={isManualCell ? lesson?.lessonNumber : undefined}
@@ -365,7 +366,7 @@ export default function SavedWeekPager({ data }: { data: Data }) {
                                                         setOpenLessonCellKey(open ? cellKey : null);
                                                     }}
                                                     onDelete={() => handleToggleDeletedLesson(ymd, p)}
-                                                    disabled={isPending}
+                                                    disabled={isPending || isSaving}
                                                 />
                                             )}
                                         </td>

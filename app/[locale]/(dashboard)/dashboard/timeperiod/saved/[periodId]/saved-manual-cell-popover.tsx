@@ -19,8 +19,10 @@ type SavedManualCellPopoverProps = {
     onOpenChange: (open: boolean) => void;
     onSelectSection: (section: string) => void;
     onClear: () => void;
+    disabled?: boolean;
     className?: string;
 };
+
 export default function SavedManualCellPopover({
     sections,
     assigned,
@@ -31,6 +33,7 @@ export default function SavedManualCellPopover({
     onOpenChange,
     onSelectSection,
     onClear,
+    disabled,
     className,
 }: SavedManualCellPopoverProps) {
     return (
@@ -38,6 +41,7 @@ export default function SavedManualCellPopover({
             <PopoverTrigger asChild>
                 <button
                     type="button"
+                    disabled={disabled}
                     className={
                         className ??
                         "h-24 w-full rounded-md p-2 flex flex-col justify-between items-start text-left overflow-hidden"
@@ -77,6 +81,7 @@ export default function SavedManualCellPopover({
                                     key={section}
                                     value={section}
                                     onSelect={() => {
+                                        if (disabled) return;
                                         onSelectSection(section);
                                         onOpenChange(false);
                                     }}
@@ -90,6 +95,7 @@ export default function SavedManualCellPopover({
                             <CommandItem
                                 value="__clear"
                                 onSelect={() => {
+                                    if (disabled) return;
                                     onClear();
                                     onOpenChange(false);
                                 }}

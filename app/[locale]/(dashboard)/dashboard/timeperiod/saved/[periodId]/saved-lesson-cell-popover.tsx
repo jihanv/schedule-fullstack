@@ -32,6 +32,7 @@ export default function SavedLessonCellPopover({
             <PopoverTrigger asChild>
                 <button
                     type="button"
+                    disabled={disabled}
                     className={
                         className ??
                         "h-24 w-full rounded-md p-2 flex flex-col justify-between items-start text-left overflow-hidden"
