@@ -170,10 +170,12 @@ export default function SavedWeekPager({ data }: { data: Data }) {
         [data.deletedLessons],
     );
 
-    const manualSet = useMemo(
-        () => new Set(data.manualLessons.map((item) => `${item.dateKey}|${item.period}`)),
-        [data.manualLessons],
-    );
+    const manualLessonByCell = useMemo(() => {
+        const m = new Map<string, string>();
+        for (const item of data.manualLessons) m.set(`${item.dateKey}|${item.period}`, item.section);
+        return m;
+    }, [data.manualLessons]);
+
     const lessonByCell = useMemo(() => {
         const m = new Map<string, Data["lessons"][number]>();
         for (const l of lessonsByWeek[weekIndex] ?? []) {
@@ -304,8 +306,9 @@ export default function SavedWeekPager({ data }: { data: Data }) {
                                     const hol = holidaySet.has(ymd);
                                     const lesson = lessonByCell.get(cellKey);
                                     const draftManualSection = draftManualLessons[cellKey];
+                                    const savedManualSection = manualLessonByCell.get(cellKey);
                                     const isDeletedCell = deletedSet.has(cellKey) !== draftDeletedToggles.includes(cellKey);
-                                    const isManualCell = draftManualSection !== undefined ? draftManualSection !== null : manualSet.has(cellKey);
+                                    const isManualCell = draftManualSection !== undefined ? draftManualSection !== null : savedManualSection !== undefined;
                                     const isPending = isSaving;
 
                                     return (
@@ -335,7 +338,7 @@ export default function SavedWeekPager({ data }: { data: Data }) {
                                                 <SavedManualCellPopover
                                                     disabled={isSaving}
                                                     sections={sectionNames}
-                                                    assigned={draftManualSection ?? (isManualCell ? lesson?.courseName : undefined)}
+                                                    assigned={draftManualSection ?? savedManualSection}
                                                     lessonNumber={isManualCell ? lesson?.lessonNumber : undefined}
                                                     subLabel={isManualCell ? "Manual lesson" : "Add manual lesson"}
                                                     subLabelClassName={isManualCell ? "font-bold text-red-700" : "text-muted-foreground"}
