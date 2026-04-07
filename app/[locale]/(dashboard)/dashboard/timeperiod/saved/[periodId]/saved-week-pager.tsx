@@ -81,7 +81,7 @@ type Data = {
 
 export default function SavedWeekPager({ data }: { data: Data }) {
     const router = useRouter();
-    const [pendingCellKey, setPendingCellKey] = useState<string | null>(null);
+
     const [actionError, setActionError] = useState<string | null>(null);
     const [saveMessage, setSaveMessage] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
@@ -306,7 +306,7 @@ export default function SavedWeekPager({ data }: { data: Data }) {
                                     const draftManualSection = draftManualLessons[cellKey];
                                     const isDeletedCell = deletedSet.has(cellKey) !== draftDeletedToggles.includes(cellKey);
                                     const isManualCell = draftManualSection !== undefined ? draftManualSection !== null : manualSet.has(cellKey);
-                                    const isPending = pendingCellKey === cellKey;
+                                    const isPending = isSaving;
 
                                     return (
                                         <td key={`${ymd}-${p}`} className="px-3 py-2 border-b align-top">
