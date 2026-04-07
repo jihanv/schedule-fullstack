@@ -84,6 +84,7 @@ export default function SavedWeekPager({ data }: { data: Data }) {
     const [pendingCellKey, setPendingCellKey] = useState<string | null>(null);
     const [actionError, setActionError] = useState<string | null>(null);
     const [saveMessage, setSaveMessage] = useState<string | null>(null);
+    const [isSaving, setIsSaving] = useState(false);
 
 
     const [openManualCellKey, setOpenManualCellKey] = useState<string | null>(null);
@@ -184,6 +185,7 @@ export default function SavedWeekPager({ data }: { data: Data }) {
     function handleToggleDeletedLesson(dateKey: string, period: number) {
         const cellKey = `${dateKey}|${period}`;
         setSaveMessage(null);
+        setActionError(null);
         setOpenLessonCellKey(null);
         setDraftDeletedToggles((current) =>
             current.includes(cellKey) ? current.filter((key) => key !== cellKey) : [...current, cellKey]
@@ -193,19 +195,25 @@ export default function SavedWeekPager({ data }: { data: Data }) {
     function handleUpdateManualLesson(dateKey: string, period: number, section: string | null) {
         const cellKey = `${dateKey}|${period}`;
         setSaveMessage(null);
+        setActionError(null);
         setOpenManualCellKey(null);
         setDraftManualLessons((current) => ({ ...current, [cellKey]: section }));
     }
 
     async function handleSaveChanges() {
         setActionError(null);
+        setIsSaving(true);
         const deletedLessons = draftDeletedToggles.map((key) => { const [dateKey, period] = key.split("|"); return { dateKey, period: Number(period) }; });
         const manualLessons = Object.entries(draftManualLessons).map(([key, section]) => { const [dateKey, period] = key.split("|"); return { dateKey, period: Number(period), section }; });
-        const result = await saveSavedScheduleEdits({ periodId: data.period.periodId, deletedLessons, manualLessons });
-        if (!result.ok) return setActionError(result.error);
+        let result;
+        try { result = await saveSavedScheduleEdits({ periodId: data.period.periodId, deletedLessons, manualLessons }); }
+        catch { setIsSaving(false); return setActionError("Could not save changes."); }
+        if (!result.ok) { setIsSaving(false); return setActionError(result.error); }
         setDraftDeletedToggles([]);
         setDraftManualLessons({});
         setSaveMessage(`Saved ${deletedLessons.length} delete changes and ${manualLessons.length} manual changes.`);
+        setIsSaving(false);
+        router.refresh();
     }
 
     return (
@@ -236,7 +244,7 @@ export default function SavedWeekPager({ data }: { data: Data }) {
                     </div>
 
                     <div className="flex gap-2">
-                        {hasUnsavedChanges ? <Button onClick={handleSaveChanges}>Save changes</Button> : null}
+                        {hasUnsavedChanges ? <Button onClick={handleSaveChanges} disabled={isSaving}>{isSaving ? "Saving..." : "Save changes"}</Button> : null}
                         <Button
                             disabled={weekIndex === 0}
                             onClick={() => setWeekIndex((x) => Math.max(0, x - 1))}
