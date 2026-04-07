@@ -6,7 +6,10 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { BADGE_COLORS } from "@/lib/constants";
 import { Link } from "@/i18n/navigation";
-import { toggleDeletedLessonForPeriod } from "@/app/actions/timeperiod";
+import {
+    toggleDeletedLessonForPeriod,
+    updateManualLessonForPeriod,
+} from "@/app/actions/timeperiod";
 import SavedManualCellPopover from "./saved-manual-cell-popover";
 import SavedLessonCellPopover from "./saved-lesson-cell-popover";
 
@@ -75,6 +78,7 @@ type Data = {
     manualLessons: {
         dateKey: string;
         period: number;
+        section: string;
     }[];
 };
 
@@ -197,7 +201,38 @@ export default function SavedWeekPager({ data }: { data: Data }) {
             setPendingCellKey(null);
         }
     }
+    async function handleUpdateManualLesson(
+        dateKey: string,
+        period: number,
+        section: string | null,
+    ) {
+        const cellKey = `${dateKey}|${period}`;
 
+        setActionError(null);
+        setPendingCellKey(cellKey);
+
+        try {
+            const result = await updateManualLessonForPeriod({
+                periodId: data.period.periodId,
+                dateKey,
+                period,
+                section,
+            });
+
+            if (!result.ok) {
+                setActionError(result.error);
+                return;
+            }
+
+            setOpenManualCellKey(null);
+            router.refresh();
+        } catch (error) {
+            console.error("Failed to update manual lesson:", error);
+            setActionError("Could not update this manual lesson.");
+        } finally {
+            setPendingCellKey(null);
+        }
+    }
     return (
         <main className="p-6 space-y-4">
             <div className="flex flex-col gap-3">
@@ -327,17 +362,10 @@ export default function SavedWeekPager({ data }: { data: Data }) {
                                                         setOpenManualCellKey(open ? cellKey : null);
                                                     }}
                                                     onSelectSection={(section) => {
-                                                        console.log("TODO: save manual lesson", {
-                                                            dateKey: ymd,
-                                                            period: p,
-                                                            section,
-                                                        });
+                                                        void handleUpdateManualLesson(ymd, p, section);
                                                     }}
                                                     onClear={() => {
-                                                        console.log("TODO: clear manual lesson", {
-                                                            dateKey: ymd,
-                                                            period: p,
-                                                        });
+                                                        void handleUpdateManualLesson(ymd, p, null);
                                                     }}
                                                 />
                                             ) : (

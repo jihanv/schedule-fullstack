@@ -1120,7 +1120,6 @@ export async function updateManualLessonForPeriod(input: unknown) {
     };
   }
 }
-
 // List all time periods for the signed-in user
 const listSchema = z.object({
   limit: z.number().int().positive().max(200).optional(),
