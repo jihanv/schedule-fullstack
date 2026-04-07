@@ -1388,3 +1388,49 @@ export async function getCoursesAndLessonsForPeriod(input: unknown) {
     })),
   };
 }
+const saveSavedScheduleEditsInputSchema = z.object({
+  periodId: z.string().min(1),
+  deletedLessons: z.array(
+    z.object({ dateKey: z.string(), period: z.number().int().min(1).max(7) }),
+  ),
+  manualLessons: z.array(
+    z.object({
+      dateKey: z.string(),
+      period: z.number().int().min(1).max(7),
+      section: z.string().nullable(),
+    }),
+  ),
+});
+
+export async function saveSavedScheduleEdits(input: unknown) {
+  const { userId } = await auth();
+  if (!userId) return { ok: false as const, error: "Unauthorized" };
+  const parsed = saveSavedScheduleEditsInputSchema.safeParse(input);
+  if (!parsed.success) return { ok: false as const, error: "Invalid input" };
+  const period = await db
+    .select({ period_id: TimePeriod.period_id })
+    .from(TimePeriod)
+    .where(
+      and(
+        eq(TimePeriod.period_id, parsed.data.periodId),
+        eq(TimePeriod.user_id, userId),
+      ),
+    )
+    .limit(1);
+  if (period.length === 0) return { ok: false as const, error: "Not found" };
+  for (const item of parsed.data.deletedLessons) {
+    const result = await toggleDeletedLessonForPeriod({
+      periodId: parsed.data.periodId,
+      ...item,
+    });
+    if (!result.ok) return result;
+  }
+  for (const item of parsed.data.manualLessons) {
+    const result = await updateManualLessonForPeriod({
+      periodId: parsed.data.periodId,
+      ...item,
+    });
+    if (!result.ok) return result;
+  }
+  return { ok: true as const };
+}

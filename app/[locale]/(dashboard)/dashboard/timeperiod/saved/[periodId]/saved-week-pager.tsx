@@ -6,10 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { BADGE_COLORS } from "@/lib/constants";
 import { Link } from "@/i18n/navigation";
-import {
-    toggleDeletedLessonForPeriod,
-    updateManualLessonForPeriod,
-} from "@/app/actions/timeperiod";
+import { saveSavedScheduleEdits } from "@/app/actions/timeperiod";
 import SavedManualCellPopover from "./saved-manual-cell-popover";
 import SavedLessonCellPopover from "./saved-lesson-cell-popover";
 
@@ -86,8 +83,17 @@ export default function SavedWeekPager({ data }: { data: Data }) {
     const router = useRouter();
     const [pendingCellKey, setPendingCellKey] = useState<string | null>(null);
     const [actionError, setActionError] = useState<string | null>(null);
+    const [saveMessage, setSaveMessage] = useState<string | null>(null);
+
+
     const [openManualCellKey, setOpenManualCellKey] = useState<string | null>(null);
+
+
     const [openLessonCellKey, setOpenLessonCellKey] = useState<string | null>(null);
+    const [draftManualLessons, setDraftManualLessons] = useState<Record<string, string | null>>({});
+    const [draftDeletedToggles, setDraftDeletedToggles] = useState<string[]>([]);
+    const hasUnsavedChanges =
+        Object.keys(draftManualLessons).length > 0 || draftDeletedToggles.length > 0;
 
     const courseColorMap = useMemo(() => {
         const names = data.courses.map((c) => c.courseName);
@@ -175,64 +181,32 @@ export default function SavedWeekPager({ data }: { data: Data }) {
         return m;
     }, [lessonsByWeek, weekIndex]);
 
-    async function handleToggleDeletedLesson(dateKey: string, period: number) {
+    function handleToggleDeletedLesson(dateKey: string, period: number) {
         const cellKey = `${dateKey}|${period}`;
-
-        setActionError(null);
-        setPendingCellKey(cellKey);
-
-        try {
-            const result = await toggleDeletedLessonForPeriod({
-                periodId: data.period.periodId,
-                dateKey,
-                period,
-            });
-
-            if (!result.ok) {
-                setActionError(result.error);
-                return;
-            }
-
-            router.refresh();
-        } catch (error) {
-            console.error("Failed to update saved lesson:", error);
-            setActionError("Could not update this lesson.");
-        } finally {
-            setPendingCellKey(null);
-        }
+        setSaveMessage(null);
+        setOpenLessonCellKey(null);
+        setDraftDeletedToggles((current) =>
+            current.includes(cellKey) ? current.filter((key) => key !== cellKey) : [...current, cellKey]
+        );
     }
-    async function handleUpdateManualLesson(
-        dateKey: string,
-        period: number,
-        section: string | null,
-    ) {
+
+    function handleUpdateManualLesson(dateKey: string, period: number, section: string | null) {
         const cellKey = `${dateKey}|${period}`;
-
-        setActionError(null);
-        setPendingCellKey(cellKey);
-
-        try {
-            const result = await updateManualLessonForPeriod({
-                periodId: data.period.periodId,
-                dateKey,
-                period,
-                section,
-            });
-
-            if (!result.ok) {
-                setActionError(result.error);
-                return;
-            }
-
-            setOpenManualCellKey(null);
-            router.refresh();
-        } catch (error) {
-            console.error("Failed to update manual lesson:", error);
-            setActionError("Could not update this manual lesson.");
-        } finally {
-            setPendingCellKey(null);
-        }
+        setSaveMessage(null);
+        setOpenManualCellKey(null);
+        setDraftManualLessons((current) => ({ ...current, [cellKey]: section }));
     }
+
+    async function handleSaveChanges() {
+        setActionError(null);
+        const deletedLessons = draftDeletedToggles.map((key) => { const [dateKey, period] = key.split("|"); return { dateKey, period: Number(period) }; });
+        const manualLessons = Object.entries(draftManualLessons).map(([key, section]) => { const [dateKey, period] = key.split("|"); return { dateKey, period: Number(period), section }; });
+        const result = await saveSavedScheduleEdits({ periodId: data.period.periodId, deletedLessons, manualLessons });
+        if (!result.ok) return setActionError(result.error);
+        setDraftDeletedToggles([]);
+        setSaveMessage(`Saved ${deletedLessons.length} delete changes. Manual changes are still local only.`);
+    }
+
     return (
         <main className="p-6 space-y-4">
             <div className="flex flex-col gap-3">
@@ -261,6 +235,7 @@ export default function SavedWeekPager({ data }: { data: Data }) {
                     </div>
 
                     <div className="flex gap-2">
+                        {hasUnsavedChanges ? <Button onClick={handleSaveChanges}>Save changes</Button> : null}
                         <Button
                             disabled={weekIndex === 0}
                             onClick={() => setWeekIndex((x) => Math.max(0, x - 1))}
@@ -277,6 +252,7 @@ export default function SavedWeekPager({ data }: { data: Data }) {
                 </div>
             </div>
 
+            {saveMessage ? <div className="text-sm text-muted-foreground">{saveMessage}</div> : null}
             {actionError ? (
                 <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
                     {actionError}
@@ -318,8 +294,9 @@ export default function SavedWeekPager({ data }: { data: Data }) {
                                     const cellKey = `${ymd}|${p}`;
                                     const hol = holidaySet.has(ymd);
                                     const lesson = lessonByCell.get(cellKey);
-                                    const isDeletedCell = deletedSet.has(cellKey);
-                                    const isManualCell = manualSet.has(cellKey);
+                                    const draftManualSection = draftManualLessons[cellKey];
+                                    const isDeletedCell = deletedSet.has(cellKey) !== draftDeletedToggles.includes(cellKey);
+                                    const isManualCell = draftManualSection !== undefined ? draftManualSection !== null : manualSet.has(cellKey);
                                     const isPending = pendingCellKey === cellKey;
 
                                     return (
@@ -345,10 +322,10 @@ export default function SavedWeekPager({ data }: { data: Data }) {
                                                         {isPending ? "Saving..." : "Restore"}
                                                     </Button>
                                                 </div>
-                                            ) : isManualCell || !lesson ? (
+                                            ) : draftManualSection !== undefined || isManualCell || !lesson ? (
                                                 <SavedManualCellPopover
                                                     sections={sectionNames}
-                                                    assigned={isManualCell ? lesson?.courseName : undefined}
+                                                    assigned={draftManualSection ?? (isManualCell ? lesson?.courseName : undefined)}
                                                     lessonNumber={isManualCell ? lesson?.lessonNumber : undefined}
                                                     subLabel={isManualCell ? "Manual lesson" : "Add manual lesson"}
                                                     subLabelClassName={isManualCell ? "font-bold text-red-700" : "text-muted-foreground"}
