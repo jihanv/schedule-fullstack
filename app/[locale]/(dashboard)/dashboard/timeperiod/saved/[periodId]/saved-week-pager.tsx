@@ -250,13 +250,13 @@ export default function SavedWeekPager({ data }: { data: Data }) {
                     <div className="flex gap-2">
                         {hasUnsavedChanges ? <Button onClick={handleSaveChanges} disabled={isSaving}>{isSaving ? "Saving..." : "Save changes"}</Button> : null}
                         <Button
-                            disabled={weekIndex === 0}
+                            disabled={isSaving || weekIndex === 0}
                             onClick={() => setWeekIndex((x) => Math.max(0, x - 1))}
                         >
                             Prev
                         </Button>
                         <Button
-                            disabled={weekIndex === totalWeeks - 1}
+                            disabled={isSaving || weekIndex === totalWeeks - 1}
                             onClick={() => setWeekIndex((x) => Math.min(totalWeeks - 1, x + 1))}
                         >
                             Next
