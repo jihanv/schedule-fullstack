@@ -254,6 +254,7 @@ export default function SavedWeekPager({ data }: { data: Data }) {
                             disabled={isSaving || weekIndex === 0}
                             onClick={() => {
                                 setSaveMessage(null);
+                                setActionError(null);
                                 setWeekIndex((x) => Math.max(0, x - 1));
                             }}
                         >
@@ -263,6 +264,7 @@ export default function SavedWeekPager({ data }: { data: Data }) {
                             disabled={isSaving || weekIndex === totalWeeks - 1}
                             onClick={() => {
                                 setSaveMessage(null);
+                                setActionError(null);
                                 setWeekIndex((x) => Math.min(totalWeeks - 1, x + 1));
                             }}
                         >
