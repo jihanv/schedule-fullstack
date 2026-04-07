@@ -204,7 +204,8 @@ export default function SavedWeekPager({ data }: { data: Data }) {
         const result = await saveSavedScheduleEdits({ periodId: data.period.periodId, deletedLessons, manualLessons });
         if (!result.ok) return setActionError(result.error);
         setDraftDeletedToggles([]);
-        setSaveMessage(`Saved ${deletedLessons.length} delete changes. Manual changes are still local only.`);
+        setDraftManualLessons({});
+        setSaveMessage(`Saved ${deletedLessons.length} delete changes and ${manualLessons.length} manual changes.`);
     }
 
     return (
