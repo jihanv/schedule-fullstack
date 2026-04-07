@@ -311,7 +311,7 @@ export default function SavedWeekPager({ data }: { data: Data }) {
                                     const savedManualSection = manualLessonByCell.get(cellKey);
                                     const isDeletedCell = deletedSet.has(cellKey) !== draftDeletedToggles.includes(cellKey);
                                     const isManualCell = draftManualSection !== undefined ? draftManualSection !== null : savedManualSection !== undefined;
-                                    const isPending = isSaving;
+
 
                                     return (
                                         <td key={`${ymd}-${p}`} className="px-3 py-2 border-b align-top">
@@ -330,10 +330,10 @@ export default function SavedWeekPager({ data }: { data: Data }) {
                                                     <Button
                                                         size="xs"
                                                         variant="outline"
-                                                        disabled={isPending || isSaving}
+                                                        disabled={isSaving}
                                                         onClick={() => handleToggleDeletedLesson(ymd, p)}
                                                     >
-                                                        {isPending ? "Saving..." : "Restore"}
+                                                        {isSaving ? "Saving..." : "Restore"}
                                                     </Button>
                                                 </div>
                                             ) : draftManualSection !== undefined || isManualCell || !lesson ? (
@@ -371,7 +371,7 @@ export default function SavedWeekPager({ data }: { data: Data }) {
                                                         setOpenLessonCellKey(open ? cellKey : null);
                                                     }}
                                                     onDelete={() => handleToggleDeletedLesson(ymd, p)}
-                                                    disabled={isPending || isSaving}
+                                                    disabled={isSaving}
                                                 />
                                             )}
                                         </td>
