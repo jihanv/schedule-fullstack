@@ -204,6 +204,8 @@ export default function SavedWeekPager({ data }: { data: Data }) {
 
     async function handleSaveChanges() {
         setActionError(null);
+        setOpenManualCellKey(null);
+        setOpenLessonCellKey(null);
         setIsSaving(true);
         const deletedLessons = draftDeletedToggles.map((key) => { const [dateKey, period] = key.split("|"); return { dateKey, period: Number(period) }; });
         const manualLessons = Object.entries(draftManualLessons).map(([key, section]) => { const [dateKey, period] = key.split("|"); return { dateKey, period: Number(period), section }; });
