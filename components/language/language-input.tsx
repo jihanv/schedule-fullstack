@@ -1,8 +1,8 @@
 "use client";
 
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLocale } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { cn } from "@/lib/utils";
 
 type Locale = "en" | "ja";
 
@@ -12,36 +12,45 @@ function isLocale(value: string): value is Locale {
 
 export default function LanguageInput() {
   const locale = useLocale();
-  const pathname = usePathname(); // NOTE: this is WITHOUT the locale prefix :contentReference[oaicite:1]{index=1}
+  const pathname = usePathname();
   const router = useRouter();
 
+  function changeLocale(nextLocale: string) {
+    if (!isLocale(nextLocale)) return;
+    router.replace(pathname, { locale: nextLocale });
+  }
+
   return (
-    <div className="p-6 pb-4">
-      <Tabs
-        value={locale}
-        onValueChange={(nextLocale) => {
-          if (!isLocale(nextLocale)) return;
+    <div className="px-6 pb-4 pt-2">
+      <div className="grid grid-cols-2 rounded-xl bg-slate-200 p-1 shadow-inner dark:bg-slate-800">
+        <button
+          type="button"
+          onClick={() => changeLocale("ja")}
+          aria-pressed={locale === "ja"}
+          className={cn(
+            "rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            locale === "ja"
+              ? "bg-background text-foreground shadow-sm"
+              : "text-muted-foreground hover:bg-background/60 hover:text-foreground",
+          )}
+        >
+          日本語
+        </button>
 
-          // Switch locale but stay on the same page :contentReference[oaicite:2]{index=2}
-          router.replace(pathname, { locale: nextLocale });
-        }}
-      >
-        <TabsList className="rounded-full bg-gray-300 p-1 shadow-inner">
-          <TabsTrigger
-            value="ja"
-            className="rounded-full px-4 py-2 data-[state=active]:bg-white data-[state=active]:shadow"
-          >
-            日本語
-          </TabsTrigger>
-
-          <TabsTrigger
-            value="en"
-            className="rounded-full px-4 py-2 data-[state=active]:bg-white data-[state=active]:shadow"
-          >
-            English
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
+        <button
+          type="button"
+          onClick={() => changeLocale("en")}
+          aria-pressed={locale === "en"}
+          className={cn(
+            "rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            locale === "en"
+              ? "bg-background text-foreground shadow-sm"
+              : "text-muted-foreground hover:bg-background/60 hover:text-foreground",
+          )}
+        >
+          English
+        </button>
+      </div>
     </div>
   );
 }
