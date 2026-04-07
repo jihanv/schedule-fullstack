@@ -203,6 +203,7 @@ export default function SavedWeekPager({ data }: { data: Data }) {
     }
 
     async function handleSaveChanges() {
+        if (isSaving || !hasUnsavedChanges) return;
         setActionError(null);
         setOpenManualCellKey(null);
         setOpenLessonCellKey(null);
@@ -251,13 +252,19 @@ export default function SavedWeekPager({ data }: { data: Data }) {
                         {hasUnsavedChanges ? <Button onClick={handleSaveChanges} disabled={isSaving}>{isSaving ? "Saving..." : "Save changes"}</Button> : null}
                         <Button
                             disabled={isSaving || weekIndex === 0}
-                            onClick={() => setWeekIndex((x) => Math.max(0, x - 1))}
+                            onClick={() => {
+                                setSaveMessage(null);
+                                setWeekIndex((x) => Math.max(0, x - 1));
+                            }}
                         >
                             Prev
                         </Button>
                         <Button
                             disabled={isSaving || weekIndex === totalWeeks - 1}
-                            onClick={() => setWeekIndex((x) => Math.min(totalWeeks - 1, x + 1))}
+                            onClick={() => {
+                                setSaveMessage(null);
+                                setWeekIndex((x) => Math.min(totalWeeks - 1, x + 1));
+                            }}
                         >
                             Next
                         </Button>
