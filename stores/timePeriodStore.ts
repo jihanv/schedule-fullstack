@@ -238,7 +238,7 @@ export const useTimePeriodStore = create<TimePeriodStore>((set, get) => ({
   addSections: (section) => {
     const s = section.trim();
     const { sections } = get();
-    if (!s || sections.includes(s) || sections.length >= 10) return false;
+    if (!s || sections.includes(s) || sections.length >= 15) return false;
     set({ sections: [...sections, s] });
     return true;
   },
