@@ -1,14 +1,21 @@
 export const BADGE_COLORS = [
   "bg-blue-100 text-blue-700",
+  "bg-violet-900 text-white",
   "bg-green-100 text-green-700",
   "bg-amber-100 text-amber-700",
   "bg-purple-100 text-purple-700",
   "bg-teal-100 text-teal-700",
   "bg-cyan-100 text-cyan-700",
   "bg-indigo-100 text-indigo-700",
-  "bg-lime-100 text-lime-700",
-  "bg-orange-100 text-orange-700",
+  "bg-slate-100 text-slate-700",
+  "bg-sky-900 text-white",
+  "bg-emerald-900 text-white",
+  "bg-rose-900 text-white",
+  "bg-fuchsia-900 text-white",
+  "bg-amber-900 text-white",
+  "bg-slate-900 text-white",
 ];
+
 import { Alignment } from "exceljs";
 
 export const PERIODS = [1, 2, 3, 4, 5, 6, 7];
