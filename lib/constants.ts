@@ -70,7 +70,7 @@ export const EXCEL_BADGE_PALETTE: Array<{ fill: string; font: string }> = [
 
 export const HOLIDAY_FILL = "FFF3F4F6";
 export const HOLIDAY_FONT = "FF6B7280";
-export const ROW_HEIGHT_4_LINES = 50;
+export const ROW_HEIGHT_4_LINES = 55;
 
 export const ALIGN_CENTER_MULTI: Readonly<Partial<Alignment>> = {
   vertical: "middle",

@@ -274,7 +274,7 @@ export default function ExportExcelButton() {
               pattern: "solid",
               fgColor: { argb: colors.fill },
             };
-            cell.font = { color: { argb: colors.font }, bold: true };
+            cell.font = { color: { argb: colors.font }, bold: true, size: 10 };
           }
         });
 
