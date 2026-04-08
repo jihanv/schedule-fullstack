@@ -57,8 +57,15 @@ export const EXCEL_BADGE_PALETTE: Array<{ fill: string; font: string }> = [
   { fill: "FFE9D5FF", font: "FF4C1D95" }, // purple-200 / purple-900
   { fill: "FFFECACA", font: "FF7F1D1D" }, // red-200 / red-900
   { fill: "FFD1FAE5", font: "FF065F46" }, // emerald-200-ish / teal-900
-  { fill: "FFFDE68A", font: "FF92400E" }, // amber-200 / amber-800
-  { fill: "FFD9F99D", font: "FF365314" }, // lime-200 / lime-900
+  { fill: "00000000", font: "FFFFFFFF" }, // amber-200 / amber-800
+  { fill: "FF365314", font: "FFFFFFFF" }, // dark lime / white
+  { fill: "FFF3F4F6", font: "FF000000" }, // dark pink / white
+  { fill: "FF0C4A6E", font: "FFFFFFFF" }, // dark sky / white
+  { fill: "FF4C1D95", font: "FFFFFFFF" }, // dark violet / white
+  { fill: "FF881337", font: "FFFFFFFF" }, // dark rose / white
+  { fill: "FF334155", font: "FFFFFFFF" }, // dark slate / white
+  { fill: "FF9A3412", font: "FFFFFFFF" }, // dark orange / white
+  { fill: "FF701A75", font: "FFFFFFFF" }, // dark fuchsia / white
 ];
 
 export const HOLIDAY_FILL = "FFF3F4F6";
