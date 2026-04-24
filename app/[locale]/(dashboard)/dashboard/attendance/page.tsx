@@ -1,4 +1,5 @@
 import { getTimePeriodsForCurrentUser } from "@/app/actions/timeperiod";
+import { Link } from "@/i18n/navigation";
 
 export default async function Page() {
 
@@ -19,7 +20,11 @@ export default async function Page() {
                 <p className="text-sm text-muted-foreground">Saved schedules found: {savedPeriodCount}</p>
                 <ul>
                     {savedPeriods.map((period) => (
-                        <li key={period.period_id}>{String(period.startDate)} → {String(period.endDate)}</li>
+                        <li key={period.period_id}>
+                            <Link href={`/dashboard/attendance/${period.period_id}`}>
+                                {String(period.startDate)} → {String(period.endDate)}
+                            </Link>
+                        </li>
                     ))}
                 </ul>
 
