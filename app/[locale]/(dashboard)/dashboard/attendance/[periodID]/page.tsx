@@ -1,4 +1,5 @@
 import { getTimePeriodById, getCoursesAndLessonsForPeriod } from "@/app/actions/timeperiod";
+import { Link } from "@/i18n/navigation";
 
 type PageProps = {
     params: Promise<{ periodId: string }>;
@@ -21,7 +22,9 @@ export default async function Page({ params }: PageProps) {
                 <ul>
                     {coursesResult.courses.map((course) => (
                         <li key={course.course_id}>
-                            {course.courseName} ({course.lessons.length} lessons)
+                            <Link href={`/dashboard/attendance/${periodId}/${course.course_id}`}>
+                                {course.courseName} ({course.lessons.length} lessons)
+                            </Link>
                         </li>
                     ))}
                 </ul>

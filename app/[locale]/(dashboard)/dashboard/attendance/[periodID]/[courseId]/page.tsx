@@ -1,3 +1,4 @@
+
 type PageProps = {
     params: Promise<{ periodId: string; courseId: string }>;
 };
