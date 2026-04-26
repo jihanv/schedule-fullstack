@@ -14,10 +14,13 @@ export default async function Page({ params }: PageProps) {
         : null;
 
     if (!selectedClass) return <p>Class not found.</p>;
-
+    const lessonCount = selectedClass.lessons.length;
     return (
-        <h1 className="text-2xl font-semibold">
-            Attendance for {selectedClass.courseName}
-        </h1>
+        <>
+            <h1 className="text-2xl font-semibold">
+                Attendance for {selectedClass.courseName}
+            </h1>
+            <p className="text-sm text-muted-foreground">Lessons found: {lessonCount}</p>
+        </>
     );
 }
