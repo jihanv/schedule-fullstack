@@ -51,9 +51,9 @@ export default async function Page({ params }: PageProps) {
                     {studentSlots.map((studentNumber) => (
                         <tr key={studentNumber}>
                             <th className="pr-4 text-left">Student {studentNumber}</th>
-                            <td className="border px-2 text-muted-foreground" colSpan={lessonCount || 1}>
-                                Empty roster slot
-                            </td>
+                            {selectedClass.lessons.map((lesson) => (
+                                <td key={lesson.lesson_id} className="border px-2"></td>
+                            ))}
                         </tr>
                     ))}
                 </tbody>
