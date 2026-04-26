@@ -38,7 +38,7 @@ export default async function Page({ params }: PageProps) {
                 Student names and attendance marks will be saved here later.
             </p>
             <div className="mt-4 overflow-x-auto">
-                <table className="border-collapse text-sm">
+                <table className="border-separate border-spacing-0 text-sm">
                     <tbody>
                         <tr>
                             <th className="sticky left-0 z-1 bg-background pr-4 text-left">Date</th>
@@ -72,7 +72,9 @@ export default async function Page({ params }: PageProps) {
                         </tr>
                         {studentSlots.map((studentNumber) => (
                             <tr key={studentNumber}>
-                                <th className="sticky left-0 z-1 bg-background pr-4 text-left">Student {studentNumber}</th>
+                                <th className="sticky left-0 z-1 w-25 min-w-20 bg-background text-left whitespace-nowrap">
+                                    Student {studentNumber}
+                                </th>
                                 {selectedClass.lessons.map((lesson) => (
                                     <td key={lesson.lesson_id} className="border px-2"></td>
                                 ))}
