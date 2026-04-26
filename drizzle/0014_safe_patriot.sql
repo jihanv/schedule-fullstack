@@ -1,0 +1,1 @@
+ALTER TYPE "public"."attendance_status" RENAME TO "attendance_exception_status";

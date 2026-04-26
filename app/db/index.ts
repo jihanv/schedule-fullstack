@@ -14,6 +14,7 @@ import {
   ManualLessonOverrides,
   AttendanceStudents,
   AttendanceEnrollments,
+  AttendanceRecords,
 } from "./schema";
 
 if (!process.env.DATABASE_URL) {
@@ -38,5 +39,6 @@ export const db = drizzle({
     ManualLessonOverrides,
     AttendanceStudents,
     AttendanceEnrollments,
+    AttendanceRecords,
   },
 });
