@@ -58,12 +58,17 @@ export default async function Page({ params }: PageProps) {
                                     {lesson.lessonNumber}
                                 </td>
                             ))}
+
                         </tr>
                         {studentSlots.map((studentNumber) => (
                             <tr key={studentNumber}>
                                 <th className="sticky left-0 z-1 bg-background pr-4 text-left">Student {studentNumber}</th>
                                 {selectedClass.lessons.map((lesson) => (
                                     <td key={lesson.lesson_id} className="border px-2"></td>
+                                ))}
+                                {TALLY_COLUMNS.map((label, index) => (
+                                    <td key={label} style={{ right: getTallyRightOffset(index) }} className="sticky z-[1] w-10 min-w-10 border bg-background px-1 text-center text-xs">
+                                    </td>
                                 ))}
                             </tr>
                         ))}
