@@ -1,6 +1,7 @@
 import { getCoursesAndLessonsForPeriod } from "@/app/actions/timeperiod";
 const MAX_STUDENTS = 5;
-const TALLY_COLUMNS = ["停", "忌", "欠", "ホ", "停・忌", "欠時", "総授業時数", "基準時数"];
+const TALLY_COLUMNS = ["停", "忌", "欠", "ホ", "停・忌", "欠時", "総授業時数"];
+const DEFAULT_BASE_REQUIRED_HOURS = 100;
 const TALLY_COLUMN_WIDTH = 40;
 const getTallyRightOffset = (index: number) =>
     (TALLY_COLUMNS.length - index - 1) * TALLY_COLUMN_WIDTH;
@@ -26,6 +27,9 @@ export default async function Page({ params }: PageProps) {
             </h1>
             <p className="text-sm text-muted-foreground">
                 Lessons found: {lessonCount}
+            </p>
+            <p className="text-sm text-muted-foreground">
+                基準時数: {DEFAULT_BASE_REQUIRED_HOURS}
             </p>
             <div className="mt-4 overflow-x-auto">
                 <table className="border-collapse text-sm">
@@ -67,7 +71,7 @@ export default async function Page({ params }: PageProps) {
                                     <td key={lesson.lesson_id} className="border px-2"></td>
                                 ))}
                                 {TALLY_COLUMNS.map((label, index) => (
-                                    <td key={label} style={{ right: getTallyRightOffset(index) }} className="sticky z-[1] w-10 min-w-10 border bg-background px-1 text-center text-xs">
+                                    <td key={label} style={{ right: getTallyRightOffset(index) }} className="sticky z-1 w-10 min-w-10 border bg-background px-1 text-center text-xs">
                                     </td>
                                 ))}
                             </tr>
