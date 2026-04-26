@@ -215,6 +215,23 @@ export const Lessons = pgTable(
     ),
   ],
 );
+
+export const AttendanceStudents = pgTable(
+  "attendance_students",
+  {
+    student_id: text("student_id").primaryKey().notNull(),
+    user_id: text("user_id")
+      .notNull()
+      .references(() => Users.user_id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    studentName: text("student_name").notNull(),
+    createTs: timestamp("create_ts").defaultNow().notNull(),
+  },
+  (t) => [index("attendance_students_user_id_idx").on(t.user_id)],
+);
+
 export const holidaySourceEnum = pgEnum("holiday_source", ["manual", "api"]);
 
 export const Holidays = pgTable(

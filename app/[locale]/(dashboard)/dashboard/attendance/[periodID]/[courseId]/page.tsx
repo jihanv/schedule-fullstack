@@ -19,6 +19,8 @@ export default async function Page({ params }: PageProps) {
 
     if (!selectedClass) return <p>Class not found.</p>;
     const lessonCount = selectedClass.lessons.length;
+
+    // Temporary visual slots until saved student roster data exists.
     const studentSlots = Array.from({ length: MAX_STUDENTS }, (_, index) => index + 1);
     return (
         <>
