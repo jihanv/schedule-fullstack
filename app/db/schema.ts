@@ -237,33 +237,6 @@ export const AttendanceStudents = pgTable(
   (t) => [index("attendance_students_user_id_idx").on(t.user_id)],
 );
 
-export const holidaySourceEnum = pgEnum("holiday_source", ["manual", "api"]);
-export const AttendanceRecords = pgTable(
-  "attendance_records",
-  {
-    attendance_record_id: text("attendance_record_id").primaryKey().notNull(),
-    enrollment_id: text("enrollment_id")
-      .notNull()
-      .references(() => AttendanceEnrollments.enrollment_id, {
-        onDelete: "cascade",
-        onUpdate: "cascade",
-      }),
-    lesson_id: text("lesson_id")
-      .notNull()
-      .references(() => Lessons.lesson_id, {
-        onDelete: "cascade",
-        onUpdate: "cascade",
-      }),
-    status: attendanceExceptionStatusEnum("status").notNull(),
-    createTs: timestamp("create_ts").defaultNow().notNull(),
-  },
-  (t) => [
-    uniqueIndex("attendance_records_enrollment_lesson_unique").on(
-      t.enrollment_id,
-      t.lesson_id,
-    ),
-  ],
-);
 export const AttendanceEnrollments = pgTable(
   "attendance_enrollments",
   {
@@ -294,6 +267,34 @@ export const AttendanceEnrollments = pgTable(
     ),
   ],
 );
+
+export const AttendanceRecords = pgTable(
+  "attendance_records",
+  {
+    attendance_record_id: text("attendance_record_id").primaryKey().notNull(),
+    enrollment_id: text("enrollment_id")
+      .notNull()
+      .references(() => AttendanceEnrollments.enrollment_id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    lesson_id: text("lesson_id")
+      .notNull()
+      .references(() => Lessons.lesson_id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    status: attendanceExceptionStatusEnum("status").notNull(),
+    createTs: timestamp("create_ts").defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("attendance_records_enrollment_lesson_unique").on(
+      t.enrollment_id,
+      t.lesson_id,
+    ),
+  ],
+);
+export const holidaySourceEnum = pgEnum("holiday_source", ["manual", "api"]);
 
 export const Holidays = pgTable(
   "holidays",
