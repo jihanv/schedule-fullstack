@@ -13,6 +13,7 @@ export default async function Page({ params }: PageProps) {
 
     if (!selectedClass) return <p>Class not found.</p>;
     const lessonCount = selectedClass.lessons.length;
+    const studentSlots = Array.from({ length: 40 }, (_, index) => index + 1);
     return (
         <>
             <h1 className="text-2xl font-semibold">
@@ -47,15 +48,14 @@ export default async function Page({ params }: PageProps) {
                             </td>
                         ))}
                     </tr>
-                    <tr>
-                        <th className="pr-4 text-left">Students</th>
-                        <td
-                            className="border px-2 text-muted-foreground"
-                            colSpan={lessonCount || 1}
-                        >
-                            Roster will appear here.
-                        </td>
-                    </tr>
+                    {studentSlots.map((studentNumber) => (
+                        <tr key={studentNumber}>
+                            <th className="pr-4 text-left">Student {studentNumber}</th>
+                            <td className="border px-2 text-muted-foreground" colSpan={lessonCount || 1}>
+                                Empty roster slot
+                            </td>
+                        </tr>
+                    ))}
                 </tbody>
             </table>
         </>
