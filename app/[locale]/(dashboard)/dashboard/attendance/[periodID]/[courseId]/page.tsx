@@ -1,5 +1,7 @@
 import { getCoursesAndLessonsForPeriod } from "@/app/actions/timeperiod";
 const MAX_STUDENTS = 5;
+const TALLY_COLUMNS = ["停", "忌", "欠", "ホ", "停・忌", "欠時", "総授業時数", "基準時数"];
+
 type PageProps = {
     params: Promise<{ periodId: string; courseId: string }>;
 };
@@ -31,6 +33,11 @@ export default async function Page({ params }: PageProps) {
                                 <td key={lesson.lesson_id} className="border px-2">
                                     {String(lesson.lessonDate)}
                                 </td>
+                            ))}
+                            {TALLY_COLUMNS.map((label) => (
+                                <th key={label} rowSpan={3} className="border px-2">
+                                    {label}
+                                </th>
                             ))}
                         </tr>
                         <tr>
