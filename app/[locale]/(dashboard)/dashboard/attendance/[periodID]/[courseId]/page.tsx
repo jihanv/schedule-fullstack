@@ -1,6 +1,9 @@
 import { getCoursesAndLessonsForPeriod } from "@/app/actions/timeperiod";
 const MAX_STUDENTS = 5;
 const TALLY_COLUMNS = ["停", "忌", "欠", "ホ", "停・忌", "欠時", "総授業時数", "基準時数"];
+const TALLY_COLUMN_WIDTH = 40;
+const getTallyRightOffset = (index: number) =>
+    (TALLY_COLUMNS.length - index - 1) * TALLY_COLUMN_WIDTH;
 
 type PageProps = {
     params: Promise<{ periodId: string; courseId: string }>;
@@ -34,8 +37,8 @@ export default async function Page({ params }: PageProps) {
                                     {String(lesson.lessonDate)}
                                 </td>
                             ))}
-                            {TALLY_COLUMNS.map((label) => (
-                                <th key={label} rowSpan={3} className="border px-2">
+                            {TALLY_COLUMNS.map((label, index) => (
+                                <th key={label} rowSpan={3} style={{ right: getTallyRightOffset(index), writingMode: "vertical-rl", textOrientation: "upright" }} className="sticky z-1 h-24 w-10 min-w-10 border bg-background px-0 text-center text-xs">
                                     {label}
                                 </th>
                             ))}
