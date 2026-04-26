@@ -23,6 +23,15 @@ export const weekdayEnum = pgEnum("weekday", [
   "Sat",
 ]);
 
+export const attendanceStatusEnum = pgEnum("attendance_status", [
+  "present",
+  "mourning",
+  "suspension",
+  "official",
+  "absent",
+  "home",
+]);
+
 export const Users = pgTable(
   "users",
   {
