@@ -41,15 +41,18 @@ export default async function Page({ params }: PageProps) {
                     </tr>
                     <tr>
                         <th className="pr-4 text-left">Lesson</th>
-                        {selectedClass.lessons.map((lesson, index) => (
+                        {selectedClass.lessons.map((lesson) => (
                             <td key={lesson.lesson_id} className="border px-2">
-                                {index + 1}
+                                {lesson.lessonNumber}
                             </td>
                         ))}
                     </tr>
                     <tr>
                         <th className="pr-4 text-left">Students</th>
-                        <td className="border px-2 text-muted-foreground" colSpan={lessonCount || 1}>
+                        <td
+                            className="border px-2 text-muted-foreground"
+                            colSpan={lessonCount || 1}
+                        >
                             Roster will appear here.
                         </td>
                     </tr>
