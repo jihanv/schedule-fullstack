@@ -31,6 +31,10 @@ export default async function Page({ params }: PageProps) {
             <p className="text-sm text-muted-foreground">
                 基準時数: {DEFAULT_BASE_REQUIRED_HOURS}
             </p>
+            <h2 className="mt-6 text-lg font-semibold">Attendance grid</h2>
+            <p className="text-sm text-muted-foreground">
+                Student names and attendance marks will be saved here later.
+            </p>
             <div className="mt-4 overflow-x-auto">
                 <table className="border-collapse text-sm">
                     <tbody>
