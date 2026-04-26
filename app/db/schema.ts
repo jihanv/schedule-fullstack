@@ -243,6 +243,37 @@ export const AttendanceStudents = pgTable(
 
 export const holidaySourceEnum = pgEnum("holiday_source", ["manual", "api"]);
 
+export const AttendanceEnrollments = pgTable(
+  "attendance_enrollments",
+  {
+    enrollment_id: text("enrollment_id").primaryKey().notNull(),
+    student_id: text("student_id")
+      .notNull()
+      .references(() => AttendanceStudents.student_id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    course_id: text("course_id")
+      .notNull()
+      .references(() => Courses.course_id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    rosterOrder: integer("roster_order").notNull(),
+    createTs: timestamp("create_ts").defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("attendance_enrollments_course_student_unique").on(
+      t.course_id,
+      t.student_id,
+    ),
+    uniqueIndex("attendance_enrollments_course_order_unique").on(
+      t.course_id,
+      t.rosterOrder,
+    ),
+  ],
+);
+
 export const Holidays = pgTable(
   "holidays",
   {

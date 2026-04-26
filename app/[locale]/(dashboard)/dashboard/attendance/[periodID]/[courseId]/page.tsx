@@ -48,7 +48,7 @@ export default async function Page({ params }: PageProps) {
                                 </td>
                             ))}
                             {TALLY_COLUMNS.map((label, index) => (
-                                <th key={label} rowSpan={3} style={{ right: getTallyRightOffset(index), writingMode: "vertical-rl", textOrientation: "upright" }} className="sticky z-1 h-24 w-10 min-w-10 border bg-background px-0 text-center text-xs">
+                                <th key={label} rowSpan={4} style={{ right: getTallyRightOffset(index), writingMode: "vertical-rl", textOrientation: "upright" }} className="sticky z-1 h-24 w-10 min-w-10 border bg-background px-0 text-center text-xs">
                                     {label}
                                 </th>
                             ))}
@@ -69,6 +69,12 @@ export default async function Page({ params }: PageProps) {
                                 </td>
                             ))}
 
+                        </tr>
+                        <tr>
+                            <th className="sticky left-0 z-1 bg-background pr-4 text-left">Status</th>
+                            {selectedClass.lessons.map((lesson) => (
+                                <td key={lesson.lesson_id} className="border px-2 text-center">未実施</td>
+                            ))}
                         </tr>
                         {studentSlots.map((studentNumber) => (
                             <tr key={studentNumber}>

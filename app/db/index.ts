@@ -12,6 +12,8 @@ import {
   WeeklyTemplateSlots,
   DeletedLessonExceptions,
   ManualLessonOverrides,
+  AttendanceStudents,
+  AttendanceEnrollments,
 } from "./schema";
 
 if (!process.env.DATABASE_URL) {
@@ -34,5 +36,7 @@ export const db = drizzle({
     WeeklyTemplateSlots,
     DeletedLessonExceptions,
     ManualLessonOverrides,
+    AttendanceStudents,
+    AttendanceEnrollments,
   },
 });
