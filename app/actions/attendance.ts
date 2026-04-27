@@ -41,5 +41,19 @@ export async function getAttendanceRosterForCourse(input: unknown) {
 
   if (!courseRows[0]) return { ok: false as const, error: "Not found" };
 
-  return { ok: true as const, enrollments: [] };
+  const enrollments = await db
+    .select({
+      enrollment_id: AttendanceEnrollments.enrollment_id,
+      rosterOrder: AttendanceEnrollments.rosterOrder,
+      studentName: AttendanceStudents.studentName,
+    })
+    .from(AttendanceEnrollments)
+    .innerJoin(
+      AttendanceStudents,
+      eq(AttendanceEnrollments.student_id, AttendanceStudents.student_id),
+    )
+    .where(eq(AttendanceEnrollments.course_id, parsed.data.courseId))
+    .orderBy(asc(AttendanceEnrollments.rosterOrder));
+
+  return { ok: true as const, enrollments };
 }
