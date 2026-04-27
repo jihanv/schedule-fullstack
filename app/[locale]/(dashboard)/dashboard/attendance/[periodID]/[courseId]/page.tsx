@@ -25,7 +25,13 @@ export default async function Page({ params }: PageProps) {
     const savedRosterCount = rosterResult.ok ? rosterResult.enrollments.length : 0;
 
     // Temporary visual slots until saved student roster data exists.
-    const studentSlots = Array.from({ length: MAX_STUDENTS }, (_, index) => index + 1);
+    const studentSlots = Array.from({ length: MAX_STUDENTS }, (_, index) => {
+        const rowNumber = index + 1;
+        const enrollment = rosterResult.ok
+            ? rosterResult.enrollments.find((item) => item.rosterOrder === rowNumber)
+            : undefined;
+        return { rowNumber, name: enrollment?.studentName ?? `Student ${rowNumber}` };
+    });
     return (
         <>
             <h1 className="text-2xl font-semibold">
@@ -83,13 +89,15 @@ export default async function Page({ params }: PageProps) {
                                 <td key={lesson.lesson_id} className="border px-2 text-center">未実施</td>
                             ))}
                         </tr>
-                        {studentSlots.map((studentNumber) => (
-                            <tr key={studentNumber}>
+                        {studentSlots.map((student) => (
+                            <tr key={student.rowNumber}>
                                 <th className="sticky left-0 z-1 w-25 min-w-20 bg-background text-left whitespace-nowrap">
-                                    Student {studentNumber}
+                                    {student.name}
                                 </th>
                                 {selectedClass.lessons.map((lesson) => (
-                                    <td key={lesson.lesson_id} className="border px-2"></td>
+                                    <td key={lesson.lesson_id} className="border px-2 text-center">
+                                        ◯
+                                    </td>
                                 ))}
                                 {TALLY_COLUMNS.map((label, index) => (
                                     <td key={label} style={{ right: getTallyRightOffset(index) }} className="sticky z-1 w-10 min-w-10 border bg-background px-1 text-center text-xs">
