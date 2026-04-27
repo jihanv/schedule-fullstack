@@ -1,4 +1,6 @@
 import { getCoursesAndLessonsForPeriod } from "@/app/actions/timeperiod";
+import { getAttendanceRosterForCourse } from "@/app/actions/attendance";
+
 const MAX_STUDENTS = 5;
 const TALLY_COLUMNS = ["停", "忌", "欠", "ホ", "停・忌", "欠時", "総授業時数"];
 const DEFAULT_BASE_REQUIRED_HOURS = 100;
@@ -19,6 +21,8 @@ export default async function Page({ params }: PageProps) {
 
     if (!selectedClass) return <p>Class not found.</p>;
     const lessonCount = selectedClass.lessons.length;
+    const rosterResult = await getAttendanceRosterForCourse({ courseId });
+    const savedRosterCount = rosterResult.ok ? rosterResult.enrollments.length : 0;
 
     // Temporary visual slots until saved student roster data exists.
     const studentSlots = Array.from({ length: MAX_STUDENTS }, (_, index) => index + 1);
@@ -29,6 +33,9 @@ export default async function Page({ params }: PageProps) {
             </h1>
             <p className="text-sm text-muted-foreground">
                 Lessons found: {lessonCount}
+            </p>
+            <p className="text-sm text-muted-foreground">
+                Saved roster students: {savedRosterCount}
             </p>
             <p className="text-sm text-muted-foreground">
                 基準時数: {DEFAULT_BASE_REQUIRED_HOURS}
