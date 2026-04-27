@@ -1,9 +1,14 @@
 "use server";
 import { z } from "zod";
 import { auth } from "@clerk/nextjs/server";
-import { and, eq } from "drizzle-orm";
+import { and, eq, asc } from "drizzle-orm";
 import { db } from "@/app/db";
-import { Courses, TimePeriod } from "@/app/db/schema";
+import {
+  AttendanceEnrollments,
+  AttendanceStudents,
+  Courses,
+  TimePeriod,
+} from "@/app/db/schema";
 
 const getAttendanceRosterForCourseInputSchema = z.object({
   courseId: z.string().min(1),
