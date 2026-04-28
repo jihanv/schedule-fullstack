@@ -231,6 +231,8 @@ export const AttendanceStudents = pgTable(
         onDelete: "cascade",
         onUpdate: "cascade",
       }),
+    studentFirstName: text("student_first_name").notNull(),
+    studentLastName: text("student_last_name").notNull(),
     studentName: text("student_name").notNull(),
     createTs: timestamp("create_ts").defaultNow().notNull(),
   },
