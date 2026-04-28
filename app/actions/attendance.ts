@@ -9,9 +9,19 @@ import {
   Courses,
   TimePeriod,
 } from "@/app/db/schema";
+import { createId } from "@paralleldrive/cuid2";
 
 const getAttendanceRosterForCourseInputSchema = z.object({
   courseId: z.string().min(1),
+});
+
+const MAX_STUDENTS = 42;
+
+const saveRosterStudentInputSchema = z.object({
+  courseId: z.string().min(1),
+  rosterOrder: z.number().int().min(1).max(MAX_STUDENTS),
+  studentFirstName: z.string().trim().min(1),
+  studentLastName: z.string().trim().min(1),
 });
 
 export async function getAttendanceRosterForCourse(input: unknown) {
@@ -58,15 +68,6 @@ export async function getAttendanceRosterForCourse(input: unknown) {
   return { ok: true as const, enrollments };
 }
 
-const MAX_STUDENTS = 40;
-
-const saveRosterStudentInputSchema = z.object({
-  courseId: z.string().min(1),
-  rosterOrder: z.number().int().min(1).max(MAX_STUDENTS),
-  studentFirstName: z.string().trim().min(1),
-  studentLastName: z.string().trim().min(1),
-});
-
 export async function saveRosterStudent(input: unknown) {
   const parsed = saveRosterStudentInputSchema.safeParse(input);
   if (!parsed.success) {
@@ -94,5 +95,10 @@ export async function saveRosterStudent(input: unknown) {
 
   if (!courseRows[0]) return { ok: false as const, error: "Not found" };
 
-  return { ok: false as const, error: "Roster saving is not implemented yet" };
+  return await db.transaction(async (tx) => {
+    return {
+      ok: false as const,
+      error: "Roster saving is not implemented yet",
+    };
+  });
 }
