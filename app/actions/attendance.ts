@@ -96,9 +96,16 @@ export async function saveRosterStudent(input: unknown) {
   if (!courseRows[0]) return { ok: false as const, error: "Not found" };
 
   return await db.transaction(async (tx) => {
-    return {
-      ok: false as const,
-      error: "Roster saving is not implemented yet",
-    };
+    const studentId = createId();
+
+    await tx.insert(AttendanceStudents).values({
+      student_id: studentId,
+      user_id: userId,
+      studentFirstName: parsed.data.studentFirstName,
+      studentLastName: parsed.data.studentLastName,
+      studentName: `${parsed.data.studentLastName} ${parsed.data.studentFirstName}`,
+    });
+
+    return { ok: true as const, studentId };
   });
 }
