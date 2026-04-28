@@ -60,9 +60,21 @@ export async function getAttendanceRosterForCourse(input: unknown) {
 
 const MAX_STUDENTS = 40;
 
-export const saveRosterStudentInputSchema = z.object({
+const saveRosterStudentInputSchema = z.object({
   courseId: z.string().min(1),
   rosterOrder: z.number().int().min(1).max(MAX_STUDENTS),
   studentFirstName: z.string().trim().min(1),
   studentLastName: z.string().trim().min(1),
 });
+
+export async function saveRosterStudent(input: unknown) {
+  const parsed = saveRosterStudentInputSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false as const,
+      error: "Invalid input",
+      issues: parsed.error.issues,
+    };
+  }
+  return { ok: false as const, error: "Roster saving is not implemented yet" };
+}
