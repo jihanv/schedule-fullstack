@@ -76,5 +76,9 @@ export async function saveRosterStudent(input: unknown) {
       issues: parsed.error.issues,
     };
   }
+
+  const { userId } = await auth();
+  if (!userId) return { ok: false as const, error: "Unauthorized" };
+
   return { ok: false as const, error: "Roster saving is not implemented yet" };
 }
