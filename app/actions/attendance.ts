@@ -57,3 +57,12 @@ export async function getAttendanceRosterForCourse(input: unknown) {
 
   return { ok: true as const, enrollments };
 }
+
+const MAX_STUDENTS = 40;
+
+export const saveRosterStudentInputSchema = z.object({
+  courseId: z.string().min(1),
+  rosterOrder: z.number().int().min(1).max(MAX_STUDENTS),
+  studentFirstName: z.string().trim().min(1),
+  studentLastName: z.string().trim().min(1),
+});
