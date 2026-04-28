@@ -80,5 +80,19 @@ export async function saveRosterStudent(input: unknown) {
   const { userId } = await auth();
   if (!userId) return { ok: false as const, error: "Unauthorized" };
 
+  const courseRows = await db
+    .select({ course_id: Courses.course_id })
+    .from(Courses)
+    .innerJoin(TimePeriod, eq(Courses.period_id, TimePeriod.period_id))
+    .where(
+      and(
+        eq(Courses.course_id, parsed.data.courseId),
+        eq(TimePeriod.user_id, userId),
+      ),
+    )
+    .limit(1);
+
+  if (!courseRows[0]) return { ok: false as const, error: "Not found" };
+
   return { ok: false as const, error: "Roster saving is not implemented yet" };
 }
