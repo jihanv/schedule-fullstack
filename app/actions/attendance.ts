@@ -106,6 +106,15 @@ export async function saveRosterStudent(input: unknown) {
       studentName: `${parsed.data.studentLastName} ${parsed.data.studentFirstName}`,
     });
 
-    return { ok: true as const, studentId };
+    const enrollmentId = createId();
+
+    await tx.insert(AttendanceEnrollments).values({
+      enrollment_id: enrollmentId,
+      student_id: studentId,
+      course_id: parsed.data.courseId,
+      rosterOrder: parsed.data.rosterOrder,
+    });
+
+    return { ok: true as const, studentId, enrollmentId };
   });
 }
