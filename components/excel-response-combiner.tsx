@@ -9,7 +9,13 @@ import {
   useRef,
   useState,
 } from "react";
-import { createCombinedDocx } from "@/lib/create-combined-docx";
+import {
+  createCombinedDocx,
+  JAPANESE_FONT_OPTIONS,
+  type DocumentMargins,
+  type JapaneseFontName,
+  type PaperSize,
+} from "@/lib/create-combined-docx";
 import {
   parseResponseFile,
   type ParsedResponseFile,
@@ -61,7 +67,18 @@ export default function ExcelResponseCombiner() {
   const [submittedOnly, setSubmittedOnly] = useState(true);
 
   const [showResponseLabels, setShowResponseLabels] = useState(false);
+  const [fontName, setFontName] = useState<JapaneseFontName>("Yu Gothic");
 
+  const [fontSizePt, setFontSizePt] = useState(12);
+
+  const [paperSize, setPaperSize] = useState<PaperSize>("a4");
+
+  const [marginsCm, setMarginsCm] = useState<DocumentMargins>({
+    top: 1.5,
+    right: 1.5,
+    bottom: 1.5,
+    left: 1.5,
+  });
   const [isReading, setIsReading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -153,6 +170,18 @@ export default function ExcelResponseCombiner() {
       inputRef.current.value = "";
     }
   }
+  function handleMarginChange(
+    side: keyof DocumentMargins,
+    value: string,
+  ): void {
+    const numericValue = Number(value);
+
+    setMarginsCm((currentMargins) => ({
+      ...currentMargins,
+
+      [side]: Number.isFinite(numericValue) ? numericValue : 0,
+    }));
+  }
 
   async function handleGenerate(): Promise<void> {
     if (!file || !parsed) {
@@ -170,6 +199,10 @@ export default function ExcelResponseCombiner() {
     try {
       const blob = await createCombinedDocx(includedStudents, {
         showResponseLabels,
+        fontName,
+        fontSizePt,
+        paperSize,
+        marginsCm,
       });
 
       downloadBlob(blob, createOutputFilename(file.name));
@@ -373,6 +406,161 @@ export default function ExcelResponseCombiner() {
                   </span>
                 </span>
               </label>
+            </div>
+            <div className="mt-6 border-t border-slate-200 pt-5 dark:border-slate-700">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                {t("formattingTitle")}
+              </h3>
+
+              <div className="mt-4 grid gap-4 sm:grid-cols-3">
+                <label className="space-y-2">
+                  <span className="block text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    {t("font")}
+                  </span>
+
+                  <select
+                    value={fontName}
+                    onChange={(event) =>
+                      setFontName(event.target.value as JapaneseFontName)
+                    }
+                    className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                  >
+                    {JAPANESE_FONT_OPTIONS.map((font) => (
+                      <option key={font.value} value={font.value}>
+                        {font.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="space-y-2">
+                  <span className="block text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    {t("fontSize")}
+                  </span>
+
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      min="8"
+                      max="48"
+                      step="1"
+                      value={fontSizePt}
+                      onChange={(event) =>
+                        setFontSizePt(Number(event.target.value))
+                      }
+                      className="h-10 min-w-0 flex-1 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                    />
+
+                    <span className="text-sm text-slate-500 dark:text-slate-400">
+                      pt
+                    </span>
+                  </div>
+                </label>
+
+                <label className="space-y-2">
+                  <span className="block text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    {t("paperSize")}
+                  </span>
+
+                  <select
+                    value={paperSize}
+                    onChange={(event) =>
+                      setPaperSize(event.target.value as PaperSize)
+                    }
+                    className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                  >
+                    <option value="a4">{t("paperSizes.a4")}</option>
+
+                    <option value="b5">{t("paperSizes.b5")}</option>
+
+                    <option value="letter">{t("paperSizes.letter")}</option>
+                  </select>
+                </label>
+              </div>
+
+              <div className="mt-5">
+                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                  {t("margins")}
+                </p>
+
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  {t("marginsDescription")}
+                </p>
+
+                <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-4">
+                  <label className="space-y-2">
+                    <span className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                      {t("marginTop")}
+                    </span>
+
+                    <input
+                      type="number"
+                      min="0"
+                      max="10"
+                      step="0.1"
+                      value={marginsCm.top}
+                      onChange={(event) =>
+                        handleMarginChange("top", event.target.value)
+                      }
+                      className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                    />
+                  </label>
+
+                  <label className="space-y-2">
+                    <span className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                      {t("marginRight")}
+                    </span>
+
+                    <input
+                      type="number"
+                      min="0"
+                      max="10"
+                      step="0.1"
+                      value={marginsCm.right}
+                      onChange={(event) =>
+                        handleMarginChange("right", event.target.value)
+                      }
+                      className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                    />
+                  </label>
+
+                  <label className="space-y-2">
+                    <span className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                      {t("marginBottom")}
+                    </span>
+
+                    <input
+                      type="number"
+                      min="0"
+                      max="10"
+                      step="0.1"
+                      value={marginsCm.bottom}
+                      onChange={(event) =>
+                        handleMarginChange("bottom", event.target.value)
+                      }
+                      className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                    />
+                  </label>
+
+                  <label className="space-y-2">
+                    <span className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                      {t("marginLeft")}
+                    </span>
+
+                    <input
+                      type="number"
+                      min="0"
+                      max="10"
+                      step="0.1"
+                      value={marginsCm.left}
+                      onChange={(event) =>
+                        handleMarginChange("left", event.target.value)
+                      }
+                      className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                    />
+                  </label>
+                </div>
+              </div>
             </div>
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
