@@ -2,8 +2,13 @@
 
 import { Download, FileSpreadsheet, Loader2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { type ChangeEvent, useMemo, useRef, useState } from "react";
-
+import {
+  type ChangeEvent,
+  type DragEvent,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { createCombinedDocx } from "@/lib/create-combined-docx";
 import {
   parseResponseFile,
@@ -60,6 +65,8 @@ export default function ExcelResponseCombiner() {
   const [isReading, setIsReading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
+  const [isDragging, setIsDragging] = useState(false);
+
   const [error, setError] = useState("");
 
   const includedStudents = useMemo(() => {
@@ -77,11 +84,7 @@ export default function ExcelResponseCombiner() {
     );
   }, [parsed, submittedOnly]);
 
-  async function handleFileChange(
-    event: ChangeEvent<HTMLInputElement>,
-  ): Promise<void> {
-    const selectedFile = event.target.files?.[0] ?? null;
-
+  async function processFile(selectedFile: File | null): Promise<void> {
     setError("");
     setParsed(null);
     setFile(selectedFile);
@@ -93,6 +96,7 @@ export default function ExcelResponseCombiner() {
     const extension = selectedFile.name.split(".").pop()?.toLowerCase() ?? "";
 
     if (!ACCEPTED_EXTENSIONS.includes(extension)) {
+      setFile(null);
       setError(t("errors.unsupportedFile"));
       return;
     }
@@ -112,6 +116,32 @@ export default function ExcelResponseCombiner() {
     } finally {
       setIsReading(false);
     }
+  }
+
+  function handleFileChange(event: ChangeEvent<HTMLInputElement>): void {
+    const selectedFile = event.target.files?.[0] ?? null;
+
+    void processFile(selectedFile);
+  }
+
+  function handleDragOver(event: DragEvent<HTMLButtonElement>): void {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "copy";
+    setIsDragging(true);
+  }
+
+  function handleDragLeave(event: DragEvent<HTMLButtonElement>): void {
+    event.preventDefault();
+    setIsDragging(false);
+  }
+
+  function handleDrop(event: DragEvent<HTMLButtonElement>): void {
+    event.preventDefault();
+    setIsDragging(false);
+
+    const droppedFile = event.dataTransfer.files.item(0);
+
+    void processFile(droppedFile);
   }
 
   function handleRemoveFile(): void {
@@ -179,13 +209,23 @@ export default function ExcelResponseCombiner() {
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="flex w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-slate-300 px-6 py-12 text-slate-700 transition hover:border-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:border-slate-500 dark:hover:bg-slate-800"
+            onDragEnter={handleDragOver}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={`flex w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed px-6 py-12 text-slate-700 transition dark:text-slate-200 ${
+              isDragging
+                ? "border-slate-900 bg-slate-100 dark:border-slate-100 dark:bg-slate-800"
+                : "border-slate-300 hover:border-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:hover:border-slate-500 dark:hover:bg-slate-800"
+            }`}
           >
-            <FileSpreadsheet className="size-9" />
+            <FileSpreadsheet className="pointer-events-none size-9" />
 
-            <span className="font-semibold">{t("chooseFile")}</span>
+            <span className="pointer-events-none font-semibold">
+              {t("chooseFile")}
+            </span>
 
-            <span className="text-xs text-slate-500 dark:text-slate-400">
+            <span className="pointer-events-none text-xs text-slate-500 dark:text-slate-400">
               {t("acceptedFiles")}
             </span>
           </button>

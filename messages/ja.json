@@ -164,7 +164,7 @@
     "title": "Excel回答結合ツール",
     "description": "manaba形式の.xls、.xlsx、.csvファイルを1つのWord文書に変換します。すべての処理はブラウザ内で行われます。",
     "fileLabel": "表計算ファイル",
-    "chooseFile": "ファイルを選択",
+    "chooseFile": "ファイルを選択するか、ここにドロップ",
     "acceptedFiles": ".xls、.xlsx、または.csv",
     "reading": "ファイルを読み込んでいます…",
     "fileReady": "ファイルが選択されました",
