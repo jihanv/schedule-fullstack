@@ -156,6 +156,7 @@
     "inputLabel": "入力",
     "outputLabel": "ローマ字",
     "copyButton": "ローマ字をコピー",
-    "clearButton": "クリア"
+    "clearButton": "クリア",
+    "switchNameOrderButton": "Switch Name Order"
   }
 }

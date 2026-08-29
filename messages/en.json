@@ -156,6 +156,7 @@
     "inputLabel": "Input",
     "outputLabel": "Romaji",
     "copyButton": "Copy Romaji",
-    "clearButton": "Clear"
+    "clearButton": "Clear",
+    "switchNameOrderButton": "Switch Name Order"
   }
 }

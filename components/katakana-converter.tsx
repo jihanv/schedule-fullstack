@@ -252,6 +252,23 @@ function convertText(text: string): ConversionResult {
   return { normalized, romaji };
 }
 
+function swapNameOrder(text: string): string {
+  return text
+    .split("\n")
+    .map((line) => {
+      const names = line.trim().split(/\s+/);
+
+      if (names.length !== 2) {
+        return line;
+      }
+
+      const [firstName, lastName] = names;
+
+      return `${lastName} ${firstName}`;
+    })
+    .join("\n");
+}
+
 function Card({ children }: { children: React.ReactNode }) {
   return (
     <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
@@ -285,11 +302,16 @@ export default function KatakanaRomajiConverter({
   const [input, setInput] = useState<string>(initialValue);
   const t = useTranslations("KatakanaConverter");
   const [copyLabel, setCopyLabel] = useState<string>(t("copyButton"));
+  const [namesSwapped, setNamesSwapped] = useState<boolean>(false);
+  const romaji = useMemo<string>(() => {
+    const convertedRomaji = convertText(input).romaji;
 
-  const { romaji } = useMemo<ConversionResult>(
-    () => convertText(input),
-    [input],
-  );
+    if (namesSwapped) {
+      return swapNameOrder(convertedRomaji);
+    }
+
+    return convertedRomaji;
+  }, [input, namesSwapped]);
 
   async function handleCopy(): Promise<void> {
     try {
@@ -339,6 +361,14 @@ export default function KatakanaRomajiConverter({
 
         <div>
           <OutputPanel label={t("outputLabel")} value={romaji} />
+          <button
+            type="button"
+            onClick={() => setNamesSwapped((current) => !current)}
+            className="mt-2 mr-2 rounded-2xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+          >
+            {t("switchNameOrderButton")}
+          </button>
+
           <button
             type="button"
             onClick={handleCopy}
