@@ -162,7 +162,7 @@
   },
   "ExcelResponseCombiner": {
     "title": "Excel回答結合ツール",
-    "description": "manaba形式の.xls、.xlsx、.csvファイルを1つのWord文書に変換します。すべての処理はブラウザ内で行われます。",
+    "description": "manabaの「アンケート」と「レポート」から書き出した提出結果を整形し、1つのWord文書にまとめます。この2種類以外のmanaba書き出し形式には対応していません。すべての処理はブラウザ内で行われます。",
     "fileLabel": "表計算ファイル",
     "chooseFile": "ファイルを選択するか、ここにドロップ",
     "acceptedFiles": ".xls、.xlsx、または.csv",

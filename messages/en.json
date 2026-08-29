@@ -162,7 +162,7 @@
   },
   "ExcelResponseCombiner": {
     "title": "Excel Response Combiner",
-    "description": "Convert a Manaba-style .xls, .xlsx, or .csv export into one Word document. All processing happens in your browser.",
+    "description": "Format and combine submission results exported from Manaba’s Survey (アンケート) and Report (レポート) tools into one Word document. Other Manaba export types are not supported. All processing happens in your browser.",
     "fileLabel": "Spreadsheet file",
     "chooseFile": "Choose a spreadsheet or drop it here",
     "acceptedFiles": ".xls, .xlsx, or .csv",
