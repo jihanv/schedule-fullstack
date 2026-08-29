@@ -13,6 +13,7 @@ const handleI18n = createMiddleware({
 const isPublicRoute = createRouteMatcher([
   "/:locale",
   "/:locale/converter",
+  "/:locale/excel-to-word",
   "/:locale/signin(.*)",
   "/:locale/signup(.*)",
   "/api/webhooks/clerk",

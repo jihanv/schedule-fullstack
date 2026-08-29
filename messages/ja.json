@@ -132,7 +132,8 @@
       "timePeriod": "期間設定",
       "attendance": "出欠",
       "documentation": "ドキュメント",
-      "converter": "ローマ字に変換"
+      "converter": "ローマ字に変換",
+      "responseCombiner": "回答をWordにまとめる"
     }
   },
   "TimePeriod": {
@@ -158,5 +159,34 @@
     "copyButton": "ローマ字をコピー",
     "clearButton": "クリア",
     "switchNameOrderButton": "Switch Name Order"
+  },
+  "ExcelResponseCombiner": {
+    "title": "Excel回答結合ツール",
+    "description": "manaba形式の.xls、.xlsx、.csvファイルを1つのWord文書に変換します。すべての処理はブラウザ内で行われます。",
+    "fileLabel": "表計算ファイル",
+    "chooseFile": "ファイルを選択",
+    "acceptedFiles": ".xls、.xlsx、または.csv",
+    "reading": "ファイルを読み込んでいます…",
+    "fileReady": "ファイルが選択されました",
+    "removeFile": "ファイルを削除",
+    "detectedTitle": "検出結果",
+    "worksheet": "ワークシート",
+    "studentsFound": "回答のある生徒",
+    "answerColumnsFound": "回答列",
+    "optionsTitle": "文書オプション",
+    "submittedOnly": "提出済みの行のみ含める",
+    "submittedOnlyDescription": "「# Submitted」が「Submitted」ではない行を除外します。",
+    "noSubmittedColumn": "「# Submitted」列がないため、回答のあるすべての行を含めます。",
+    "showLabels": "回答番号を表示する",
+    "showLabelsDescription": "各回答の前に1.1や2.3などの番号を追加します。",
+    "studentsIncluded": "{count}人の生徒を含めます",
+    "generateButton": "Word文書を作成",
+    "generating": "文書を作成しています…",
+    "errors": {
+      "unsupportedFile": ".xls、.xlsx、または.csvファイルを選択してください。",
+      "couldNotRead": "ファイルを読み込めませんでした。",
+      "noIncludedStudents": "選択した条件に一致する生徒がいません。",
+      "couldNotGenerate": "Word文書を作成できませんでした。"
+    }
   }
 }
