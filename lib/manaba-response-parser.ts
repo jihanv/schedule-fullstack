@@ -1,4 +1,5 @@
 import { read, set_cptable, utils } from "xlsx";
+
 import * as cptable from "xlsx/dist/cpexcel.full.mjs";
 
 set_cptable(cptable);
@@ -24,6 +25,16 @@ export type ParsedResponseFile = {
   hasSubmittedColumn: boolean;
 };
 
+const HEADER_ALIASES = {
+  studentId: ["# Student ID", "# 学籍番号"],
+
+  japaneseName: ["# Name", "# 氏名"],
+
+  englishName: ["# Name(en)", "# 氏名（英語）", "# 氏名(英語)"],
+
+  submitted: ["# Submitted", "# 提出"],
+} as const;
+
 function cleanCell(value: unknown): string {
   if (value === null || value === undefined) {
     return "";
@@ -37,39 +48,97 @@ function cleanCell(value: unknown): string {
 }
 
 function normalizeHeader(value: unknown): string {
-  return cleanCell(value).replace(/\s+/g, " ").toLowerCase();
+  return cleanCell(value)
+    .normalize("NFKC")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
 }
 
-function isAnswerHeader(value: unknown): boolean {
-  const header = normalizeHeader(value);
-
-  return header.startsWith("# answered") || header === "# text";
+function compactHeader(value: unknown): string {
+  return normalizeHeader(value).replace(/\s+/g, "");
 }
 
-function answerLabel(header: string): string {
-  const normalized = normalizeHeader(header);
+function isResponseHeader(value: unknown): boolean {
+  const header = compactHeader(value);
 
-  if (normalized === "# text") {
+  return (
+    header.startsWith("#answered") ||
+    header.startsWith("#回答") ||
+    header === "#text" ||
+    header === "#テキスト"
+  );
+}
+
+function responseLabel(header: string): string {
+  const compact = compactHeader(header);
+
+  if (compact === "#text") {
     return "Text";
   }
 
-  return header.replace(/^#\s*answered\s*/i, "").trim() || header;
+  if (compact === "#テキスト") {
+    return "テキスト";
+  }
+
+  const label = cleanCell(header)
+    .normalize("NFKC")
+    .replace(/^#\s*(answered|回答)\s*/i, "")
+    .trim();
+
+  return label || header;
 }
 
-function findColumn(headers: unknown[], expectedHeader: string): number {
-  const normalizedExpected = normalizeHeader(expectedHeader);
+function findColumn(headers: unknown[], aliases: readonly string[]): number {
+  const normalizedAliases = aliases.map(compactHeader);
 
-  return headers.findIndex(
-    (header) => normalizeHeader(header) === normalizedExpected,
+  return headers.findIndex((header) =>
+    normalizedAliases.includes(compactHeader(header)),
   );
 }
 
 function decodeCsv(bytes: Uint8Array): string {
   try {
-    return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+    return new TextDecoder("utf-8", {
+      fatal: true,
+    }).decode(bytes);
   } catch {
     return new TextDecoder("shift_jis").decode(bytes);
   }
+}
+
+function normalizeSubmissionStatus(value: string): string {
+  return value.normalize("NFKC").replace(/\s+/g, "").trim().toLowerCase();
+}
+
+export function isSubmittedStatus(value: string): boolean {
+  const status = normalizeSubmissionStatus(value);
+
+  if (!status) {
+    return false;
+  }
+
+  const explicitlyNotSubmitted = ["notsubmitted", "unsubmitted", "未提出"];
+
+  if (explicitlyNotSubmitted.includes(status)) {
+    return false;
+  }
+
+  if (status.startsWith("未提出")) {
+    return false;
+  }
+
+  /*
+   * Treat any other nonempty status as submitted.
+   *
+   * This supports values such as:
+   *
+   * Submitted
+   * 提出
+   * 提出済
+   * 提出済み
+   */
+  return true;
 }
 
 export async function parseResponseFile(
@@ -85,8 +154,12 @@ export async function parseResponseFile(
 
   const workbook =
     extension === "csv"
-      ? read(decodeCsv(bytes), { type: "string" })
-      : read(bytes, { type: "array" });
+      ? read(decodeCsv(bytes), {
+          type: "string",
+        })
+      : read(bytes, {
+          type: "array",
+        });
 
   const sheetName = workbook.SheetNames[0];
 
@@ -108,43 +181,51 @@ export async function parseResponseFile(
   });
 
   const headerRowIndex = rows.findIndex((row) => {
-    const hasStudentId = findColumn(row, "# Student ID") >= 0;
-    const hasAnswer = row.some(isAnswerHeader);
+    const hasStudentId = findColumn(row, HEADER_ALIASES.studentId) >= 0;
 
-    return hasStudentId && hasAnswer;
+    const hasResponse = row.some(isResponseHeader);
+
+    return hasStudentId && hasResponse;
   });
 
   if (headerRowIndex < 0) {
     throw new Error(
-      'Could not find a header row containing "# Student ID" and at least one "# answered ..." or "# Text" column.',
+      "Could not find a supported Manaba header row. The file must contain a student ID column and either an answer or text column.",
     );
   }
 
   const headers = rows[headerRowIndex] ?? [];
 
-  const studentIdColumn = findColumn(headers, "# Student ID");
-  const japaneseNameColumn = findColumn(headers, "# Name");
-  const englishNameColumn = findColumn(headers, "# Name(en)");
-  const submittedColumn = findColumn(headers, "# Submitted");
+  const studentIdColumn = findColumn(headers, HEADER_ALIASES.studentId);
 
-  const answerColumns = headers
+  const japaneseNameColumn = findColumn(headers, HEADER_ALIASES.japaneseName);
+
+  const englishNameColumn = findColumn(headers, HEADER_ALIASES.englishName);
+
+  const submittedColumn = findColumn(headers, HEADER_ALIASES.submitted);
+
+  const responseColumns = headers
     .map((header, index) => ({
       header: cleanCell(header),
       index,
     }))
-    .filter(({ header }) => isAnswerHeader(header));
+    .filter(({ header }) => isResponseHeader(header));
 
   const students: StudentResponse[] = [];
 
   for (const row of rows.slice(headerRowIndex + 1)) {
-    if (cleanCell(row[0]).toLowerCase() === "#end") {
+    const firstCell = cleanCell(row[0]);
+
+    if (firstCell.toLowerCase() === "#end") {
       break;
     }
 
-    const answers = answerColumns
+    const answers = responseColumns
       .map(({ header, index }) => ({
         header,
-        label: answerLabel(header),
+
+        label: responseLabel(header),
+
         value: cleanCell(row[index]),
       }))
       .filter(({ value }) => value.length > 0);
@@ -154,7 +235,7 @@ export async function parseResponseFile(
     }
 
     students.push({
-      studentId: cleanCell(row[studentIdColumn]),
+      studentId: studentIdColumn >= 0 ? cleanCell(row[studentIdColumn]) : "",
 
       japaneseName:
         japaneseNameColumn >= 0 ? cleanCell(row[japaneseNameColumn]) : "",
@@ -175,8 +256,11 @@ export async function parseResponseFile(
 
   return {
     sheetName,
-    answerHeaders: answerColumns.map(({ header }) => header),
+
+    answerHeaders: responseColumns.map(({ header }) => header),
+
     students,
+
     hasSubmittedColumn: submittedColumn >= 0,
   };
 }

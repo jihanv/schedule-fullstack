@@ -17,6 +17,7 @@ import {
   type PaperSize,
 } from "@/lib/create-combined-docx";
 import {
+  isSubmittedStatus,
   parseResponseFile,
   type ParsedResponseFile,
 } from "@/lib/manaba-response-parser";
@@ -95,9 +96,8 @@ export default function ExcelResponseCombiner() {
       return parsed.students;
     }
 
-    return parsed.students.filter(
-      (student) =>
-        student.submissionStatus.trim().toLowerCase() === "submitted",
+    return parsed.students.filter((student) =>
+      isSubmittedStatus(student.submissionStatus),
     );
   }, [parsed, submittedOnly]);
 
