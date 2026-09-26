@@ -296,7 +296,7 @@ export default function PieChartGenerator() {
         </p>
       </div>
 
-      <div className="grid items-start gap-6 xl:grid-cols-[400px_minmax(0,1fr)]">
+      <div className="grid items-start gap-6 min-[1150px]:grid-cols-[380px_minmax(0,1fr)]">
         {/* LEFT: EDITOR */}
         <div className="space-y-6">
           {/* COLLAPSIBLE CHART OPTIONS */}
@@ -354,7 +354,7 @@ export default function PieChartGenerator() {
                     </label>
                   </div>
 
-                  <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
+                  <div className="grid gap-4 sm:grid-cols-2 min-[1150px]:grid-cols-1">
                     {(showCategoryNames || showPercentages) && (
                       <div className="space-y-1.5">
                         <label
@@ -527,7 +527,7 @@ export default function PieChartGenerator() {
         </div>
 
         {/* RIGHT: STICKY LIVE PREVIEW */}
-        <div className="min-w-0 xl:sticky xl:top-4 xl:self-start">
+        <div className="min-w-0 min-[1150px]:sticky min-[1150px]:top-4 min-[1150px]:self-start">
           <Card>
             <CardHeader>
               <CardTitle>{t("previewTitle")}</CardTitle>
