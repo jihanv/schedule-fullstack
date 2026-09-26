@@ -13,7 +13,13 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import LanguageInput from "@/components/language/language-input";
-import { Briefcase, CalendarPlus, FileOutput, Languages } from "lucide-react";
+import {
+  Briefcase,
+  CalendarPlus,
+  FileOutput,
+  Languages,
+  PieChart,
+} from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 
 const platformItems = [
@@ -31,6 +37,11 @@ const platformItems = [
     labelKey: "items.responseCombiner",
     icon: FileOutput,
     url: "/excel-to-word",
+  },
+  {
+    labelKey: "items.pieChart",
+    icon: PieChart,
+    url: "/pie-chart",
   },
 ] as const;
 

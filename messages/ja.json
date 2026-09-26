@@ -133,7 +133,8 @@
       "attendance": "出欠",
       "documentation": "ドキュメント",
       "converter": "ローマ字に変換",
-      "responseCombiner": "回答をWordにまとめる"
+      "responseCombiner": "回答をWordにまとめる",
+      "pieChart": "円グラフ作成"
     }
   },
   "TimePeriod": {
@@ -159,6 +160,32 @@
     "copyButton": "ローマ字をコピー",
     "clearButton": "クリア",
     "switchNameOrderButton": "Switch Name Order"
+  },
+  "PieChartGenerator": {
+    "title": "印刷用円グラフ作成",
+    "description": "ワークシート・テスト・配布資料向けの、白地に黒線だけを使った円グラフを作成します。",
+    "valuesTitle": "各部分の数値",
+    "valuesDescription": "円グラフの各部分に1つずつ数値を入力してください。合計を100にする必要はありません。",
+    "slice": "部分 {number}",
+    "categoryName": "カテゴリー名",
+    "categoryPlaceholder": "例：食費",
+    "value": "数値",
+    "remove": "削除",
+    "addSlice": "部分を追加",
+    "reset": "例に戻す",
+    "currentTotal": "現在の合計: {total}",
+    "optionsTitle": "グラフ設定",
+    "leaderLines": "外向きの引き出し線を表示",
+    "categoryNames": "カテゴリー名を表示",
+    "percentages": "パーセントを表示",
+    "textSize": "ラベルの文字サイズ",
+    "lineWidth": "線の太さ",
+    "previewTitle": "プレビュー",
+    "previewDescription": "書き出したグラフは白背景・黒線になります。",
+    "svgLabel": "印刷用円グラフのプレビュー",
+    "empty": "0より大きい数値を1つ以上入力してください。",
+    "downloadSvg": "SVGをダウンロード",
+    "downloadPng": "PNGをダウンロード"
   },
   "ExcelResponseCombiner": {
     "title": "Excel回答結合ツール",

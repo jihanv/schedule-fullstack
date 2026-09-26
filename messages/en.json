@@ -133,7 +133,8 @@
       "attendance": "Attendance",
       "documentation": "Documentation",
       "converter": "Katakana Converter",
-      "responseCombiner": "Response Combiner"
+      "responseCombiner": "Response Combiner",
+      "pieChart": "Pie Chart Generator"
     }
   },
   "TimePeriod": {
@@ -159,6 +160,32 @@
     "copyButton": "Copy Romaji",
     "clearButton": "Clear",
     "switchNameOrderButton": "Switch Name Order"
+  },
+  "PieChartGenerator": {
+    "title": "Printer-Friendly Pie Chart Generator",
+    "description": "Create clean black-and-white pie charts for worksheets, tests, and handouts.",
+    "valuesTitle": "Slice values",
+    "valuesDescription": "Enter one value for each slice. The values do not need to add up to 100.",
+    "slice": "Slice {number}",
+    "categoryName": "Category name",
+    "categoryPlaceholder": "e.g. Kitchen",
+    "value": "Value",
+    "remove": "Remove",
+    "addSlice": "Add slice",
+    "reset": "Reset example",
+    "currentTotal": "Current total: {total}",
+    "optionsTitle": "Chart options",
+    "leaderLines": "Show outward leader lines",
+    "categoryNames": "Show category names",
+    "percentages": "Show percentages",
+    "textSize": "Label text size",
+    "lineWidth": "Line width",
+    "previewTitle": "Preview",
+    "previewDescription": "The exported chart has a white background and black lines.",
+    "svgLabel": "Printer-friendly pie chart preview",
+    "empty": "Enter at least one positive value to draw the chart.",
+    "downloadSvg": "Download SVG",
+    "downloadPng": "Download PNG"
   },
   "ExcelResponseCombiner": {
     "title": "Excel Response Combiner",

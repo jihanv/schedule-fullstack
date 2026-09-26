@@ -14,6 +14,7 @@ const isPublicRoute = createRouteMatcher([
   "/:locale",
   "/:locale/converter",
   "/:locale/excel-to-word",
+  "/:locale/pie-chart",
   "/:locale/signin(.*)",
   "/:locale/signup(.*)",
   "/api/webhooks/clerk",
