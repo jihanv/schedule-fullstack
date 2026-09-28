@@ -245,11 +245,24 @@ export default function PieChartGenerator() {
   }
 
   function downloadPng() {
-    const source = serializeSvg();
-
-    if (!source) {
+    if (!svgRef.current) {
       return;
     }
+
+    const padding = 12;
+    const bounds = svgRef.current.getBBox();
+    const exportedSvg = svgRef.current.cloneNode(true) as SVGSVGElement;
+    const width = bounds.width + padding * 2;
+    const height = bounds.height + padding * 2;
+
+    exportedSvg.setAttribute(
+      "viewBox",
+      `${bounds.x - padding} ${bounds.y - padding} ${width} ${height}`,
+    );
+    exportedSvg.setAttribute("width", String(width));
+    exportedSvg.setAttribute("height", String(height));
+
+    const source = new XMLSerializer().serializeToString(exportedSvg);
 
     const svgBlob = new Blob([source], {
       type: "image/svg+xml;charset=utf-8",
@@ -264,10 +277,9 @@ export default function PieChartGenerator() {
 
       const canvas = document.createElement("canvas");
 
-      canvas.width = SVG_WIDTH * scale;
+      canvas.width = Math.ceil(width * scale);
 
-      canvas.height = SVG_HEIGHT * scale;
-
+      canvas.height = Math.ceil(height * scale);
       const context = canvas.getContext("2d");
 
       if (!context) {
@@ -279,9 +291,9 @@ export default function PieChartGenerator() {
 
       context.fillStyle = "#ffffff";
 
-      context.fillRect(0, 0, SVG_WIDTH, SVG_HEIGHT);
+      context.fillRect(0, 0, width, height);
 
-      context.drawImage(image, 0, 0, SVG_WIDTH, SVG_HEIGHT);
+      context.drawImage(image, 0, 0, width, height);
 
       URL.revokeObjectURL(url);
 
