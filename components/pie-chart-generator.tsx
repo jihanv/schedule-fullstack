@@ -215,11 +215,24 @@ export default function PieChartGenerator() {
   }
 
   function downloadSvg() {
-    const source = serializeSvg();
-
-    if (!source) {
+    if (!svgRef.current) {
       return;
     }
+
+    const padding = 12;
+    const bounds = svgRef.current.getBBox();
+    const exportedSvg = svgRef.current.cloneNode(true) as SVGSVGElement;
+    const width = bounds.width + padding * 2;
+    const height = bounds.height + padding * 2;
+
+    exportedSvg.setAttribute(
+      "viewBox",
+      `${bounds.x - padding} ${bounds.y - padding} ${width} ${height}`,
+    );
+    exportedSvg.setAttribute("width", String(width));
+    exportedSvg.setAttribute("height", String(height));
+
+    const source = new XMLSerializer().serializeToString(exportedSvg);
 
     const blob = new Blob(
       [`<?xml version="1.0" encoding="UTF-8"?>\n${source}`],
